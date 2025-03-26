@@ -1,0 +1,1613 @@
+library(shiny)
+library(shinydashboard) # for Dashboard
+library(shinyWidgets) # for radio button widgets
+library(shinydashboardPlus)
+library(shinyjs) # to perform common useful JavaScript operations in Shiny apps
+library(shinyBS) # for bsTooltip function
+library(shinyalert) # for alert message very nice format
+library(RSQLite)
+library(sodium) # For password hashing
+# library(shinythemes)
+library(plyr) # empty() function is from this package
+library(dplyr) # select functions are covered in the require
+library(DT) # for using %>% which works as a pipe in R code
+library(ggplot2)
+library(plotly)
+library(scales) ## used to format date like only month or month and year
+library(colorspace) # to generate Rainbow coloring function
+library(pastecs) # for descriptive statistics
+library(shinycssloaders)
+library(gridlayout)
+library(bslib)
+library(colourpicker)
+library(httr)
+library(openxlsx)
+library(tidyr)
+library(rjson)
+library(jsonlite)
+library(arrow) # Add arrow library for Parquet support
+library(purrr)
+library(here)
+library(slickR)
+
+# Load existing functions
+source("dhis2_data.R")
+#source("dba.R", local = TRUE)$value
+#source("ethgeo.R") # not unless it is loading the geojson file
+#source("dba.R")
+# source("auth.R")
+
+eth_geojson <- rjson::fromJSON(file = "./www/ethiopia_regions_map_simple.json")
+mapboxToken <- "pk.eyJ1IjoiaG1vcmdhbnN0ZXdhcnQiLCJhIjoiY2tmaTg5NDljMDBwbDMwcDd2OHV6cnd5dCJ9.8eLR4FtlO079Gq0NeSNoeg"
+
+
+# Define server logic
+server <- function(input, output, session) {
+  # Content Slider
+  output$content_slider <- renderSlickR({
+    slickR(
+      list(
+        tags$div(tags$img(src = "assets/feature.jpeg"), h3("Welcome To"), p("DHIS2 Data Fetcher for HEAT")),
+        tags$div(tags$img(src = "assets/feature1.jpeg"), h3("Live Data Fetch"), p("Realtime data fetch")),
+        tags$div(tags$img(src = "assets/feature2.jpeg"), h3("Rich Visualizations"), p("Customize your visualizations and explore data")),
+        tags$div(tags$img(src = "assets/feature3.jpeg"), h3("Comprehensive Data Management"), p("Explore, Search, Compare and Export InEquality Data"))
+      )
+    )
+  })
+
+  # Define the validate_password function
+  validate_password <- function(hashed_password, input_password) {
+    sodium::password_verify(hashed_password, input_password)
+  }
+
+  # Define the hash_password function (if not already defined)
+  hash_password <- function(password) {
+    sodium::password_store(password)
+  }
+
+
+  observeEvent(input$toggle_sidebar, {
+    toggleClass(selector = ".sidebar", class = "sidebar-hidden")
+    toggleClass(selector = ".main", class = "main-expanded")
+  })
+
+#  output$distPlot <- renderPlotly({
+    # generate bins based on input$bins from ui.R
+#    plot_ly(x = ~ faithful[, 2], type = "histogram", marker = list(color = input$plot_color)) # Use selected color
+#  })
+
+#  output$bluePlot <- renderPlot({
+    # generate bins based on input$bins from ui.R
+#    x <- faithful[, 2]
+#    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+
+    # draw the histogram with the specified number of bins
+ #   hist(x, breaks = bins, col = "steelblue", border = "white")
+ # })
+
+#  output$data_preview <- renderDT({
+#    head(faithful, 10) # Adjust this to match your data
+#  })
+
+
+
+  output$is_admin <- reactive({
+    !is.null(user$info) && user$info$role == "admin"
+  })
+  outputOptions(output, "is_admin", suspendWhenHidden = FALSE)
+
+  output$user_profile <- renderUI({
+    if (user$logged_in) {
+      dropdownMenu(
+        type = "notifications",
+        icon = icon("user-circle"),
+        headerText = paste("Logged in as:", user$info$username),
+        notificationItem(
+          text = actionLink("view_profile", "View Profile"),
+          icon = icon("user")
+        ),
+        notificationItem(
+          text = actionLink("change_password", "Change Password"),
+          icon = icon("key")
+        ),
+        notificationItem(
+          text = actionLink("logout_btn", "Logout"),
+          icon = icon("sign-out")
+        )
+      )
+    }
+  })
+
+
+
+  user <- reactiveValues(logged_in = FALSE, info = NULL, permissions = NULL)
+
+  # Login/Register modals
+  observeEvent(input$login_btn, showLoginModal())
+  observeEvent(input$register_btn, showRegisterModal())
+
+  showLoginModal <- function() {
+    modalDialog(
+      title = "Login",
+      textInput("login_username", "Username"),
+      passwordInput("login_password", "Password"),
+      footer = tagList(
+        actionButton("submit_login", "Login", class = "btn-primary"),
+        modalButton("Cancel")
+      )
+    ) %>% showModal()
+  }
+
+  showRegisterModal <- function() {
+    modalDialog(
+      title = "Register",
+      textInput("reg_username", "Username*"),
+      passwordInput("reg_password", "Password*"),
+      textInput("reg_email", "Email"),
+      textInput("reg_fullname", "Full Name"),
+      footer = tagList(
+        actionButton("submit_register", "Register", class = "btn-success"),
+        modalButton("Cancel")
+      )
+    ) %>% showModal()
+  }
+
+  # Login logic
+  observeEvent(input$submit_login, {
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    user_data <- dbGetQuery(
+      conn,
+      "SELECT * FROM users WHERE username = ?",
+      list(input$login_username)
+    )
+    dbDisconnect(conn)
+
+    if (nrow(user_data) == 1 &&
+      validate_password(user_data$password, input$login_password) &&
+      user_data$is_active == 1) {
+      user$logged_in <- TRUE
+      user$info <- user_data
+      removeModal()
+
+      # Update last login
+      conn <- dbConnect(SQLite(), "./db/data.sqlite")
+      dbExecute(
+        conn,
+        "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?",
+        list(user$info$id)
+      )
+      dbDisconnect(conn)
+    } else {
+      shinyalert("Login Failed", "Invalid credentials or inactive account", "error")
+    }
+  })
+
+  # Registration logic
+  observeEvent(input$submit_register, {
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    existing <- dbGetQuery(
+      conn,
+      "SELECT id FROM users WHERE username = ?",
+      list(input$reg_username)
+    )
+
+    if (nrow(existing) > 0) {
+      shinyalert("Registration Failed", "Username already exists", "error")
+    } else {
+      hashed_pw <- hash_password(input$reg_password)
+      dbExecute(
+        conn,
+        "INSERT INTO users (username, password, email, full_name)
+         VALUES (?, ?, ?, ?)",
+        list(
+          input$reg_username, hashed_pw,
+          input$reg_email, input$reg_fullname
+        )
+      )
+      shinyalert("Success", "Registration successful! Please login", "success")
+      removeModal()
+    }
+    dbDisconnect(conn)
+  })
+
+  # Logout logic
+  observeEvent(input$logout_btn, {
+    user$logged_in <- FALSE
+    user$info <- NULL
+  })
+
+  # Control UI based on authentication
+  output$logged_in <- reactive(user$logged_in)
+  outputOptions(output, "logged_in", suspendWhenHidden = FALSE)
+
+
+
+
+  # Reactive expression to fetch user data
+  user_table_data <- reactive({
+    user_update_trigger() # Correctly reference the reactiveVal # Add a trigger to refresh the data
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    users <- dbGetQuery(
+      conn,
+      "SELECT id, username, email, full_name, role, is_active,
+    strftime('%Y-%m-%d %H:%M', created_at) as created_at,
+    strftime('%Y-%m-%d %H:%M', last_login) as last_login FROM users"
+    )
+    dbDisconnect(conn)
+    users
+  })
+
+  # Add update trigger
+  user_update_trigger <- reactiveVal(0)
+
+  observeEvent(input$create_user, {
+    user_update_trigger(user_update_trigger() + 1)
+  })
+
+  observeEvent(input$save_user, {
+    user_update_trigger(user_update_trigger() + 1)
+  })
+
+  observeEvent(input$delete_user, {
+    user_update_trigger(user_update_trigger() + 1)
+  })
+
+  # User Management Tab
+
+  proxy <- dataTableProxy("user_table")
+
+  observeEvent(user_table_data(), {
+    replaceData(proxy, user_table_data(), resetPaging = FALSE)
+  })
+
+  output$user_table <- renderDT({
+    datatable(user_table_data(),
+      selection = "single",
+      options = list(scrollX = TRUE),
+      rownames = FALSE
+    )
+  })
+
+  # Edit user modal
+  observeEvent(input$edit_user, {
+    selected_row <- input$user_table_rows_selected
+    if (is.null(selected_row)) {
+      shinyalert("Error", "Please select a user to edit", "error")
+      return()
+    }
+
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    user_data <- dbGetQuery(
+      conn,
+      "SELECT * FROM users WHERE id = ?",
+      list(user_table_data()[selected_row, "id"])
+    )
+    dbDisconnect(conn)
+
+    showModal(modalDialog(
+      title = "Edit User",
+      textInput("edit_username", "Username", value = user_data$username),
+      textInput("edit_email", "Email", value = user_data$email),
+      textInput("edit_fullname", "Full Name", value = user_data$full_name),
+      selectInput("edit_role", "Role", choices = c("admin", "user"), selected = user_data$role),
+      checkboxInput("edit_active", "Active", value = as.logical(user_data$is_active)),
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("save_user", "Save Changes", class = "btn-primary")
+      )
+    ))
+  })
+
+  # Save user changes
+  observeEvent(input$save_user, {
+    selected_row <- input$user_table_rows_selected
+    if (is.null(selected_row)) {
+      shinyalert("Error", "Please select a user to save", "error")
+      return()
+    }
+
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    dbExecute(
+      conn,
+      "UPDATE users SET username = ?, email = ?, full_name = ?, role = ?, is_active = ? WHERE id = ?",
+      list(
+        input$edit_username, input$edit_email, input$edit_fullname,
+        input$edit_role, as.integer(input$edit_active),
+        user_table_data()[selected_row, "id"]
+      )
+    )
+    dbDisconnect(conn)
+    removeModal()
+    shinyalert("Success", "User updated successfully", "success")
+    user_update_trigger(user_update_trigger() + 1) # Trigger update
+  })
+
+  # Delete user
+  observeEvent(input$delete_user, {
+    selected_row <- input$user_table_rows_selected
+    if (is.null(selected_row)) {
+      shinyalert("Error", "Please select a user to delete", "error")
+      return()
+    }
+
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    dbExecute(
+      conn,
+      "DELETE FROM users WHERE id = ?",
+      list(user_table_data()[selected_row, "id"])
+    )
+    dbDisconnect(conn)
+    shinyalert("Success", "User deleted successfully", "success")
+    user_update_trigger(user_update_trigger() + 1) # Trigger update
+  })
+
+
+
+  # Role Management Tab
+  output$role_table <- renderDT({
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    roles <- dbGetQuery(
+      conn,
+      "SELECT role_name, permissions FROM roles"
+    )
+    dbDisconnect(conn)
+
+    datatable(roles,
+      options = list(scrollX = TRUE),
+      rownames = FALSE
+    )
+  })
+
+  observeEvent(input$add_role, {
+    req(input$new_role_name)
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    tryCatch({
+      dbExecute(
+        conn,
+        "INSERT INTO roles (role_name, permissions) VALUES (?, ?)",
+        list(input$new_role_name, paste(input$new_role_perms, collapse = ","))
+      )
+      shinyalert("Success", "Role added successfully", "success")
+    }, error = function(e) {
+      shinyalert("Error", paste("Failed to add role:", e$message), "error")
+    }, finally = {
+      dbDisconnect(conn)
+    })
+  })
+
+  observeEvent(input$delete_role, {
+    req(input$role_select)
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    tryCatch({
+      dbExecute(
+        conn,
+        "DELETE FROM roles WHERE role_name = ?",
+        list(input$role_select)
+      )
+      shinyalert("Success", "Role deleted successfully", "success")
+    }, error = function(e) {
+      shinyalert("Error", paste("Failed to delete role:", e$message), "error")
+    }, finally = {
+      dbDisconnect(conn)
+    })
+  })
+
+  # Update role selection input
+  observe({
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    roles <- dbGetQuery(conn, "SELECT role_name FROM roles")
+    dbDisconnect(conn)
+    updateSelectInput(session, "role_select", choices = roles$role_name)
+  })
+
+
+
+  # Edit Profile Modal
+  observeEvent(input$edit_profile, {
+    showModal(modalDialog(
+      title = "Edit Profile",
+      textInput("edit_email", "Email", value = user$info$email),
+      textInput("edit_fullname", "Full Name", value = user$info$full_name),
+      footer = tagList(
+        actionButton("save_profile", "Save Changes"),
+        modalButton("Cancel")
+      )
+    ))
+  })
+
+  observeEvent(input$view_profile, {
+    showModal(modalDialog(
+      title = "User Profile",
+      tagList(
+        div(
+          class = "form-group",
+          tags$label("Full Name:"),
+          textInput("profile_fullname", NULL, value = user$info$full_name)
+        ),
+        div(
+          class = "form-group",
+          tags$label("Email:"),
+          textInput("profile_email", NULL, value = user$info$email)
+        ),
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("save_profile", "Save Changes", class = "btn-primary")
+        )
+      )
+    ))
+  })
+
+  observeEvent(input$save_profile, {
+    req(user$logged_in)
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    tryCatch({
+      dbExecute(
+        conn,
+        "UPDATE users SET full_name = ?, email = ? WHERE id = ?",
+        list(input$profile_fullname, input$profile_email, user$info$id)
+      )
+      user$info$full_name <- input$profile_fullname
+      user$info$email <- input$profile_email
+      removeModal()
+      shinyalert("Success", "Profile updated successfully", "success")
+    }, error = function(e) {
+      shinyalert("Error", paste("Update failed:", e$message), "error")
+    }, finally = {
+      dbDisconnect(conn)
+    })
+  })
+
+  # Password change modal
+  observeEvent(input$change_password, {
+    showModal(modalDialog(
+      title = "Change Password",
+      tagList(
+        passwordInput("current_password", "Current Password"),
+        passwordInput("new_password", "New Password"),
+        passwordInput("confirm_password", "Confirm New Password")
+      ),
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("confirm_password_change", "Change Password", class = "btn-primary")
+      )
+    ))
+  })
+
+  observeEvent(input$confirm_password_change, {
+    req(user$logged_in)
+    tryCatch({
+      if (input$new_password != input$confirm_password) {
+        stop("New passwords do not match")
+      }
+
+      conn <- dbConnect(SQLite(), "./db/data.sqlite")
+      user_data <- dbGetQuery(
+        conn,
+        "SELECT password FROM users WHERE id = ?",
+        list(user$info$id)
+      )
+
+      if (!sodium::password_verify(user_data$password, input$current_password)) {
+        stop("Current password is incorrect")
+      }
+
+      new_hash <- sodium::password_store(input$new_password)
+      dbExecute(
+        conn,
+        "UPDATE users SET password = ? WHERE id = ?",
+        list(new_hash, user$info$id)
+      )
+
+      removeModal()
+      shinyalert("Success", "Password changed successfully", "success")
+    }, error = function(e) {
+      shinyalert("Error", e$message, "error")
+    }, finally = {
+      dbDisconnect(conn)
+    })
+  })
+
+  # Reactive expression to fetch roles
+  roles_data <- reactive({
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    roles <- dbGetQuery(conn, "SELECT * FROM roles")
+    dbDisconnect(conn)
+    roles
+  })
+
+  # Update role selection input
+  observe({
+    updateSelectInput(session, "role_select", choices = roles_data()$role_name)
+  })
+
+  # Save permissions for a role
+  # Save permissions
+  observeEvent(input$save_permissions, {
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    dbExecute(
+      conn,
+      "UPDATE roles SET permissions = ? WHERE role_name = ?",
+      list(paste(input$permissions, collapse = ","), input$role_select)
+    )
+    dbDisconnect(conn)
+    shinyalert("Success", "Permissions updated", "success")
+  })
+
+  # Render permissions UI based on selected role
+  output$permissions_ui <- renderUI({
+    req(input$role_select)
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    on.exit(dbDisconnect(conn))
+
+    permissions <- dbGetQuery(
+      conn,
+      "SELECT permissions FROM roles WHERE role_name = ?",
+      list(input$role_select)
+    )
+
+    selected_permissions <- if (nrow(permissions) > 0) {
+      unlist(strsplit(permissions$permissions[1], ","))
+    } else {
+      character(0)
+    }
+
+    # Get all available permissions from a central source
+    # available_perms <- c(
+    #  "user_management", "role_management",
+    #  "data_preview", "settings", "dash_explore_clean"
+    # )
+
+    available_permissions <- reactive({
+      conn <- dbConnect(SQLite(), "./db/data.sqlite")
+      on.exit(dbDisconnect(conn))
+      perms <- dbGetQuery(conn, "SELECT permission_name FROM permissions")$permission_name
+      unique(perms)
+    })
+
+    checkboxGroupInput("permissions", "Permissions",
+      choices = available_permissions(),
+      selected = selected_permissions
+    )
+  })
+
+  #  checkboxGroupInput("permissions", "Permissions",
+  #    choices = available_perms,
+  #    selected = selected_permissions
+  #  )
+  # })
+
+  # Add reactive trigger for role updates
+  roles_updated <- reactiveVal(0)
+  observeEvent(input$save_permissions, {
+    roles_updated(roles_updated() + 1)
+  })
+
+
+
+  output$new_role_perms_ui <- renderUI({
+    checkboxGroupInput("new_role_perms", "Permissions",
+      choices = available_permissions()
+    )
+  })
+
+
+
+  # Control UI based on user role
+  observeEvent(user$logged_in, {
+    if (user$logged_in) {
+      # Fetch user permissions from roles table
+      conn <- dbConnect(SQLite(), "./db/data.sqlite")
+      permissions <- dbGetQuery(
+        conn,
+        "SELECT permissions FROM roles WHERE role_name = ?",
+        list(user$info$role)
+      )
+      dbDisconnect(conn)
+
+      if (nrow(permissions) > 0) {
+        user_perms <- unlist(strsplit(permissions$permissions[1], ","))
+
+        # Show tabs based on permissions
+        if ("data_preview" %in% user_perms) showTab("main_nav", "data_preview")
+        if ("settings" %in% user_perms) showTab("main_nav", "settings")
+        if ("dash_explore_clean" %in% user_perms) showTab("main_nav", "dash_explore_clean")
+        if (any(c("user_management", "role_management") %in% user_perms)) {
+          showTab("main_nav", "admin_panel")
+        }
+      }
+    } else {
+      showTab("main_nav", "home")
+    }
+  })
+
+  # Add role-based access control for admin features
+  observeEvent(input$sidebar_menu, {
+    if (!is.null(user$info$role) && user$info$role != "admin" && input$sidebar_menu %in% c("user_management", "role_management")) {
+      showModal(modalDialog(
+        title = "Access Denied",
+        "You don't have permission to access this section",
+        easyClose = TRUE
+      ))
+      updateTabItems(session, "sidebar_menu", selected = "data_preview")
+    }
+  })
+
+
+  # Role Management Tab
+  output$role_table <- renderDT({
+    conn <- dbConnect(SQLite(), "./db/data.sqlite")
+    roles <- dbGetQuery(
+      conn,
+      "SELECT role_name, permissions FROM roles"
+    )
+    dbDisconnect(conn)
+
+    datatable(roles,
+      options = list(scrollX = TRUE),
+      rownames = FALSE
+    )
+  })
+
+
+
+  # Reactive values to store settings and data
+  settings <- reactiveValues()
+  data <- reactiveValues()
+  choices <- reactiveValues()
+  data_fetched <- reactiveVal(FALSE)
+  user_role <- reactiveVal(NULL)
+  exported_file_name <- reactiveVal(NULL)
+  fetched_data <- reactiveVal(NULL) # Add this line to store fetched data
+
+  ethgeoServer("ethgeo_module") # Add this line in your main server function
+  dba_module_server("dba_module")
+  # Load data from main.rds if it exists
+  # if (file.exists("fetched_data/main.rds")) {
+  #  data$combined <- readRDS("fetched_data/main.rds")
+  #  data_fetched(TRUE)
+  # }
+
+  observe({
+    if (file.exists("fetched_data/main.rds")) {
+      df <- readRDS("fetched_data/main.rds")
+      if (!is.null(df) && nrow(df) > 0) {
+        data$combined <- df
+        data_fetched(TRUE)
+      } else {
+        showNotification("Loaded data is empty!", type = "error")
+      }
+    } else {
+      showNotification("No data file found. Please fetch data first!", type = "error")
+    }
+  })
+
+
+  # Update filters from main.rds when data loads
+  observe({
+    req(data$combined)
+
+    # Update filter choices from combined data
+    updateSelectizeInput(session, "filter_indicators",
+      choices = unique(data$combined$indicator_name)
+    )
+
+    updateSelectizeInput(session, "filter_dimensions",
+      choices = unique(data$combined$dimension)
+    )
+
+    updateSelectizeInput(session, "filter_dates",
+      choices = unique(data$combined$date)
+    )
+
+    # Reset subgroups when data changes
+    updateSelectizeInput(session, "filter_subgroups", choices = character(0))
+  })
+
+
+  observeEvent(input$toggle_settings, {
+    # Toggle the settings panel visibility
+    toggleClass(selector = "#settings_panel", class = "settings-collapsed")
+  })
+  observe({
+    indicator_choices <- setNames(indicators_metadata$id[indicators_metadata$id %in% input$indicators], indicators_metadata$displayName[indicators_metadata$id %in% input$indicators])
+    updateSelectizeInput(session, "custom_indicators", choices = indicator_choices, server = TRUE)
+  })
+
+  output$custom_scales_ui <- renderUI({
+    req(input$custom_indicators)
+    lapply(input$custom_indicators, function(indicator) {
+      display_name <- indicators_metadata$displayName[indicators_metadata$id == indicator]
+      numericInput(paste0("scale_", indicator), paste("Scale for", display_name), value = 100, min = 1)
+    })
+  })
+
+  observeEvent(input$fetch_data, {
+    # Validation check for indicators and abbreviations
+    if (length(input$indicators) != length(strsplit(input$indicator_abbr, ",")[[1]])) {
+      showModal(modalDialog(
+        title = "Error",
+        "The number of indicators and abbreviations must be equal.",
+        easyClose = TRUE,
+        footer = NULL
+      ))
+      return()
+    }
+
+    Sys.setenv(DHIS2_BASE_URL = input$base_url)
+    Sys.setenv(DHIS2_USERNAME = input$username)
+    Sys.setenv(DHIS2_PASSWORD = input$password)
+
+    if (length(input$org_units) == 0) {
+      sendSweetAlert(session, title = "Error", text = "No organisation units selected.", type = "error")
+      return()
+    }
+
+    settings_list <- readRDS("saved_setting/settings.rds")
+    settings_abbr <- settings_list$indicator_abbr
+    favorable_indicators <- settings_list$favorable_indicators
+
+    custom_scales <- sapply(input$custom_indicators, function(indicator) {
+      input[[paste0("scale_", indicator)]]
+    }, simplify = FALSE)
+    settings_list$custom_scales <- custom_scales
+
+    withProgress(message = "Fetching data...", value = 0, {
+      incProgress(0.2, detail = "Fetching population data for Region...")
+      population_data_region <- fetch_population_data(input$org_units, strsplit(input$periods, ",")[[1]])
+
+      incProgress(0.4, detail = "Fetching analytics data for Region...")
+      analytics_data_region <- fetch_indicator_data(input$indicators, input$org_units, strsplit(input$periods, ",")[[1]])
+      formatted_data_region <- format_analytics_data(analytics_data_region, indicators_metadata, org_units_metadata, population_data_region, indicator_map, dimension = "Region", settings_abbr = settings_abbr, custom_scales = custom_scales)
+
+      if (length(input$zones) > 0) {
+        incProgress(0.6, detail = "Fetching population data for Zone...")
+        population_data_zone <- fetch_population_data(NULL, strsplit(input$periods, ",")[[1]], zone_ids = input$zones)
+
+        incProgress(0.8, detail = "Fetching analytics data for Zone...")
+        analytics_data_zone <- fetch_indicator_data(input$indicators, input$zones, strsplit(input$periods, ",")[[1]])
+        formatted_data_zone <- format_analytics_data(analytics_data_zone, indicators_metadata, org_units_metadata, population_data_zone, indicator_map, dimension = "Zone", settings_abbr = settings_abbr, custom_scales = custom_scales)
+      } else {
+        formatted_data_zone <- data.frame()
+      }
+
+      if (length(input$woredas) > 0) {
+        incProgress(0.9, detail = "Fetching population data for Woreda...")
+        population_data_woreda <- fetch_population_data(NULL, strsplit(input$periods, ",")[[1]], woreda_ids = input$woredas)
+
+        incProgress(1, detail = "Fetching analytics data for Woreda...")
+        analytics_data_woreda <- fetch_indicator_data(input$indicators, input$woredas, strsplit(input$periods, ",")[[1]])
+        formatted_data_woreda <- format_analytics_data(analytics_data_woreda, indicators_metadata, org_units_metadata, population_data_woreda, indicator_map, dimension = "Woreda", settings_abbr = settings_abbr, custom_scales = custom_scales)
+      } else {
+        formatted_data_woreda <- data.frame()
+      }
+
+      # Add Facility Type processing
+      if (length(input$facility_types) > 0) {
+        incProgress(0.85, detail = "Fetching Facility Type data...")
+
+        analytics_data_facility <- fetch_indicator_data(
+          input$indicators,
+          input$org_units, # Parent org units for facility types
+          strsplit(input$periods, ",")[[1]],
+          facility_type_ids = input$facility_types
+        )
+
+        formatted_data_facility <- format_analytics_data(
+          analytics_data_facility,
+          indicators_metadata,
+          org_units_metadata,
+          population_data_region, # Or appropriate population data
+          indicator_map,
+          dimension = "Facility Type"
+        )
+      } else {
+        formatted_data_facility <- data.frame()
+      }
+
+      # Add Settlement Type processing
+      if (length(input$settlement_types) > 0) {
+        incProgress(0.85, detail = "Fetching Settlement Type data...")
+
+        analytics_data_settlement <- fetch_indicator_data(
+          input$indicators,
+          input$org_units, # Parent org units for settlement types
+          strsplit(input$periods, ",")[[1]],
+          settlement_type_ids = input$settlement_types
+        )
+
+        formatted_data_settlement <- format_analytics_data(
+          analytics_data_settlement,
+          indicators_metadata,
+          org_units_metadata,
+          population_data_region, # Or appropriate population data
+          indicator_map,
+          dimension = "Settlement"
+        )
+      } else {
+        formatted_data_settlement <- data.frame()
+      }
+
+      # Combine all data
+      data$combined <- rbind(
+        formatted_data_region, formatted_data_zone,
+        formatted_data_woreda, formatted_data_facility,
+        formatted_data_settlement
+      )
+
+      # Convert columns to correct types
+      data$combined[] <- lapply(data$combined, function(x) {
+        if (is.list(x)) {
+          return(unlist(x))
+        } else {
+          return(x)
+        }
+      })
+
+      # Update favourable_indicator based on current input
+      data$combined$favourable_indicator <- ifelse(
+        data$combined$indicator_name %in% input$favorable_indicators,
+        1,
+        0
+      )
+
+      # Save the processed data (including favourable_indicator)
+      saveRDS(data$combined, "fetched_data/main.rds")
+
+      output$data_preview <- renderDT({
+        datatable(data$combined, options = list(
+          pageLength = 5, # 15
+          lengthMenu = c(5, 10, 15, 20, 50, 100),
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          searching = TRUE,
+          ordering = TRUE
+        ))
+      })
+      data_fetched(TRUE)
+      sendSweetAlert(session, title = "Success", text = "Data fetched successfully.", type = "success")
+    })
+  })
+
+
+  # Dynamic subgroup filtering based on dimension selection
+  observeEvent(input$filter_dimensions, {
+    req(data$combined)
+
+    if (length(input$filter_dimensions) > 0) {
+      # Get unique subgroups for selected dimensions
+      subgroups <- data$combined %>%
+        filter(dimension %in% input$filter_dimensions) %>%
+        pull(subgroup) %>%
+        unique()
+    } else {
+      subgroups <- character(0)
+    }
+
+    updateSelectizeInput(session, "filter_subgroups",
+      choices = subgroups,
+      selected = input$filter_subgroups
+    )
+  })
+
+
+  # Apply filters
+  observeEvent(input$apply_filters, {
+    req(data$combined)
+
+    filtered_data <- data$combined
+
+    if (!is.null(input$filter_indicators) && length(input$filter_indicators) > 0) {
+      filtered_data <- filtered_data[filtered_data$indicator_name %in% input$filter_indicators, ]
+    }
+
+    if (!is.null(input$filter_dimensions) && length(input$filter_dimensions) > 0) {
+      filtered_data <- filtered_data[filtered_data$dimension %in% input$filter_dimensions, ]
+    }
+
+    if (!is.null(input$filter_subgroups) && length(input$filter_subgroups) > 0) {
+      filtered_data <- filtered_data[filtered_data$subgroup %in% input$filter_subgroups, ]
+    }
+
+    if (!is.null(input$filter_dates) && length(input$filter_dates) > 0) {
+      filtered_data <- filtered_data[filtered_data$date %in% input$filter_dates, ]
+    }
+
+    data$filtered <- filtered_data
+
+    output$data_preview <- renderDT({
+      datatable(data$filtered, options = list(
+        pageLength = 5, # 15
+        lengthMenu = c(5, 10, 15, 20, 50, 100),
+        scrollX = TRUE,
+        autoWidth = TRUE,
+        searching = TRUE,
+        ordering = TRUE
+      ))
+    })
+
+    output$distPlot <- renderPlotly({
+      req(data$filtered)
+      plot_ly(
+        data = data$filtered, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
+        marker = list(color = input$plot_color, size = 5), # Use selected color
+        text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
+        hoverinfo = "text"
+      )
+    })
+
+    output$bluePlot <- renderPlot({
+      req(data$filtered)
+      x <- data$filtered$estimate
+      bins <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = input$bins + 1)
+      hist(x, breaks = bins, col = "steelblue", border = "white")
+    })
+  })
+
+  # Update plots based on fetched data
+  observe({
+    req(data_fetched())
+
+    output$distPlot <- renderPlotly({
+      req(data$combined)
+      plot_ly(
+        data = data$combined, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
+        marker = list(color = input$plot_color, size = 3), # Use selected color
+        text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
+        hoverinfo = "text"
+      )
+    })
+
+    output$bluePlot <- renderPlot({
+      req(data$combined)
+      x <- data$combined$estimate
+      bins <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = input$bins + 1)
+      hist(x, breaks = bins, col = "steelblue", border = "white")
+    })
+  })
+
+  # Export data to Excel and trigger download
+  output$export_data <- downloadHandler(
+    filename = function() {
+      file_name <- paste("DHIS2_DATA_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx", sep = "")
+      exported_file_name(file_name)
+      file_name
+    },
+    content = function(file) {
+      if (!is.null(data$combined) && nrow(data$combined) > 0) {
+        withProgress(message = "Exporting data...", value = 0, {
+          incProgress(0.5, detail = "Writing data to Excel...")
+          write.xlsx(data$combined,
+            file = file,
+            sheetName = "Indicators_Data", rowNames = FALSE
+          )
+          incProgress(1, detail = "Export complete.")
+          sendSweetAlert(session, title = "Success", text = paste("Excel file '", exported_file_name(), "' exported successfully."), type = "success")
+        })
+      } else {
+        showModal(modalDialog(
+          # title = "Error",
+          # "Please Load Settings and Fetch Data Berfore Exporting!",
+          sendSweetAlert(session, title = "Error", text = "Please Load Settings and Fetch Data Berfore Exporting to Excel!", type = "error"),
+          # easyClose = TRUE,
+          # footer = NULL
+          return()
+        ))
+      }
+    }
+  )
+
+  # Export data to Parquet and trigger download
+  output$export_parquet <- downloadHandler(
+    filename = function() {
+      file_name <- paste("DHIS2_DATA_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".parquet", sep = "")
+      exported_file_name(file_name)
+      file_name
+    },
+    content = function(file) {
+      if (!is.null(data$combined) && nrow(data$combined) > 0) {
+        withProgress(message = "Exporting data...", value = 0, {
+          incProgress(0.5, detail = "Writing data to Parquet...")
+          write_parquet(data$combined, file)
+          incProgress(1, detail = "Export complete.")
+          sendSweetAlert(session, title = "Success", text = paste("Parquet file '", exported_file_name(), "' exported successfully."), type = "success")
+        })
+      } else {
+        showModal(modalDialog(
+          # title = "Error",
+          # "Please Load Settings and Fetch Data Berfore Exporting!",
+          sendSweetAlert(session, title = "Error", text = "Please Load Settings and Fetch Data Berfore Exporting to Parquet!", type = "error"),
+          # easyClose = TRUE,
+          # footer = NULL
+          return()
+        ))
+      }
+    }
+  )
+
+  # Password protection
+  #  showPasswordModal <- function(message = NULL) {
+  #    showModal(modalDialog(
+  #      title = "Authentication Required",
+  #      passwordInput("auth_password", "Enter Password: [demo]"),
+  #      if (!is.null(message)) div(style = "color: red;", message),
+  #      footer = tagList(
+  #        actionButton("auth_submit", "Submit")
+  #      )
+  #    ))
+  #  }
+
+  #  observe({
+  #    showPasswordModal()
+  #  })
+
+  #  observeEvent(input$auth_submit, {
+  #    if (input$auth_password == "mikeintosh") {
+  #      user_role("mikeintosh")
+  #      removeModal()
+  #    } else if (input$auth_password == "demo") {
+  #      user_role("demo")
+  #      removeModal()
+  #    } else {
+  #      showPasswordModal("Incorrect password. Please try again.")
+  #    }
+  #  })
+
+  #  output$role <- reactive({
+  #    user_role()
+  #  })
+  #  outputOptions(output, "role", suspendWhenHidden = FALSE)
+
+  # Show user guide
+  observeEvent(input$help, {
+    showModal(modalDialog(
+      title = "User Guide",
+      HTML("
+        <h3>Welcome to the DHIS2 Data Fetcher for HEAT Plus(+)</h3>
+        <p>This application allows you to fetch and export data from DHIS2.</p>
+        <h4>Steps to use the application:</h4>
+        <ol>
+          <li><b>Authentication:</b> Enter the correct password to access the application.</li>
+          <li><b>DHIS2 Credentials:</b> Enter the DHIS2 Base URL, Username, and Password.</li>
+          <li><b>Select Indicators:</b> Choose the indicators you want to fetch data for.</li>
+          <li><b>Select Organisation Units:</b> Choose the organisation units you want to fetch data for.</li>
+          <li><b>Select Zones and Woredas:</b> Choose the zones and woredas you want to fetch data for.</li>
+          <li><b>Specify Periods:</b> Enter the periods (comma-separated) for which you want to fetch data.</li>
+          <li><b>Save Settings:</b> Save your settings for future use. [For Super Users Only]</li>
+          <li><b>Close This HELP Dialog:</b> Tap anywhere out of this HELP Dialog Box!</li>
+      "),
+      easyClose = TRUE,
+      footer = NULL
+    ))
+  })
+
+  # Render dynamic plot based on selected view and chart type
+  output$dynamicPlotOutput <- renderPlotly({
+    req(data$filtered)
+    print(names(data$filtered)) # Debug: Print column names
+    plot_data <- data$filtered
+    plot_type <- input$chart_type
+
+    # Common plot parameters
+    marker_params <- list(
+      size = input$marker_size,
+      color = input$plot_color
+    )
+
+    # Add this conditional line parameter handling
+    line_params <- if (input$plot_mode %in% c("lines", "lines+markers")) {
+      list(
+        color = input$line_color,
+        width = 2
+      )
+    } else {
+      NULL
+    }
+
+    if (input$view_by == "Date") {
+      if (plot_type == "Scatter") {
+        p <- plot_ly(
+          data = plot_data, x = ~date, y = ~estimate,
+          type = "scatter", mode = input$plot_mode,
+          marker = marker_params,
+          line = line_params,
+          text = ~ paste(
+            "Indicator:", indicator_name, "<br>Dimension:",
+            dimension, "<br>Subgroup:", subgroup,
+            "<br>Date:", date, "<br>Estimate:", estimate
+          ),
+          hoverinfo = "text"
+        )
+      } else if (plot_type == "Bar") {
+        p <- plot_ly(
+          data = plot_data, x = ~date, y = ~estimate, type = "bar",
+          marker = list(color = input$plot_color),
+          text = ~ paste(
+            "Indicator:", indicator_name, "<br>Dimension:",
+            dimension, "<br>Subgroup:", subgroup,
+            "<br>Date:", date, "<br>Estimate:", estimate
+          ),
+          hoverinfo = "text"
+        )
+      }
+    } else if (input$view_by == "Dimension") {
+      color_var <- ~dimension
+      # Similar structure for Subgroup view
+      if (plot_type == "Scatter") {
+        p <- plot_ly(
+          data = plot_data, x = ~dimension, y = ~estimate,
+          type = "scatter", mode = input$plot_mode,
+          marker = marker_params,
+          line = line_params,
+          text = ~ paste(
+            "Indicator:", indicator_name, "<br>Dimension:",
+            dimension, "<br>Subgroup:", subgroup,
+            "<br>Date:", date, "<br>Estimate:", estimate
+          ),
+          hoverinfo = "text"
+        )
+      } else if (plot_type == "Bar") {
+        p <- plot_ly(
+          data = plot_data, x = ~dimension, y = ~estimate, type = "bar",
+          marker = list(color = input$plot_color),
+          text = ~ paste(
+            "Indicator:", indicator_name, "<br>Dimension:",
+            dimension, "<br>Subgroup:", subgroup,
+            "<br>Date:", date, "<br>Estimate:", estimate
+          ),
+          hoverinfo = "text"
+        )
+      }
+    } else {
+      color_var <- ~subgroup
+      # Similar structure for Subgroup view
+      if (plot_type == "Scatter") {
+        p <- plot_ly(
+          data = plot_data, x = ~subgroup, y = ~estimate,
+          type = "scatter", mode = input$plot_mode,
+          marker = marker_params,
+          line = line_params,
+          text = ~ paste(
+            "Indicator:", indicator_name, "<br>Dimension:",
+            dimension, "<br>Subgroup:", subgroup,
+            "<br>Date:", date, "<br>Estimate:", estimate
+          ),
+          hoverinfo = "text"
+        )
+      } else if (plot_type == "Bar") {
+        p <- plot_ly(
+          data = plot_data, x = ~subgroup, y = ~estimate, type = "bar",
+          marker = list(color = input$plot_color),
+          text = ~ paste(
+            "Indicator:", indicator_name, "<br>Dimension:",
+            dimension, "<br>Subgroup:", subgroup,
+            "<br>Date:", date, "<br>Estimate:", estimate
+          ),
+          hoverinfo = "text"
+        )
+      }
+    }
+    # Add GeoJSON loading and map token
+    # eth_geojson <- rjson::fromJSON(file = "saved_setting/geo/ethiopia_regions_map_simple.json") This is working
+
+    # eth_geojson <- rjson::fromJSON(file = "saved_setting/geo/ethiopia_regions_map_simple.json")
+    # eth_geojson <- jsonlite::fromJSON(file = ("saved_setting/geo/ethiopia_regions_map_simple.json"), warn = F)
+    # eth_geojson <- fromJSON(tet = "saved_setting/geo/ethiopia_regions_map_simple.json")
+    # eth_geojson <- fromJSON(text = "saved_setting/geo/ethiopia_regions_map_simple.json")
+
+
+    if (input$chart_type == "Geo Heatmap") {
+      # Debug: Print column names and first few rows of data$filtered
+      print(names(data$filtered))
+      print(head(data$filtered))
+      # Prepare geographic data
+      geo_data <- data$filtered %>%
+        group_by(subgroup) %>%
+        summarise(estimate = mean(estimate, na.rm = TRUE))
+
+      # Create choropleth map
+      p <- plot_ly(
+        type = "choroplethmapbox",
+        geojson = eth_geojson,
+        featureidkey = "properties.shapeName",
+        locations = geo_data$subgroup,
+        z = geo_data$estimate,
+        colorscale = "Viridis",
+        marker = list(opacity = 0.7)
+      ) %>%
+        layout(
+          mapbox = list(
+            style = "light",
+            zoom = 4.5,
+            center = list(lon = 39.6, lat = 8.6), # Ethiopia coordinates
+            accesstoken = mapboxToken
+          ),
+          margin = list(t = 0, b = 0, l = 0, r = 0)
+        )
+
+      return(p)
+    }
+
+    p %>% layout(showlegend = TRUE) # TRUE to show legend FALSE to hide legend
+  })
+
+
+  # Fetch metadata and populate select inputs
+  observe({
+    # Fetch Zones and Woredas metadata
+    zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
+    woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
+
+    choices$indicators <- setNames(indicators_metadata$id, indicators_metadata$displayName)
+    choices$org_units <- setNames(specific_org_units, org_units_metadata$displayName[org_units_metadata$id %in% specific_org_units])
+    choices$zones <- setNames(zones_metadata$id, zones_metadata$displayName)
+    choices$woredas <- setNames(woredas_metadata$id, woredas_metadata$displayName)
+
+    updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
+    updateSelectizeInput(session, "org_units", choices = choices$org_units, server = TRUE)
+    updateSelectizeInput(session, "zones", choices = choices$zones, server = TRUE)
+    updateSelectizeInput(session, "woredas", choices = choices$woredas, server = TRUE)
+  })
+
+  # Update Favorable Indicators based on selected indicators
+  observe({
+    if (!is.null(input$indicators)) {
+      # Get the display names of the selected indicators
+      favorable_choices <- indicators_metadata$displayName[indicators_metadata$id %in% input$indicators]
+      updateSelectizeInput(session, "favorable_indicators", choices = favorable_choices, server = TRUE)
+    }
+  })
+
+  # Select All functionality
+  observeEvent(input$select_all_indicators, {
+    if (input$select_all_indicators) {
+      updateSelectizeInput(session, "indicators", selected = names(choices$indicators))
+    } else {
+      updateSelectizeInput(session, "indicators", selected = NULL)
+    }
+  })
+
+  observeEvent(input$select_all_org_units, {
+    if (input$select_all_org_units) {
+      updateSelectizeInput(session, "org_units", selected = names(choices$org_units))
+    } else {
+      updateSelectizeInput(session, "org_units", selected = NULL)
+    }
+  })
+
+  # Working For select all zones
+  observeEvent(input$select_all_zones,
+    {
+      if (input$select_all_zones) {
+        # Set credentials from inputs
+        Sys.setenv(
+          DHIS2_BASE_URL = input$base_url,
+          DHIS2_USERNAME = input$username,
+          DHIS2_PASSWORD = input$password
+        )
+
+        # Fetch zones from API
+        zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
+        zone_choices <- setNames(zones_metadata$id, zones_metadata$displayName)
+
+        # Update select input
+        updateSelectizeInput(
+          session,
+          "zones",
+          choices = zone_choices,
+          selected = zone_choices
+        )
+      } else {
+        updateSelectizeInput(session, "zones", selected = NULL)
+      }
+    },
+    ignoreInit = TRUE
+  )
+
+  # Not working for select all zones
+  #    observeEvent(input$select_all_zones, {
+  #        if (input$select_all_zones) {
+  #            updateSelectizeInput(session, "zones", selected = names(choices$zones))
+  #        } else {
+  #            updateSelectizeInput(session, "zones", selected = NULL)
+  #        }
+  #    })
+
+
+  # Working For select all woredas
+  observeEvent(input$select_all_woredas,
+    {
+      if (input$select_all_woredas) {
+        # Set credentials from inputs
+        Sys.setenv(
+          DHIS2_BASE_URL = input$base_url,
+          DHIS2_USERNAME = input$username,
+          DHIS2_PASSWORD = input$password
+        )
+
+        # Fetch woredas from API
+        woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
+        woreda_choices <- setNames(woredas_metadata$id, woredas_metadata$displayName)
+
+        # Update select input
+        updateSelectizeInput(
+          session,
+          "woredas",
+          choices = woreda_choices,
+          selected = woreda_choices
+        )
+      } else {
+        updateSelectizeInput(session, "woredas", selected = NULL)
+      }
+    },
+    ignoreInit = TRUE
+  )
+
+  # Not working for select all woredas
+  #   observeEvent(input$select_all_woredas, {
+  #       if (input$select_all_woredas) {
+  #           updateSelectizeInput(session, "woredas", selected = names(choices$woredas))
+  #       } else {
+  #           updateSelectizeInput(session, "woredas", selected = NULL)
+  #       }
+  #   })
+
+  # Add to existing select all observers
+  observeEvent(input$select_all_facilities, {
+    if (input$select_all_facilities) {
+      updateSelectizeInput(session, "facility_types",
+        selected = c(
+          "kwcNbI9fPdB", "j8SCxUTyzfm",
+          "FW4oru60vgc", "nVEDFMfnStv"
+        )
+      )
+    } else {
+      updateSelectizeInput(session, "facility_types", selected = NULL)
+    }
+  })
+
+
+  observeEvent(input$select_all_settlements, {
+    if (input$select_all_settlements) {
+      updateSelectizeInput(session, "settlement_types",
+        selected = c(
+          "nKT0uoFbxdf", "ZktuKijP5jN", "V9sleOboZJ1"
+        )
+      )
+    } else {
+      updateSelectizeInput(session, "settlement_types", selected = NULL)
+    }
+  })
+
+  # Save settings
+  observeEvent(input$save_settings, {
+    if (length(input$indicators) != length(strsplit(input$indicator_abbr, ",")[[1]])) {
+      showModal(modalDialog(
+        title = "Error",
+        "The number of indicators and abbreviations must be equal.",
+        easyClose = TRUE,
+        footer = NULL
+      ))
+      return()
+    }
+
+    # Convert favorable indicator display names back to IDs
+    favorable_indicator_ids <- indicators_metadata$id[indicators_metadata$displayName %in% input$favorable_indicators]
+
+    custom_scales <- sapply(input$custom_indicators, function(indicator) {
+      input[[paste0("scale_", indicator)]]
+    }, simplify = FALSE)
+
+    settings_list <- list(
+      base_url = input$base_url,
+      username = input$username,
+      password = input$password,
+      indicators = input$indicators,
+      indicator_abbr = setNames(strsplit(input$indicator_abbr, ",")[[1]], input$indicators),
+      favorable_indicators = favorable_indicator_ids, # Save favorable indicator IDs
+      org_units = input$org_units,
+      zones = input$zones,
+      woredas = input$woredas,
+      facility_types = input$facility_types,
+      settlement_types = input$settlement_types, # Add settlement types
+      periods = strsplit(input$periods, ",")[[1]],
+      custom_scales = custom_scales # Save custom scales
+    )
+
+    saveRDS(settings_list, file = "saved_setting/settings.rds")
+    sendSweetAlert(session, title = "Success", text = "Settings saved to file.", type = "success")
+  })
+
+  observeEvent(input$load_settings, {
+    if (file.exists("saved_setting/settings.rds")) {
+      settings_list <- readRDS("saved_setting/settings.rds")
+      print(settings_list) # Print loaded settings to debug
+
+      # Convert favorable indicator IDs back to display names
+      favorable_indicator_names <- indicators_metadata$displayName[indicators_metadata$id %in% settings_list$favorable_indicators]
+
+      updateTextInput(session, "base_url", value = settings_list$base_url)
+      updateTextInput(session, "username", value = settings_list$username)
+      updateTextInput(session, "password", value = settings_list$password)
+      updateSelectizeInput(session, "indicators", selected = settings_list$indicators)
+      updateTextInput(session, "indicator_abbr", value = paste(settings_list$indicator_abbr, collapse = ","))
+      updateSelectizeInput(session, "favorable_indicators", selected = favorable_indicator_names) # Load favorable indicator display names
+      updateSelectizeInput(session, "org_units", selected = settings_list$org_units)
+      updateSelectizeInput(session, "zones", selected = settings_list$zones)
+      updateSelectizeInput(session, "woredas", selected = settings_list$woredas)
+      updateSelectizeInput(session, "facility_types", selected = settings_list$facility_types)
+      updateSelectizeInput(session, "settlement_types", selected = settings_list$settlement_types) # Load settlement types
+      updateTextInput(session, "periods", value = paste(settings_list$periods, collapse = ","))
+
+      # Load custom scales
+      if (!is.null(settings_list$custom_scales)) {
+        updateSelectizeInput(session, "custom_indicators", selected = names(settings_list$custom_scales))
+
+        # Use shinyjs::delay to ensure inputs are rendered
+        delay(5, { # 50 milliseconds delay - adjust as needed
+          for (indicator_id in names(settings_list$custom_scales)) {
+            scale_input_id <- paste0("scale_", indicator_id)
+            updateNumericInput(session, scale_input_id, value = settings_list$custom_scales[[indicator_id]])
+          }
+        })
+      }
+
+      sendSweetAlert(session, title = "Success", text = "Settings are loaded!", type = "success")
+    } else {
+      sendSweetAlert(session, title = "Error", text = "No Settings found!", type = "error")
+    }
+  })
+
+  # Save source settings
+  observeEvent(input$save_source_settings, {
+    if (user_role() == "mikeintosh") {
+      source_settings <- list(
+        setting = input$setting,
+        source = input$source,
+        iso3 = input$iso3
+      )
+      saveRDS(source_settings, file = "saved_setting/source_settings.rds")
+      sendSweetAlert(session, title = "Success", text = "Source settings saved to file.", type = "success")
+    } else {
+      sendSweetAlert(session, title = "Error", text = "You do not have permission to save source settings.", type = "error")
+    }
+  })
+
+  # Load source settings
+  observeEvent(input$load_source_settings, {
+    if (file.exists("saved_setting/source_settings.rds")) {
+      source_settings <- readRDS("saved_setting/source_settings.rds")
+      updateTextInput(session, "setting", value = source_settings$setting)
+      updateTextInput(session, "source", value = source_settings$source)
+      updateTextInput(session, "iso3", value = source_settings$iso3)
+      sendSweetAlert(session, title = "Success", text = "Source settings loaded from file.", type = "success")
+    } else {
+      sendSweetAlert(session, title = "Error", text = "No source settings found!", type = "error")
+    }
+  })
+
+  # Render the UI components from exclean.R
+  # Source exclean.R and render its UI components
+  output$exclean_ui <- renderUI({
+    source("exclean.R", local = TRUE)$value
+  })
+  #  output$dash_exclean_ui <- renderUI({
+  #    # source("exclean.R", local = TRUE)$value
+  #    source("clean.R", local = TRUE)$value
+  #  })
+
+
+
+  # Data Cleaning functionality
+  # Add these to your existing server.R code
+
+  # Data Cleaning functionality
+  observeEvent(input$apply_na, {
+    req(data$combined)
+    df <- data$combined
+    if (input$na_action == "Remove Rows") {
+      df <- na.omit(df)
+    } else if (input$na_action == "Replace with Mean") {
+      df <- df %>% mutate(across(where(is.numeric), ~ replace_na(., mean(., na.rm = TRUE))))
+    } else if (input$na_action == "Replace with Median") {
+      df <- df %>% mutate(across(where(is.numeric), ~ replace_na(., median(., na.rm = TRUE))))
+    } else if (input$na_action == "Replace with Mode") {
+      mode_fn <- function(x) as.numeric(names(sort(table(x), decreasing = TRUE)[1]))
+      df <- df %>% mutate(across(where(is.numeric), ~ replace_na(., mode_fn(.))))
+    }
+    data$combined <- df
+  })
+
+  observeEvent(input$apply_dupes, {
+    req(data$combined)
+    if (input$remove_dupes) {
+      data$combined <- data$combined %>% distinct()
+    }
+  })
+
+  output$col_select <- renderUI({
+    req(data$combined)
+    selectInput("col", "Select Column:", choices = names(data$combined))
+  })
+
+  observeEvent(input$apply_convert, {
+    req(input$col, data$combined)
+    df <- data$combined
+    if (input$convert_type == "Numeric") {
+      df[[input$col]] <- as.numeric(df[[input$col]])
+    } else if (input$convert_type == "Character") {
+      df[[input$col]] <- as.character(df[[input$col]])
+    } else if (input$convert_type == "Factor") {
+      df[[input$col]] <- as.factor(df[[input$col]])
+    } else if (input$convert_type == "Date") {
+      df[[input$col]] <- as.Date(df[[input$col]])
+    }
+    data$combined <- df
+  })
+
+  output$rename_ui <- renderUI({
+    req(data$combined)
+    div(
+      class = "rename-container", # Add a class for horizontal alignment
+      lapply(names(data$combined), function(col) {
+        textInput(paste0("rename_", col), paste("Rename", col), col)
+      })
+    )
+  })
+
+  observeEvent(input$apply_rename, {
+    req(data$combined)
+    df <- data$combined
+    new_names <- sapply(names(df), function(col) input[[paste0("rename_", col)]])
+    names(df) <- new_names[!is.na(new_names)]
+    data$combined <- df
+  })
+
+  observeEvent(input$detect_outliers, {
+    req(data$combined)
+    df <- data$combined
+    num_cols <- df %>% select(where(is.numeric))
+    outlier_df <- map_dfr(num_cols, function(col) {
+      z_scores <- scale(col)
+      df[abs(z_scores) > input$zscore_threshold, ]
+    })
+    output$outliers <- renderDT(datatable(outlier_df))
+  })
+
+  observeEvent(input$save_clean, {
+    req(data$combined)
+    saveRDS(data$combined, "fetched_data/main.rds")
+    showNotification("Cleaned data saved successfully!", type = "message")
+  })
+
+  output$download_clean <- downloadHandler(
+    filename = "cleaned_data.rds",
+    content = function(file) {
+      saveRDS(data$combined, file)
+    }
+  )
+
+  output$clean_table <- renderDT({
+    req(data$combined)
+    datatable(data$combined, options = list(scrollX = TRUE))
+  })
+
+
+
+  # output$ethgeoUI <- renderUI({
+  #  source("ethgeo.R", local = TRUE)$value
+  # })
+
+
+  # Near other source() calls at the top
+  source("ethgeo.R")
+
+  # In the server function, add:
+  ethgeoUI("ethgeo_module")
+
+
+  source("dba.R")
+  dba_module_ui("dba_module")
+}
+
+# Run the application
+# shinyApp(ui = ui, server = server)

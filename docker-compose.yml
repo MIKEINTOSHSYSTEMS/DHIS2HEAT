@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  shiny:
+    container_name: moheatpdhis2
+    build:
+      context: ./
+      dockerfile: Dockerfile.shiny
+    ports:
+      - "3838:3838"
+      - "3939:3939"
+    environment:
+      USER: shiny
+      PASSWORD: shiny_password
+    volumes:
+      - ./:/srv/shiny-server
+    networks:
+      moh_heatp:
+        ipv4_address: 192.168.17.7
+
+networks:
+  moh_heatp:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.17.0/24

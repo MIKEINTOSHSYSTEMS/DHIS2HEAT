@@ -47,3 +47,23 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Shiny database
+*.sqlite
+
+# Temporary files created by R
+*.xlsx
+
+*.code-workspace
+
+# Temporary Backup scripts
+app/fetched_data/test_main.rds
+app/fetched_data/XmainX.rds
+app/saved_setting/test_source_settings.rds
+BACKUP_Dockerfile.Shiny
+BAK_Dockerfile.Shiny
+BACK_install.R
+bak_server.R
+
+# DHIS2 data fetcher main script
+app/dhis2_data.R

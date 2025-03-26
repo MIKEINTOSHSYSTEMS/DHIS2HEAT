@@ -1,0 +1,67 @@
+FROM rocker/shiny:latest
+
+# Install necessary system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    systemctl \
+    nano \
+    htop \
+    lsof \
+    inotify-tools \
+    libssl-dev \
+    libxml2-dev \
+    libsodium23 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install CRAN packages and GitHub packages in a single step to reduce layers
+#RUN R -e "install.packages(c('remotes', 'shiny', 'shinyjs', 'shinyWidgets', 'shinycssloaders', 'DT', 'httr', 'jsonlite', 'openxlsx', 'plotly', 'bslib', 'arrow', 'colourpicker', 'shinydashboard', 'shinyalert', 'dplyr', 'scales', 'pastecs', 'car', 'ggfortify', 'psych', 'sqldf', 'lubridate', 'kableExtra', 'gridExtra', 'fastDummies', 'DataExplorer', 'tidyverse', 'colorspace'), dependencies = TRUE, repos = 'https://cran.r-project.org/'); \
+#    remotes::install_github(c('rstudio/gridlayout', 'tidyverse/ggplot2', 'thomasp85/patchwork'))"
+
+# Basic Install for Testing
+RUN R -e "install.packages(c('remotes', 'httr'), dependencies = TRUE, repos = 'https://cran.r-project.org/')"
+
+# Install Remote GitHub packages
+RUN R -e "remotes::install_github(c('rstudio/gridlayout', 'tidyverse/ggplot2', 'thomasp85/patchwork'))"
+
+# Copy Shiny app files to the container
+COPY . /srv/shiny-server/
+
+# Ensure correct permissions
+RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/start_shiny_app.sh
+RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/deploy_shiny_app.sh
+RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/monitor_shiny_app.sh
+RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/install_shiny_packages.sh
+
+
+# Ensure start_shiny_app.sh and other scripts are executable
+RUN chmod +x /srv/shiny-server/start_shiny_app.sh
+RUN chmod +x start_shiny_app.sh
+RUN chmod +x /srv/shiny-server/deploy_shiny_app.sh
+RUN chmod +x deploy_shiny_app.sh
+RUN chmod +x /srv/shiny-server/init.deploy.sh
+RUN chmod +x init.deploy.sh
+RUN chmod +x /srv/shiny-server/install_shiny_packages.sh
+RUN chmod +x install_shiny_packages.sh
+
+
+# Set working directory for the Shiny app
+WORKDIR /srv/shiny-server
+
+# Expose ports (3838 for the Shiny app, 3939 for the Shiny Server admin)
+EXPOSE 3838 3939
+
+# Start Shiny Server
+#CMD ["./start_shiny_app.sh"]
+#CMD ["./deploy_shiny_app.sh"]
+#CMD ["./init.deploy.sh"]
+
+# Start Shiny Server with chained commands
+#CMD ["sh", "-c", "./deploy_shiny_app.sh && ./init.deploy.sh && ./install_shiny_packages.sh && ./start_shiny_app.sh"]
+
+# Fast Deploy and Start with chained commands
+#CMD ["sh", "-c", "./init.deploy.sh && ./install_shiny_packages.sh && ./start_shiny_app.sh"]
+#CMD ["sh", "-c", "./install_shiny_packages.sh && ./init.deploy.sh && ./start_shiny_app.sh"]
+
+# Start the Shiny app
+#CMD ["R", "-e", "shiny::runApp('/srv/shiny-server/UI')"]
+
+CMD ["sh", "-c", "./init.deploy.sh"]
