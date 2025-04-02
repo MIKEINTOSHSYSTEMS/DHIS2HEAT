@@ -29,7 +29,29 @@ The system is containerized using Docker for easy deployment and scalability.
 
 ## Technology Stack
 
-![Application Architecture Diagram](https://i.imgur.com/placeholder.png)
+```mermaid
+graph TD
+    A[Client Browser] --> B[LiteSpeed/Web Server]
+    B --> C[NGINX Proxy]
+    C --> D[Shiny Application]
+    D --> E[DHIS2 API]
+    D --> F[(SQLite Database)]
+    
+    subgraph Host Server
+        B
+    end
+    
+    subgraph Docker Containers
+        C
+        D
+    end
+    
+    subgraph External Services
+        E
+    end
+```
+
+## Technology Stack Details
 
 ### Frontend
 
@@ -38,6 +60,18 @@ The system is containerized using Docker for easy deployment and scalability.
 - **Plotly**: Interactive visualizations
 - **Leaflet/Mapbox**: Geographic visualizations
 
+### Frontend Layer
+
+```mermaid
+graph LR
+    A[Shiny UI] --> B[HTML/CSS]
+    A --> C[JavaScript]
+    A --> D[Shiny Widgets]
+    B --> E[bslib Themes]
+    C --> F[Plotly.js]
+    C --> G[Leaflet/Mapbox]
+```
+
 ### Backend
 
 - **R**: Data processing and analysis
@@ -45,11 +79,56 @@ The system is containerized using Docker for easy deployment and scalability.
 - **NGINX**: Reverse proxy and SSL termination
 - **SQLite**: Local user database
 
+### Backend Layer
+
+```mermaid
+graph LR
+    A[Shiny Server] --> B[R Runtime]
+    B --> C[httr API Calls]
+    B --> D[dplyr Data Wrangling]
+    B --> E[ggplot2 Visualizations]
+    B --> F[RSQLite Database]
+    C --> G[DHIS2 REST API]
+```
+
 ### Infrastructure
 
 - **Docker**: Containerization
 - **Docker Compose**: Orchestration
 - **LiteSpeed Web Server**: Host web server (optional)
+
+### Infrastructure Layer
+
+```mermaid
+graph TB
+    A[Docker Host] --> B[Shiny Container]
+    A --> C[NGINX Container]
+    B --> D[Rocky Linux Base]
+    B --> E[Shiny Server]
+    C --> F[NGINX]
+    C --> G[SSL Termination]
+    A --> H[Host Web Server]
+```
+
+### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant L as LiteSpeed
+    participant N as NGINX
+    participant S as Shiny
+    participant D as DHIS2
+    
+    C->>L: HTTPS Request
+    L->>N: Proxy Pass
+    N->>S: Forward Request
+    S->>D: API Call
+    D-->>S: JSON Data
+    S-->>N: HTML Response
+    N-->>L: Proxy Return
+    L-->>C: Rendered Page
+```
 
 ### Supporting Libraries
 
