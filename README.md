@@ -1,5 +1,7 @@
 # DHIS2 HEAT+ Data Fetcher and Visualization Dashboard
 
+![Feature Screenshot](./app/www/assets/feature1.jpeg)
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -384,5 +386,7 @@ docker-compose -p dhis2heat up -d --build
   - Application logs for errors
 
 ---
+
+![Feature Screenshot](./app/www/assets/app_loading.jpeg)
 
 This documentation provides a comprehensive guide to deploying and maintaining the DHIS2 HEAT+ Dashboard. For additional support, please open an issue on the GitHub repository.
