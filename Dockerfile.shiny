@@ -1,5 +1,5 @@
 FROM rocker/shiny:latest
-
+ 
 # Install necessary system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     systemctl \
@@ -24,6 +24,11 @@ RUN R -e "remotes::install_github(c('rstudio/gridlayout', 'tidyverse/ggplot2', '
 
 # Copy Shiny app files to the container
 COPY . /srv/shiny-server/
+COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
+
+#COPY /etc/letsencrypt/live/heat.merqconsultancy.org/privkey.pem /etc/shiny-server/privkey.pem
+#COPY /etc/letsencrypt/live/heat.merqconsultancy.org/fullchain.pem /etc/shiny-server/fullchain.pem
+
 
 # Ensure correct permissions
 RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/start_shiny_app.sh
@@ -34,20 +39,22 @@ RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/install
 
 # Ensure start_shiny_app.sh and other scripts are executable
 RUN chmod +x /srv/shiny-server/start_shiny_app.sh
-RUN chmod +x start_shiny_app.sh
+#RUN chmod +x start_shiny_app.sh
 RUN chmod +x /srv/shiny-server/deploy_shiny_app.sh
-RUN chmod +x deploy_shiny_app.sh
+#RUN chmod +x deploy_shiny_app.sh
 RUN chmod +x /srv/shiny-server/init.deploy.sh
-RUN chmod +x init.deploy.sh
+#RUN chmod +x init.deploy.sh
 RUN chmod +x /srv/shiny-server/install_shiny_packages.sh
-RUN chmod +x install_shiny_packages.sh
+#RUN chmod +x install_shiny_packages.sh
 
 
 # Set working directory for the Shiny app
 WORKDIR /srv/shiny-server
 
 # Expose ports (3838 for the Shiny app, 3939 for the Shiny Server admin)
-EXPOSE 3838 3939
+#EXPOSE 3838 3939 80
+#EXPOSE 3939 80 443
+EXPOSE 3939 80 443
 
 # Start Shiny Server
 #CMD ["./start_shiny_app.sh"]
@@ -62,6 +69,8 @@ EXPOSE 3838 3939
 #CMD ["sh", "-c", "./install_shiny_packages.sh && ./init.deploy.sh && ./start_shiny_app.sh"]
 
 # Start the Shiny app
-#CMD ["R", "-e", "shiny::runApp('/srv/shiny-server/UI')"]
+#CMD ["R", "-e", "shiny::runApp('/srv/shiny-server/app')"]
 
-CMD ["sh", "-c", "./init.deploy.sh"]
+#CMD ["sh", "-c", "init.deploy.sh"]
+#CMD ["sh", "-c", "./install_shiny_packages.sh"]
+#CMD ["sh", "-c", "./srv/shiny-server/install_shiny_packages.sh"]

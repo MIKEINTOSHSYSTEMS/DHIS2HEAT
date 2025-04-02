@@ -1,2 +1,2 @@
 #!/bin/bash
-R -e "source('/srv/shiny-server/UI/install.R')"
+R -e "source('/srv/shiny-server/app/install.R')"

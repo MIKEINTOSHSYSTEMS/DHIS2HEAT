@@ -24,7 +24,7 @@ echo "Setting Sass cache directory for bslib::bs_theme()..."
 R -e "options(sass.cache = '/tmp/R_cache')"
 
 # Shiny app source directory inside the container
-APP_SRC="/srv/shiny-server/UI"
+APP_SRC="/srv/shiny-server/app"
 
 echo "Starting Shiny App Deployment Process..."
 
@@ -87,17 +87,17 @@ systemctl restart shiny-server
 
 # Step 4: Set ACL for both root and shiny users to ensure proper access to app files
 echo "Setting ACLs for Shiny app files..."
-setfacl -R -m u:shiny:rwx /srv/shiny-server/UI
-setfacl -R -m u:root:rwx /srv/shiny-server/UI
-setfacl -R -d -m u:shiny:rwx /srv/shiny-server/UI
-setfacl -R -d -m u:root:rwx /srv/shiny-server/UI
+setfacl -R -m u:shiny:rwx /srv/shiny-server/app
+setfacl -R -m u:root:rwx /srv/shiny-server/app
+setfacl -R -d -m u:shiny:rwx /srv/shiny-server/app
+setfacl -R -d -m u:root:rwx /srv/shiny-server/app
 
 # Step 5: Create a file monitoring script to watch for changes in the UI folder
 echo "Creating file monitoring script..."
 cat << 'EOF' > /srv/shiny-server/monitor_shiny_app.sh
 #!/bin/bash
 
-APP_DIR="/srv/shiny-server/UI"
+APP_DIR="/srv/shiny-server/app"
 LOG_FILE="/srv/shiny-server/shiny_app_monitor.log"
 
 echo "Monitoring Shiny app directory for changes..." >> $LOG_FILE
@@ -138,7 +138,7 @@ echo "Creating file monitoring script..."
 cat << 'EOF' > /srv/shiny-server/monitor_shiny_app.sh
 #!/bin/bash
 
-APP_DIR="/srv/shiny-server/UI"
+APP_DIR="/srv/shiny-server/app"
 LOG_FILE="/srv/shiny-server/shiny_app_monitor.log"
 
 echo "Monitoring Shiny app directory for changes..." >> $LOG_FILE
@@ -176,19 +176,19 @@ EOF
 
 # Step 9: Set file ownership and permissions
 echo "Setting ownership and permissions..."
-chown shiny:shiny /srv/shiny-server/saved_setting/settings.rds
-chmod 644 /srv/shiny-server/saved_setting/settings.rds
+chown shiny:shiny /srv/shiny-server/app/saved_setting/settings.rds
+chmod 644 /srv/shiny-server/app/saved_setting/settings.rds
 
-sudo chmod -R 775 /srv/shiny-server/UI
+sudo chmod -R 775 /srv/shiny-server/app
 
-sudo chown shiny:shiny /srv/shiny-server/UI/data.sqlite
-sudo chmod 775 /srv/shiny-server/UI/data.sqlite
+sudo chown shiny:shiny /srv/shiny-server/app/db/data.sqlite
+sudo chmod 775 /srv/shiny-server/app/db/data.sqlite
 
-sudo chown -R shiny:shiny /srv/shiny-server/fetched_data
-sudo chmod -R 775 /srv/shiny-server/fetched_data
+sudo chown -R shiny:shiny /srv/shiny-server/app/fetched_data
+sudo chmod -R 775 /srv/shiny-server/app/fetched_data
 
-sudo chown -R shiny:shiny /srv/shiny-server/fetched_data
-sudo chmod 775 /srv/shiny-server/fetched_data/main.rds
+sudo chown -R shiny:shiny /srv/shiny-server/app/fetched_data
+sudo chmod 775 /srv/shiny-server/app/fetched_data/main.rds
 
 # Step 10: Final confirmation
 if [ $? -eq 0 ]; then
@@ -198,9 +198,9 @@ else
   exit 1
 fi
 echo "Starting the Shiny app..."
-#R -e "shiny::runApp('/srv/shiny-server/UI')"
+#R -e "shiny::runApp('/srv/shiny-server/app')"
 
-#R -e "shiny::runApp('/srv/shiny-server/UI/app.R')"
-#R -e "shiny::runApp('/srv/shiny-server/UI', host = '0.0.0.0', port = 3838)"
+#R -e "shiny::runApp('/srv/shiny-server/app/app.R')"
+#R -e "shiny::runApp('/srv/shiny-server/app', host = '0.0.0.0', port = 3838)"
 echo "Loading DHIS2 HEAT Data Fetcher and Visualization Dashboard..."
 /srv/shiny-server/start_shiny_app.sh

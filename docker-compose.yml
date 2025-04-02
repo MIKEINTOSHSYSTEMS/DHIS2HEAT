@@ -1,3 +1,9 @@
+# docker-compose -p dhis2heat up -d
+# docker-compose -p dhis2heat -f docker-compose.yml up -d
+# docker-compose -p dhis2heat down --volumes --rmi all
+# docker-compose -p dhis2heat -f docker-compose.yml down --volumes --rmi all
+# docker-compose -p dhis2heat down && docker-compose -p dhis2heat up -d
+
 version: "3.7"
 
 services:
@@ -7,16 +13,52 @@ services:
       context: ./
       dockerfile: Dockerfile.shiny
     ports:
-      - "3838:3838"
+#      - "3838:3838"
       - "3939:3939"
+#      - "3939"
+#      - "3939:80"
+#      - "127.0.0.1:3939:3939"  # Only expose to localhost
+#      - "127.0.0.1:3939:80"  # Only expose to localhost
     environment:
-      USER: shiny
-      PASSWORD: shiny_password
+      - SHINY_PROXY=true
+      - VIRTUAL_HOST=heat.merqconsultancy.org
+      - VIRTUAL_PORT=3939
+      - DISABLE_HTTP2=true  # Important for WebSocket compatibility    
+#      - USER: shiny
+#      - PASSWORD: shiny_password
+# environment variables for proxy awareness      
+#      - SHINY_PROXY: "true"
+#      - VIRTUAL_HOST: "heat.merqconsultancy.org"  # change this if it is differrent
     volumes:
       - ./:/srv/shiny-server
+      - ./shiny-server.conf:/etc/shiny-server/shiny-server.conf
     networks:
       moh_heatp:
         ipv4_address: 192.168.17.7
+
+  nginx_proxy:
+    # Typically, we may refer to an image to pull from here. This is a sample, so there is none.
+    # image: image_name
+    # Build Dockerfile
+    build: ./nginx_app
+    # Name of the container
+    container_name: moheatpdhis2proxy
+    restart: always
+    # Mapping ports 80 and 443 on your machines infrastructure.
+    # Typically, your port for transfer control protocol is 22/tcp is SSH, 80/tcp is HTTP, and 443/tcp is HTTPS.
+    ports:
+      - 8939:80
+      - 9443:443
+    # Dependencies
+    depends_on:
+      - shiny
+
+    networks:
+      moh_heatp:
+        ipv4_address: 192.168.17.9
+
+volumes:
+  shiny-server.conf:
 
 networks:
   moh_heatp:
