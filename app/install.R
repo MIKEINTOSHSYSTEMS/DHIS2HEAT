@@ -36,7 +36,13 @@ required_packages <- c(
     "openxlsx",
     "slickR", # For slick slider UI elements in Shiny
     "remotes", # Add remotes if needed for installing from remote repositories
-    "httr" # Add httr if needed for HTTP requests
+    "httr", # Add httr if needed for HTTP requests
+    "leaflet",
+    "sf",
+    "rnaturalearth",
+    "rpivotTable",
+    "RPostgreSQL", # For PostgreSQL database connection
+    "DBI" # General database interface
 )
 
 # Remove dplyr and ggplot2 since they're part of tidyverse
@@ -64,3 +70,7 @@ cat("All required packages are installed.\n")
 # to install
 # source("install.R")
 # source("UI/install.R")
+
+#install.packages("package_name")
+# install.packages("DBI")
+# install.packages("RPostgreSQL")

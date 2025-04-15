@@ -24,10 +24,12 @@ library(arrow) # Add arrow library for Parquet support
 library(rjson)
 library(jsonlite)
 library(slickR)
+library(rpivotTable) # For pivot table functionality
 
 # Source the UI and server components of data exploration and cleaning
 # source("exclean.R")
 # source("clean.R", local = TRUE)$value
+source("load_countries.R", local = TRUE)$value
 source("exclean.R", local = TRUE)$value
 source("ethgeo.R", local = TRUE)$value
 source("dba.R", local = TRUE)$value
@@ -211,6 +213,7 @@ ui <- tagList(
           hr(),
           sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
+            menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
               menuSubItem("Source Setting", tabName = "source_setting", icon = icon("sliders-h")),
@@ -502,6 +505,141 @@ ui <- tagList(
                 )
               )
             ),
+tabItem(
+  tabName = "benchmarking",
+  fluidRow(
+    box(
+      title = "Benchmark Settings",
+      status = "primary",
+      solidHeader = TRUE,
+      width = 12,
+      fluidRow(
+        column(3,
+               selectInput("benchmark_setting", "Setting Level",
+                           choices = c("Country", "Region", "Zone", "Woreda"),
+                           selected = "Region")),
+        column(3,
+               selectInput("benchmark_date_type", "Date Selection",
+                           choices = c("Single Date", "Date Range"),
+                           selected = "Single Date")),
+          column(3,
+            conditionalPanel(
+              condition = "input.benchmark_date_type == 'Date Range'",
+              numericInput("start_year", "Start Year",
+                value = 2014, min = 2000, max = 2100
+              ),
+              numericInput("end_year", "End Year",
+                value = as.integer(format(Sys.Date(), "%Y")),
+                min = 2000, max = 2100
+              )
+            )
+          ),
+        column(3,
+               conditionalPanel(
+                 condition = "input.benchmark_date_type == 'Single Date'",
+                 selectizeInput("benchmark_specific_date", "Select Date", choices = NULL)
+               )),
+        column(3,
+               selectInput("benchmark_chart_type", "Chart Type",
+                           choices = c("Bar", "Horizontal Bar", "Scatter", "Line"),
+                           selected = "Bar"))
+      ),
+      
+      conditionalPanel(
+        condition = "input.benchmark_setting == 'Country'",
+        fluidRow(
+          column(3,
+                 selectizeInput("income_filter", "Country Income Group",
+                                choices = NULL,
+                                multiple = TRUE)),
+          column(3,
+                 selectizeInput("who_region_filter", "WHO Region",
+                                choices = NULL,
+                                multiple = TRUE)),
+          column(3,
+                 selectizeInput("country_select", "Select Countries",
+                                choices = NULL,
+                                multiple = TRUE)),
+          column(3,
+                 selectizeInput("benchmark_indicator_country", "Indicator", 
+                                choices = NULL, multiple = TRUE))
+        ),
+        fluidRow(
+          column(4,
+                 selectizeInput("benchmark_dimension_country", "Dimension",
+                                choices = NULL, multiple = TRUE)),
+          column(4,
+                 selectizeInput("benchmark_subgroup_country", "Reference Subgroup", 
+                                choices = NULL, multiple = FALSE)),
+          column(4,
+                 conditionalPanel(
+                   condition = "input.benchmark_date_type == 'Date Range'",
+                   numericInput("start_year", "Start Year", 
+                                value = 2014, min = 2000, max = 2100),
+                   numericInput("end_year", "End Year", 
+                                value = as.integer(format(Sys.Date(), "%Y")), 
+                                min = 2000, max = 2100)
+                 ))
+        )
+      ),
+      
+      conditionalPanel(
+        condition = "input.benchmark_setting != 'Country'",
+        fluidRow(
+          column(4,
+                 selectizeInput("benchmark_indicator", "Indicator", 
+                                choices = NULL, multiple = FALSE)),
+          column(4,
+                 selectizeInput("benchmark_dimension", "Inequality Dimension",
+                                choices = NULL,
+                                selected = "Region")),
+          column(4,
+                 selectizeInput("benchmark_subgroup", "Benchmark Subgroup", 
+                                choices = NULL, multiple = TRUE))
+        )
+      ),
+      
+      fluidRow(
+        column(3,
+               conditionalPanel(
+                 condition = "input.benchmark_chart_type == 'Bar' || input.benchmark_chart_type == 'Horizontal Bar'",
+                 selectInput("benchmark_bar_mode", "Bar Mode",
+                             choices = c("Grouped" = "group", "Stacked" = "stack"),
+                             selected = "group")
+               )),
+        column(3,
+               numericInput("plot_height", "Plot Height (px)", value = 600, min = 300, max = 1200)),
+        column(3,
+               numericInput("plot_width", "Plot Width (px)", value = 900, min = 300, max = 1200)),
+        column(3,
+               actionButton("apply_benchmark", "Apply Benchmark", class = "btn-primary"))
+      )
+    ),
+    
+    box(
+      title = "Benchmark Comparison",
+      status = "success",
+      solidHeader = TRUE,
+      width = 12,
+      tabsetPanel(
+        tabPanel("Visual Comparison",
+                 plotlyOutput("benchmark_plot", 
+                             height = "600px",
+                             width = "100%")),
+        tabPanel("Data Table",
+                 DTOutput("benchmark_table")),
+        tabPanel("Summary Statistics",
+                 verbatimTextOutput("benchmark_summary")),
+        tabPanel("Pivot Table",
+                 rpivotTableOutput("pivot_table", 
+                             height = "900px",
+                             width = "100%"))
+      ),
+      downloadButton("download_benchmark", "Download Benchmark Data", 
+                     class = "btn-info")
+    )
+  )
+),
             tabItem(
               tabName = "dash_explore_clean",
               fluidPage(

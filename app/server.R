@@ -29,17 +29,21 @@ library(arrow) # Add arrow library for Parquet support
 library(purrr)
 library(here)
 library(slickR)
+library(rpivotTable)  # For pivot table functionality
+library(RPostgreSQL)
+library(DBI)
 
 # Load existing functions
 source("dhis2_data.R")
 #source("dba.R", local = TRUE)$value
-#source("ethgeo.R") # not unless it is loading the geojson file
-#source("dba.R")
+source("ethgeo.R") # not unless it is loading the geojson file
+source("dba.R")
 # source("auth.R")
 
 eth_geojson <- rjson::fromJSON(file = "./www/ethiopia_regions_map_simple.json")
 mapboxToken <- "pk.eyJ1IjoiaG1vcmdhbnN0ZXdhcnQiLCJhIjoiY2tmaTg5NDljMDBwbDMwcDd2OHV6cnd5dCJ9.8eLR4FtlO079Gq0NeSNoeg"
 
+options(future.globals.maxSize = 2 * 1024^3) # 2GB memory limit
 
 # Define server logic
 server <- function(input, output, session) {
@@ -1592,6 +1596,691 @@ server <- function(input, output, session) {
   })
 
 
+# Load country metadata
+source("load_countries.R")
+
+# Benchmarking reactive values
+benchmark_data <- reactiveValues(
+  parquet_data = NULL,
+  country_meta = NULL,
+  settings = NULL,
+  comparison_data = NULL,
+  reference_data = NULL,
+  available_indicators = NULL,
+  available_dimensions = NULL,
+  available_countries = NULL,
+  available_regions = NULL,
+  available_incomes = NULL
+)
+
+# Load Parquet data when app starts
+observe({
+  parquet_path <- "./data/indicators_data/HEAT_who_indicators.parquet"
+
+  if (!file.exists(parquet_path)) {
+    showNotification("Parquet data file not found", type = "error")
+    return(NULL)
+  }
+
+  tryCatch(
+    {
+      # Read data
+      df <- read_parquet(parquet_path)
+
+      # Type conversion
+      df <- df %>%
+        mutate(across(c(
+          date, estimate, se, ci_lb, ci_ub, population,
+          setting_average, indicator_scale, subgroup_order
+        ), as.numeric))
+
+      # Store the data
+      benchmark_data$parquet_data <- df
+
+      # Extract metadata - using the safe rename approach
+      benchmark_data$country_meta <- df %>%
+        select(setting, iso3, whoreg6, wbincome2024) %>%
+        distinct() %>%
+        rename_with(~ case_when(
+          . == "whoreg6" ~ "whoreg6_name",
+          . == "wbincome2024" ~ "wbincome_name",
+          TRUE ~ .
+        ))
+
+      # Update available options
+      if (!is.null(df)) {
+        benchmark_data$available_indicators <- unique(df$indicator_name)
+        benchmark_data$available_dimensions <- unique(df$dimension)
+        benchmark_data$available_countries <- unique(df$setting)
+        benchmark_data$available_regions <- unique(df$whoreg6)
+        benchmark_data$available_incomes <- unique(df$wbincome2024)
+
+        updateSelectizeInput(session, "income_filter",
+          choices = benchmark_data$available_incomes,
+          server = TRUE
+        )
+        updateSelectizeInput(session, "who_region_filter",
+          choices = benchmark_data$available_regions,
+          server = TRUE
+        )
+        updateSelectizeInput(session, "country_select",
+          choices = benchmark_data$available_countries,
+          server = TRUE
+        )
+      }
+    },
+    error = function(e) {
+      showNotification(paste("Error:", e$message), type = "error")
+    }
+  )
+})
+
+# Update country selection based on filters
+observe({
+  req(benchmark_data$country_meta)
+
+  filtered <- benchmark_data$country_meta
+
+  if (!is.null(input$income_filter) && length(input$income_filter) > 0) {
+    filtered <- filtered %>%
+      filter(wbincome_name %in% input$income_filter)
+  }
+
+  if (!is.null(input$who_region_filter) && length(input$who_region_filter) > 0) {
+    filtered <- filtered %>%
+      filter(whoreg6_name %in% input$who_region_filter)
+  }
+
+  updateSelectizeInput(session, "country_select",
+    choices = unique(filtered$setting),
+    server = TRUE
+  )
+})
+
+# Update inputs based on benchmark setting
+observeEvent(input$benchmark_setting, {
+  if (input$benchmark_setting == "Country") {
+    # Update indicator choices from Parquet data
+    updateSelectizeInput(session, "benchmark_indicator_country",
+      choices = benchmark_data$available_indicators,
+      server = TRUE
+    )
+
+    # Update dimension choices from Parquet data
+    updateSelectizeInput(session, "benchmark_dimension_country",
+      choices = benchmark_data$available_dimensions,
+      server = TRUE
+    )
+  } else {
+    # Update indicator choices from DHIS2 data
+    updateSelectizeInput(session, "benchmark_indicator",
+      choices = unique(data$combined$indicator_name),
+      server = TRUE
+    )
+
+    # Update dimension choices for Ethiopia
+    current_choices <- switch(input$benchmark_setting,
+      "Region" = c("Region", "Facility Type", "Settlement"),
+      "Zone" = "Zone",
+      "Woreda" = "Woreda",
+      c("Region", "Zone", "Woreda", "Facility Type", "Settlement")
+    )
+
+    updateSelectizeInput(session, "benchmark_dimension",
+      choices = current_choices
+    )
+  }
+})
+
+# Update date inputs
+observe({
+  if (input$benchmark_setting == "Country" && !is.null(benchmark_data$parquet_data)) {
+    dates <- unique(benchmark_data$parquet_data$date)
+    updateSelectizeInput(session, "benchmark_specific_date",
+      choices = sort(dates, decreasing = TRUE)
+    )
+  } else {
+    req(data$combined)
+    dates <- unique(data$combined$date)
+    updateSelectizeInput(session, "benchmark_specific_date",
+      choices = sort(dates, decreasing = TRUE)
+    )
+  }
+})
+
+# Update subgroup choices
+observeEvent(list(input$benchmark_dimension, input$benchmark_dimension_country), {
+  if (input$benchmark_setting == "Country") {
+    req(benchmark_data$parquet_data, input$benchmark_dimension_country)
+
+    subgroups <- benchmark_data$parquet_data %>%
+      filter(dimension %in% input$benchmark_dimension_country) %>%
+      pull(subgroup) %>%
+      unique()
+
+    updateSelectizeInput(session, "benchmark_subgroup_country",
+      choices = subgroups,
+      server = TRUE
+    )
+  } else {
+    req(data$combined, input$benchmark_dimension)
+
+    subgroups <- data$combined %>%
+      filter(dimension == input$benchmark_dimension) %>%
+      pull(subgroup) %>%
+      unique()
+
+    updateSelectizeInput(session, "benchmark_subgroup",
+      choices = subgroups
+    )
+  }
+})
+
+# Main benchmarking logic - Fixed Version
+observeEvent(input$apply_benchmark, {
+  tryCatch(
+    {
+      if (input$benchmark_setting == "Country") {
+        req(
+          input$country_select, benchmark_data$parquet_data,
+          input$benchmark_indicator_country, input$benchmark_dimension_country
+        )
+
+        if (length(input$country_select) < 1) {
+          stop("Please select at least 1 country for comparison")
+        }
+
+        # Get date range
+        if (input$benchmark_date_type == "Single Date") {
+          req(input$benchmark_specific_date)
+          date_filter <- as.numeric(input$benchmark_specific_date)
+        } else {
+          req(input$start_year, input$end_year)
+          date_filter <- input$start_year:input$end_year
+        }
+
+        # Filter data with proper error handling
+        comparison_data <- tryCatch(
+          {
+            benchmark_data$parquet_data %>%
+              filter(
+                setting %in% input$country_select,
+                indicator_name %in% input$benchmark_indicator_country,
+                dimension %in% input$benchmark_dimension_country,
+                date %in% date_filter
+              ) %>%
+              left_join(benchmark_data$country_meta, by = c("setting", "iso3")) %>%
+              group_by(setting, iso3, whoreg6_name, wbincome_name, indicator_name, dimension, subgroup) %>%
+              summarise(
+                mean_estimate = ifelse(all(is.na(estimate)), NA, mean(estimate, na.rm = TRUE)),
+                min_estimate = ifelse(all(is.na(estimate)), NA, min(estimate, na.rm = TRUE)),
+                max_estimate = ifelse(all(is.na(estimate)), NA, max(estimate, na.rm = TRUE)),
+                mean_ci_lb = ifelse(all(is.na(ci_lb)), NA, mean(ci_lb, na.rm = TRUE)),
+                mean_ci_ub = ifelse(all(is.na(ci_ub)), NA, mean(ci_ub, na.rm = TRUE)),
+                mean_population = ifelse(all(is.na(population)), NA, mean(as.numeric(population), na.rm = TRUE)),
+                .groups = "drop"
+              )
+          },
+          error = function(e) {
+            showNotification(paste("Data processing error:", e$message), type = "error")
+            return(NULL)
+          }
+        )
+
+        if (is.null(comparison_data)) {
+          return()
+        }
+
+        benchmark_data$comparison_data <- comparison_data
+
+        # Set reference data if subgroup is selected
+        if (!is.null(input$benchmark_subgroup_country) &&
+          input$benchmark_subgroup_country != "") {
+          benchmark_data$reference_data <- tryCatch(
+            {
+              req(benchmark_data$comparison_data)
+              benchmark_data$comparison_data %>%
+                filter(subgroup %in% input$benchmark_subgroup_country)
+            },
+            error = function(e) {
+              showNotification(paste("Reference data error:", e$message), type = "error")
+              return(NULL)
+            }
+          )
+        } else {
+          benchmark_data$reference_data <- NULL
+        }
+      } else {
+        # Existing Ethiopia regional benchmarking code
+        req(
+          data$combined, input$benchmark_indicator,
+          input$benchmark_dimension, input$benchmark_subgroup
+        )
+
+        # Get date range
+        if (input$benchmark_date_type == "Single Date") {
+          req(input$benchmark_specific_date)
+          date_filter <- input$benchmark_specific_date
+        } else {
+          req(input$start_year, input$end_year)
+          date_filter <- input$start_year:input$end_year
+        }
+
+        # Filter data with error handling
+        comparison_data <- tryCatch(
+          {
+            data$combined %>%
+              filter(
+                indicator_name == input$benchmark_indicator,
+                dimension == input$benchmark_dimension,
+                date %in% date_filter
+              )
+          },
+          error = function(e) {
+            showNotification(paste("Data filtering error:", e$message), type = "error")
+            return(NULL)
+          }
+        )
+
+        if (is.null(comparison_data)) {
+          return()
+        }
+
+        # Calculate averages if date range is selected
+        if (input$benchmark_date_type == "Date Range") {
+          comparison_data <- comparison_data %>%
+            group_by(subgroup, dimension) %>%
+            summarise(
+              estimate = ifelse(all(is.na(estimate)), NA, mean(estimate, na.rm = TRUE)),
+              population = ifelse(all(is.na(population)), NA, mean(as.numeric(population), na.rm = TRUE)),
+              .groups = "drop"
+            )
+        }
+
+        benchmark_data$comparison_data <- comparison_data %>%
+          arrange(desc(estimate))
+
+        # Get reference data
+        benchmark_data$reference_data <- tryCatch(
+          {
+            req(benchmark_data$comparison_data)
+            benchmark_data$comparison_data %>%
+              filter(subgroup == input$benchmark_subgroup)
+          },
+          error = function(e) {
+            showNotification(paste("Reference data error:", e$message), type = "error")
+            return(NULL)
+          }
+        )
+
+        # Calculate differences
+        if (!is.null(benchmark_data$reference_data) && nrow(benchmark_data$reference_data) > 0) {
+          ref_value <- mean(benchmark_data$reference_data$estimate)
+
+          benchmark_data$comparison_data <- benchmark_data$comparison_data %>%
+            mutate(
+              is_benchmark = subgroup == input$benchmark_subgroup,
+              difference = estimate - ref_value,
+              pct_difference = (difference / ref_value) * 100
+            )
+        }
+      }
+    },
+    error = function(e) {
+      showNotification(paste("Benchmarking error:", e$message), type = "error")
+    }
+  )
+})
+
+# Fixed Benchmark visualization
+output$benchmark_plot <- renderPlotly({
+  req(benchmark_data$comparison_data)
+
+  if (input$benchmark_setting == "Country") {
+    req(benchmark_data$comparison_data)
+    plot_data <- benchmark_data$comparison_data
+
+    # Verify required columns exist
+    required_cols <- c("setting", "mean_estimate", "subgroup", "indicator_name", "dimension", "mean_population")
+    if (!all(required_cols %in% names(plot_data))) {
+      return(plotly_empty() %>% layout(title = "Required data columns not available"))
+    }
+
+    # Create different plot types
+    p <- switch(input$benchmark_chart_type,
+      "Bar" = {
+        plot_ly(plot_data,
+          x = ~setting, y = ~mean_estimate,
+          type = "bar",
+          color = ~subgroup,
+          text = ~ paste(
+            "Country:", setting,
+            "<br>Indicator:", indicator_name,
+            "<br>Dimension:", dimension,
+            "<br>Subgroup:", subgroup,
+            "<br>Estimate:", round(mean_estimate, 2),
+            "<br>Population:", round(mean_population)
+          ),
+          hoverinfo = "text"
+        ) %>%
+          layout(
+            barmode = input$benchmark_bar_mode,
+            xaxis = list(title = "", categoryorder = "total descending"),
+            yaxis = list(title = "Estimate"),
+            showlegend = TRUE
+          )
+      },
+      "Horizontal Bar" = {
+        plot_ly(plot_data,
+          y = ~setting, x = ~mean_estimate,
+          type = "bar",
+          orientation = "h",
+          color = ~subgroup,
+          text = ~ paste(
+            "Country:", setting,
+            "<br>Estimate:", round(mean_estimate, 2),
+            "<br>Subgroup:", subgroup
+          ),
+          hoverinfo = "text"
+        ) %>%
+          layout(
+            barmode = input$benchmark_bar_mode,
+            yaxis = list(title = "", categoryorder = "total ascending"),
+            xaxis = list(title = "Estimate"),
+            showlegend = TRUE
+          )
+      },
+      "Scatter" = {
+        plot_ly(plot_data,
+          x = ~setting, y = ~mean_estimate,
+          type = "scatter",
+          mode = "markers",
+          color = ~subgroup,
+          size = ~mean_population,
+          text = ~ paste(
+            "Country:", setting,
+            "<br>Subgroup:", subgroup,
+            "<br>Estimate:", round(mean_estimate, 2)
+          ),
+          hoverinfo = "text"
+        ) %>%
+          layout(
+            xaxis = list(title = ""),
+            yaxis = list(title = "Estimate"),
+            showlegend = TRUE
+          )
+      },
+      "Line" = {
+        plot_ly(plot_data,
+          x = ~setting, y = ~mean_estimate,
+          type = "scatter",
+          mode = "lines+markers",
+          color = ~subgroup,
+          text = ~ paste(
+            "Country:", setting,
+            "<br>Subgroup:", subgroup,
+            "<br>Estimate:", round(mean_estimate, 2)
+          ),
+          hoverinfo = "text"
+        ) %>%
+          layout(
+            xaxis = list(title = ""),
+            yaxis = list(title = "Estimate"),
+            showlegend = TRUE
+          )
+      }
+    )
+
+    # Add reference line if reference data exists
+    if (!is.null(benchmark_data$reference_data) &&
+      nrow(benchmark_data$reference_data) > 0 &&
+      "mean_estimate" %in% names(benchmark_data$reference_data)) {
+      ref_value <- mean(benchmark_data$reference_data$mean_estimate, na.rm = TRUE)
+      if (!is.na(ref_value)) {
+        p <- p %>% add_lines(
+          x = ~ unique(setting),
+          y = ref_value,
+          line = list(color = "red", dash = "dot"),
+          name = "Reference",
+          showlegend = TRUE
+        )
+      }
+    }
+
+    return(p)
+  } else {
+    # Existing regional benchmarking plot code
+    req(benchmark_data$reference_data)
+    plot_data <- benchmark_data$comparison_data
+
+    # Verify required columns exist
+    required_cols <- c("subgroup", "estimate", "is_benchmark", "difference", "pct_difference", "population")
+    if (!all(required_cols %in% names(plot_data))) {
+      return(plotly_empty() %>% layout(title = "Required data columns not available"))
+    }
+
+    plot_ly(
+      data = plot_data,
+      x = ~ reorder(subgroup, estimate),
+      y = ~estimate,
+      type = "bar",
+      color = ~is_benchmark,
+      colors = c("#1f77b4", "#ff7f0e"),
+      text = ~ paste(
+        "Subgroup:", subgroup,
+        "<br>Estimate:", round(estimate, 2),
+        "<br>Difference:", round(difference, 2),
+        "<br>% Difference:", round(pct_difference, 2), "%",
+        "<br>Population:", round(population)
+      ),
+      hoverinfo = "text"
+    ) %>%
+      layout(
+        title = paste("Benchmark Comparison for", input$benchmark_indicator),
+        xaxis = list(title = ""),
+        yaxis = list(title = "Estimate"),
+        showlegend = FALSE,
+        shapes = if (nrow(benchmark_data$reference_data) > 0) {
+          list(
+            type = "line",
+            x0 = -0.5,
+            x1 = nrow(plot_data) - 0.5,
+            y0 = benchmark_data$reference_data$estimate[1],
+            y1 = benchmark_data$reference_data$estimate[1],
+            line = list(color = "red", dash = "dot")
+          )
+        },
+        annotations = if (nrow(benchmark_data$reference_data) > 0) {
+          list(
+            x = nrow(plot_data) - 1,
+            y = benchmark_data$reference_data$estimate[1],
+            text = paste("Benchmark:", input$benchmark_subgroup),
+            showarrow = FALSE,
+            xanchor = "right"
+          )
+        }
+      )
+  }
+})
+
+# Fixed Benchmark table output
+output$benchmark_table <- renderDT({
+  req(benchmark_data$comparison_data)
+
+  if (input$benchmark_setting == "Country") {
+    # Verify columns exist before selecting
+    required_cols <- c(
+      "setting", "whoreg6_name", "wbincome_name", "indicator_name",
+      "dimension", "subgroup", "mean_estimate", "min_estimate",
+      "max_estimate", "mean_ci_lb", "mean_ci_ub", "mean_population"
+    )
+
+    if (!all(required_cols %in% names(benchmark_data$comparison_data))) {
+      return(datatable(data.frame(Error = "Required columns not available")))
+    }
+
+    table_data <- benchmark_data$comparison_data %>%
+      select(
+        Country = setting,
+        `WHO Region` = whoreg6_name,
+        `Income Group` = wbincome_name,
+        Indicator = indicator_name,
+        Dimension = dimension,
+        Subgroup = subgroup,
+        `Mean Estimate` = mean_estimate,
+        `Min Estimate` = min_estimate,
+        `Max Estimate` = max_estimate,
+        `CI Lower` = mean_ci_lb,
+        `CI Upper` = mean_ci_ub,
+        Population = mean_population
+      )
+  } else {
+    # Verify columns exist before selecting
+    required_cols <- c(
+      "subgroup", "estimate", "difference", "pct_difference",
+      "ci_lb", "ci_ub", "population"
+    )
+
+    if (!all(required_cols %in% names(benchmark_data$comparison_data))) {
+      return(datatable(data.frame(Error = "Required columns not available")))
+    }
+
+    table_data <- benchmark_data$comparison_data %>%
+      select(
+        Subgroup = subgroup,
+        Estimate = estimate,
+        Difference = difference,
+        `% Difference` = pct_difference,
+        `CI Lower` = ci_lb,
+        `CI Upper` = ci_ub,
+        Population = population
+      )
+  }
+
+  datatable(
+    table_data,
+    extensions = c("Buttons", "Responsive"),
+    options = list(
+      pageLength = 20,
+      scrollX = TRUE,
+      dom = "Bfrtip",
+      buttons = c("copy", "csv", "excel", "pdf", "print"),
+      responsive = TRUE
+    ),
+    rownames = FALSE
+  ) %>%
+    formatRound(columns = sapply(table_data, is.numeric), digits = 2)
+})
+
+# Pivot table output
+output$pivot_table <- renderRpivotTable({
+  req(benchmark_data$comparison_data)
+
+  if (input$benchmark_setting == "Country") {
+    req(benchmark_data$comparison_data)
+    rpivotTable(benchmark_data$comparison_data,
+      rows = c("setting", "dimension"),
+      cols = "indicator_name",
+      vals = "mean_estimate",
+      aggregatorName = "Average",
+      rendererName = "Table"
+    )
+  } else {
+    rpivotTable(benchmark_data$comparison_data,
+      rows = c("subgroup", "dimension"),
+      cols = "indicator_name",
+      vals = "estimate",
+      aggregatorName = "Average",
+      rendererName = "Table"
+    )
+  }
+})
+
+# Summary statistics output
+output$benchmark_summary <- renderPrint({
+  req(benchmark_data$comparison_data)
+
+  if (input$benchmark_setting == "Country") {
+    cat("Country Comparison Summary Statistics\n")
+    cat("=====================================\n\n")
+
+    if (!is.null(benchmark_data$comparison_data)) {
+      # Summary by country
+      if ("setting" %in% names(benchmark_data$comparison_data) &&
+        "mean_estimate" %in% names(benchmark_data$comparison_data)) {
+        cat("By Country:\n")
+        print(benchmark_data$comparison_data %>%
+          group_by(setting) %>%
+          summarise(
+            Mean = mean(mean_estimate, na.rm = TRUE),
+            Median = median(mean_estimate, na.rm = TRUE),
+            SD = sd(mean_estimate, na.rm = TRUE),
+            Min = min(mean_estimate, na.rm = TRUE),
+            Max = max(mean_estimate, na.rm = TRUE),
+            .groups = "drop"
+          ))
+      }
+
+      # Summary by dimension
+      if ("dimension" %in% names(benchmark_data$comparison_data)) {
+        cat("\nBy Dimension:\n")
+        print(benchmark_data$comparison_data %>%
+          group_by(dimension) %>%
+          summarise(
+            Mean = mean(mean_estimate, na.rm = TRUE),
+            Median = median(mean_estimate, na.rm = TRUE),
+            SD = sd(mean_estimate, na.rm = TRUE),
+            Min = min(mean_estimate, na.rm = TRUE),
+            Max = max(mean_estimate, na.rm = TRUE),
+            .groups = "drop"
+          ))
+      }
+
+      # Summary by indicator
+      if ("indicator_name" %in% names(benchmark_data$comparison_data)) {
+        cat("\nBy Indicator:\n")
+        print(benchmark_data$comparison_data %>%
+          group_by(indicator_name) %>%
+          summarise(
+            Mean = mean(mean_estimate, na.rm = TRUE),
+            Median = median(mean_estimate, na.rm = TRUE),
+            SD = sd(mean_estimate, na.rm = TRUE),
+            Min = min(mean_estimate, na.rm = TRUE),
+            Max = max(mean_estimate, na.rm = TRUE),
+            .groups = "drop"
+          ))
+      }
+    }
+  } else {
+    # Existing regional summary code
+    if ("estimate" %in% names(benchmark_data$comparison_data)) {
+      summary_data <- benchmark_data$comparison_data$estimate
+      cat("Regional Benchmark Summary:\n")
+      cat("===========================\n")
+      print(summary(summary_data))
+      cat("\nStandard Deviation:", sd(summary_data, na.rm = TRUE))
+      cat("\nMinimum:", min(summary_data, na.rm = TRUE))
+      cat("\nMaximum:", max(summary_data, na.rm = TRUE))
+      cat("\nNumber of Subgroups:", length(unique(benchmark_data$comparison_data$subgroup)))
+
+      if (!is.null(benchmark_data$reference_data) &&
+        "estimate" %in% names(benchmark_data$reference_data)) {
+        cat("\n\nBenchmark Reference (", input$benchmark_subgroup, "):\n", sep = "")
+        cat("Mean Estimate:", mean(benchmark_data$reference_data$estimate, na.rm = TRUE))
+      }
+    }
+  }
+})
+
+# Download handler
+output$download_benchmark <- downloadHandler(
+  filename = function() {
+    paste("benchmark_data_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv", sep = "")
+  },
+  content = function(file) {
+    write.csv(benchmark_data$comparison_data, file, row.names = FALSE)
+  }
+)
 
   # output$ethgeoUI <- renderUI({
   #  source("ethgeo.R", local = TRUE)$value
