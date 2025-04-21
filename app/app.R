@@ -5,8 +5,9 @@ library(shinycssloaders)
 library(plotly)
 library(gridlayout)
 library(bslib)
-library(DT)
-library(dplyr)
+library(plyr) # empty() function is from this package
+library(dplyr) # select functions are covered in the require
+library(DT) # for using %>% which works as a pipe in R code
 library(rjson)
 library(jsonlite)
 
@@ -16,6 +17,7 @@ library(jsonlite)
 # source("system.R") # Source the standalone database administration module
 source("load_countries.R")
 source("spatial.R")
+source("./module/spatial_module.R")
 source("dba.R") # Source the database administration module
 source("exclean.R")
 # source("clean.R")
@@ -37,6 +39,7 @@ shinyApp(ui = ui, server = server)
 # shiny::runApp("./app/converter.R", port = 3838, host = "0.0.0.0")
 
 # shiny::runApp("./app/spatial.R", port = 3838, host = "0.0.0.0")
+# shiny::runApp("./app/spatials.R", port = 3838, host = "0.0.0.0")
 
 # shinyApp(ui = ui, server = server, options = list(port = as.numeric(Sys.getenv("SHINY_PORT", 3838))))
 
@@ -46,3 +49,16 @@ shinyApp(ui = ui, server = server)
 # source("UI/auth.R")
 # PRODUCTION
 # shiny::runApp("./UI/app.R", port = 3939, host = "0.0.0.0")
+
+# jsonlite Package issues 
+# packageVersion("jsonlite")
+# detach("package:jsonlite", unload = TRUE)
+# install.packages("jsonlite")
+
+# In RStudio:
+#.rs.restartR() # Keyboard shortcut: Ctrl+Shift+F10
+
+# In plain R:
+#quit("no") # Then restart R manually
+# 
+

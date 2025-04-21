@@ -7,7 +7,6 @@ library(shinyBS) # for bsTooltip function
 library(shinyalert) # for alert message very nice format
 library(plyr) # empty() function is from this package
 library(dplyr) # select functions are covered in the require
-library(DT) # for using %>% which works as a pipe in R code
 library(ggplot2)
 library(plotly)
 library(scales) ## used to format date like only month or month and year
@@ -29,12 +28,14 @@ library(purrr)
 library(viridisLite)
 library(sf)
 library(highcharter)
+library(DT) # for using %>% which works as a pipe in R code
 
 # Source the UI and server components of data exploration and cleaning
 # source("exclean.R")
 # source("clean.R", local = TRUE)$value
 source("load_countries.R", local = TRUE)$value
-source("spatial.R", local = TRUE)$value
+#source("spatial.R", local = TRUE)$value
+source("spatial_module.R", local = TRUE)$value
 source("exclean.R", local = TRUE)$value
 source("ethgeo.R", local = TRUE)$value
 source("dba.R", local = TRUE)$value
@@ -219,7 +220,7 @@ ui <- tagList(
           sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
             menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
-            menuItem("Geographical", tabName = "geographical", icon = icon("map-location")),
+            menuItem("WHO Geographical", tabName = "geographical", icon = icon("map-location")),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
               menuSubItem("Source Setting", tabName = "source_setting", icon = icon("sliders-h")),
@@ -751,90 +752,7 @@ ui <- tagList(
             ),
             tabItem(
               tabName = "geographical",
-              fluidRow(
-  tags$head(
-    tags$style(HTML("
-      .map-container {
-        height: 1800px;
-        width: 100%;
-      }
-    "))
-  ), # Delete the coountry health indicators benchmarking tool since we will make it to be a module
-  titlePanel("Country Health Indicators Benchmarking Tool"),
-  sidebarLayout(
-    sidebarPanel(
-      width = 3,
-      div(class = "well",
-          selectizeInput("regions", "Select WHO Regions:",
-                         choices = available_regions,
-                         multiple = TRUE,
-                         options = list(placeholder = "Select regions")
-          ),
-          selectizeInput("countries", "Select Countries:",
-                         choices = sort(unique(spatial_data$NAME)),
-                         multiple = TRUE,
-                         options = list(maxItems = 5)
-          ),
-          selectInput("indicator", "Select Indicator:",
-                      choices = setNames(
-                        available_indicators$indicator_abbr,
-                        available_indicators$indicator_name
-                      )
-          ),
-          selectInput("dimension", "Select Dimension:",
-                      choices = available_dimensions
-          ),
-          selectizeInput("subgroup_filter", "Filter by Subgroup:",
-                         choices = NULL,
-                         multiple = TRUE,
-                         options = list(placeholder = "All subgroups")
-          ),
-          selectizeInput("source_filter", "Filter by Source:",
-                         choices = NULL,
-                         multiple = TRUE,
-                         options = list(placeholder = "All sources")
-          ),
-          sliderInput("date_range", "Date Range:",
-                      min = min(indicators_data$date, na.rm = TRUE),
-                      max = max(indicators_data$date, na.rm = TRUE),
-                      value = c(
-                        max(indicators_data$date, na.rm = TRUE) - 5,
-                        max(indicators_data$date, na.rm = TRUE)
-                      ),
-                      step = 1
-          ),
-          checkboxInput("show_average", "Show WHO Region Average", FALSE),
-          checkboxInput("show_income", "Show Income Group Average", FALSE),
-          selectInput("color_palette", "Color Palette:",
-                      choices = names(color_palettes),
-                      selected = "Viridis"
-          ),
-          selectInput("theme", "Map Theme:",
-                      choices = names(theme_options),
-                      selected = "Default"
-          ),          
-          actionButton("update", "Update Map", class = "btn-primary")
-      )
-    ),
-    mainPanel(
-      width = 9,
-      tabsetPanel(
-        tabPanel(
-          "Map",
-          div(
-            class = "map-container",
-            highchartOutput("map", height = "100%")
-          )
-        ),
-        tabPanel(
-          "Comparison Table",
-          downloadButton("download_data", "Download Data", class = "btn-primary"),
-          DT::dataTableOutput("comparison_table")
-        )
-      )
-    )
-  )
-              )
+              spatialUI("spatial_module")
             ),
             tabItem(
               tabName = "dash_explore_clean",

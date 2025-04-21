@@ -111,7 +111,7 @@ ui <- fluidPage(
       }
     "))
   ),
-  titlePanel("Country Health Indicators Benchmarking Tool"),
+  titlePanel("WHO Spatial Benchmarking Tool"),
   sidebarLayout(
     sidebarPanel(
       width = 3,
@@ -156,6 +156,7 @@ ui <- fluidPage(
           ),
           checkboxInput("show_average", "Show WHO Region Average", FALSE),
           checkboxInput("show_income", "Show Income Group Average", FALSE),
+          checkboxInput("show_all_region_countries", "Show all countries in selected regions", TRUE),
           selectInput("color_palette", "Color Palette:",
                       choices = names(color_palettes),
                       selected = "Viridis"
@@ -254,7 +255,7 @@ server <- function(input, output, session) {
       borderColor = "#DFFAFFFF",
       borderWidth = 0.1
     ) %>%
-      hc_title(text = "Select countries and click 'Update Map'") %>%
+      hc_title(text = "Select countries/regions and click 'Update Map'") %>%
       hc_add_theme(theme_options[[input$theme %||% "Default"]]) %>%
       hc_colorAxis(
         stops = color_stops(colors = color_palettes[["Viridis"]]),
@@ -263,9 +264,15 @@ server <- function(input, output, session) {
       hc_legend(enabled = TRUE)
   })
   
-  # When countries are selected or update button is pressed
+  # When countries/regions are selected or update button is pressed
   observeEvent(input$update, {
-    req(input$countries, input$indicator)
+    req(input$indicator)
+    
+    # Check if we have either countries or regions selected
+    if (is.null(input$countries) && is.null(input$regions)) {
+      showNotification("Please select at least one country or region", type = "warning")
+      return()
+    }
     
     ind_data <- filtered_data()
     if (is.null(ind_data) || nrow(ind_data) == 0) {
@@ -302,14 +309,19 @@ server <- function(input, output, session) {
           trimws()
       )
     
+    # Create appropriate title text
     title_text <- paste0(
       indicator_info$indicator_name[1], " Comparison<br>",
-      "Countries: ", paste(input$countries, collapse = ", "), "<br>",
+      if (!is.null(input$countries) && length(input$countries) > 0) {
+        paste("Countries: ", paste(input$countries, collapse = ", "), "<br>")
+      } else if (!is.null(input$regions) && length(input$regions) > 0) {
+        paste("WHO Region: ", paste(input$regions, collapse = ", "), "<br>")
+      },
       "Dimension: ", input$dimension, " | ",
       "Subgroup: ", ifelse(is.null(input$subgroup_filter) || length(input$subgroup_filter) == 0, 
-                           "All", paste(input$subgroup_filter, collapse = ", ")), " | ",
+                       "All", paste(input$subgroup_filter, collapse = ", ")), " | ",
       "Source: ", ifelse(is.null(input$source_filter) || length(input$source_filter) == 0,
-                         "All", paste(input$source_filter, collapse = ", "))
+                   "All", paste(input$source_filter, collapse = ", "))
     )
     
     # Calculate min and max for color scale
@@ -324,11 +336,6 @@ server <- function(input, output, session) {
     
     # Get selected color palette
     selected_palette <- color_palettes[[input$color_palette %||% "Viridis"]]
-    
-    # Get ISO3 codes for selected countries for zooming
-    selected_iso3 <- spatial_data %>%
-      filter(NAME %in% input$countries) %>%
-      pull(iso3_code)
     
     # Create the choropleth map with Highcharts
     hc <- hcmap(
@@ -369,8 +376,8 @@ server <- function(input, output, session) {
         useHTML = TRUE
       )
     
-    # Zoom to selected countries if any are selected
-    if (length(selected_iso3) > 0) {
+    # Zoom to selected countries or regions
+    if (!is.null(input$countries) && length(input$countries) > 0) {
       # Get the selected countries' spatial data
       selected_countries_sf <- spatial_data %>% 
         filter(NAME %in% input$countries)
@@ -390,7 +397,7 @@ server <- function(input, output, session) {
         
         # Dynamic zoom level calculation
         zoom_level <- case_when(
-          length(selected_iso3) == 1 ~ 5,  # More zoom for single country
+          length(input$countries) == 1 ~ 5,  # More zoom for single country
           bbox_size > 100 ~ 2,
           bbox_size > 50 ~ 3,
           bbox_size > 20 ~ 4,
@@ -403,9 +410,7 @@ server <- function(input, output, session) {
             enableMouseWheelZoom = TRUE,
             enableDoubleClickZoom = TRUE,
             buttonOptions = list(
-              #verticalAlign = "bottom",
               verticalAlign = "top",
-              #align = "right"
               align = "left"
             )
           ) %>%
@@ -414,17 +419,65 @@ server <- function(input, output, session) {
               load = JS(sprintf("
                 function() {
                   var chart = this;
-                  // Set the view after a small delay to ensure map is loaded
                   setTimeout(function() {
                     try {
-                      // First set the center point
                       chart.mapView.setCenter([%f, %f]);
-                      // Then set the zoom level
                       chart.mapView.zoom = %d;
                     } catch(e) {
                       console.log('Zoom error:', e);
                     }
-                  }, 500);  // Increased delay to ensure map is ready
+                  }, 500);
+                }
+              ", center_lon, center_lat, zoom_level))
+            )
+          )
+      }
+    } else if (!is.null(input$regions) && length(input$regions) > 0) {
+      # Zoom to show all countries in selected regions
+region_countries_sf <- spatial_data %>%
+  filter(iso3_code %in% intersect(ind_data$iso3, iso3_code))
+      
+      if (nrow(region_countries_sf) > 0) {
+        bbox <- st_bbox(region_countries_sf)
+        
+        center_lon <- mean(c(bbox$xmin, bbox$xmax))
+        center_lat <- mean(c(bbox$ymin, bbox$ymax))
+        
+        # Calculate appropriate zoom level for the region
+        bbox_width <- bbox$xmax - bbox$xmin
+        bbox_height <- bbox$ymax - bbox$ymin
+        bbox_size <- max(bbox_width, bbox_height)
+        
+        zoom_level <- case_when(
+          bbox_size > 100 ~ 2,
+          bbox_size > 50 ~ 3,
+          bbox_size > 20 ~ 4,
+          TRUE ~ 5
+        )
+        
+        hc <- hc %>%
+          hc_mapNavigation(
+            enabled = TRUE,
+            enableMouseWheelZoom = TRUE,
+            enableDoubleClickZoom = TRUE,
+            buttonOptions = list(
+              verticalAlign = "top",
+              align = "left"
+            )
+          ) %>%
+          hc_chart(
+            events = list(
+              load = JS(sprintf("
+                function() {
+                  var chart = this;
+                  setTimeout(function() {
+                    try {
+                      chart.mapView.setCenter([%f, %f]);
+                      chart.mapView.zoom = %d;
+                    } catch(e) {
+                      console.log('Zoom error:', e);
+                    }
+                  }, 500);
                 }
               ", center_lon, center_lat, zoom_level))
             )
@@ -435,13 +488,24 @@ server <- function(input, output, session) {
     output$map <- renderHighchart(hc)
   })
   
-  # Get filtered indicator data for selected countries
+  # Get filtered indicator data for selected countries or regions
   filtered_data <- reactive({
-    req(input$countries, input$indicator, input$dimension)
+    req(input$indicator, input$dimension)
     
-    selected_iso3 <- spatial_data %>%
-      filter(NAME %in% input$countries) %>%
-      pull(iso3_code)
+    # Get selected ISO3 codes - either from selected countries OR all in selected regions
+    if (!is.null(input$countries) && length(input$countries) > 0) {
+      selected_iso3 <- spatial_data %>%
+        filter(NAME %in% input$countries) %>%
+        pull(iso3_code)
+    } else if (!is.null(input$regions) && length(input$regions) > 0) {
+      # Get all countries in selected regions
+      selected_iso3 <- indicators_data %>%
+        filter(whoreg6 %in% input$regions) %>%
+        distinct(iso3) %>%
+        pull(iso3)
+    } else {
+      return(NULL)
+    }
     
     data <- indicators_data %>%
       filter(
@@ -578,4 +642,3 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
-# Uncomment if you want to run it as standalone

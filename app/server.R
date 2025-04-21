@@ -679,6 +679,7 @@ server <- function(input, output, session) {
   exported_file_name <- reactiveVal(NULL)
   fetched_data <- reactiveVal(NULL) # Add this line to store fetched data
 
+  spatialServer("spatial_module")
   ethgeoServer("ethgeo_module") # Add this line in your main server function
   dba_module_server("dba_module")
   # Load data from main.rds if it exists
@@ -2310,6 +2311,9 @@ output$download_benchmark <- downloadHandler(
   #  source("ethgeo.R", local = TRUE)$value
   # })
 
+
+  source("spatial_module.R")
+  spatialUI("spatial_module")
 
   # Near other source() calls at the top
   source("ethgeo.R")

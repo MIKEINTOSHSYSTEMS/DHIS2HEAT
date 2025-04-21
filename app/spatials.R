@@ -111,60 +111,62 @@ ui <- fluidPage(
       }
     "))
   ),
-  titlePanel("Country Health Indicators Benchmarking Tool"),
+  titlePanel("WHO Spatial Benchmarking Tool"),
   sidebarLayout(
     sidebarPanel(
       width = 3,
-      div(class = "well",
-          selectizeInput("regions", "Select WHO Regions:",
-                         choices = available_regions,
-                         multiple = TRUE,
-                         options = list(placeholder = "Select regions")
+      div(
+        class = "well",
+        selectizeInput("regions", "Select WHO Regions:",
+          choices = available_regions,
+          multiple = TRUE,
+          options = list(placeholder = "Select regions")
+        ),
+        selectizeInput("countries", "Select Countries:",
+          choices = sort(unique(spatial_data$NAME)),
+          multiple = TRUE,
+          options = list(maxItems = 5)
+        ),
+        selectInput("indicator", "Select Indicator:",
+          choices = setNames(
+            available_indicators$indicator_abbr,
+            available_indicators$indicator_name
+          )
+        ),
+        selectInput("dimension", "Select Dimension:",
+          choices = available_dimensions
+        ),
+        selectizeInput("subgroup_filter", "Filter by Subgroup:",
+          choices = NULL,
+          multiple = TRUE,
+          options = list(placeholder = "All subgroups")
+        ),
+        selectizeInput("source_filter", "Filter by Source:",
+          choices = NULL,
+          multiple = TRUE,
+          options = list(placeholder = "All sources")
+        ),
+        sliderInput("date_range", "Date Range:",
+          min = min(indicators_data$date, na.rm = TRUE),
+          max = max(indicators_data$date, na.rm = TRUE),
+          value = c(
+            max(indicators_data$date, na.rm = TRUE) - 5,
+            max(indicators_data$date, na.rm = TRUE)
           ),
-          selectizeInput("countries", "Select Countries:",
-                         choices = sort(unique(spatial_data$NAME)),
-                         multiple = TRUE,
-                         options = list(maxItems = 5)
-          ),
-          selectInput("indicator", "Select Indicator:",
-                      choices = setNames(
-                        available_indicators$indicator_abbr,
-                        available_indicators$indicator_name
-                      )
-          ),
-          selectInput("dimension", "Select Dimension:",
-                      choices = available_dimensions
-          ),
-          selectizeInput("subgroup_filter", "Filter by Subgroup:",
-                         choices = NULL,
-                         multiple = TRUE,
-                         options = list(placeholder = "All subgroups")
-          ),
-          selectizeInput("source_filter", "Filter by Source:",
-                         choices = NULL,
-                         multiple = TRUE,
-                         options = list(placeholder = "All sources")
-          ),
-          sliderInput("date_range", "Date Range:",
-                      min = min(indicators_data$date, na.rm = TRUE),
-                      max = max(indicators_data$date, na.rm = TRUE),
-                      value = c(
-                        max(indicators_data$date, na.rm = TRUE) - 5,
-                        max(indicators_data$date, na.rm = TRUE)
-                      ),
-                      step = 1
-          ),
-          checkboxInput("show_average", "Show WHO Region Average", FALSE),
-          checkboxInput("show_income", "Show Income Group Average", FALSE),
-          selectInput("color_palette", "Color Palette:",
-                      choices = names(color_palettes),
-                      selected = "Viridis"
-          ),
-          selectInput("theme", "Map Theme:",
-                      choices = names(theme_options),
-                      selected = "Default"
-          ),          
-          actionButton("update", "Update Map", class = "btn-primary")
+          step = 1
+        ),
+        checkboxInput("show_average", "Show WHO Region Average", FALSE),
+        checkboxInput("show_income", "Show Income Group Average", FALSE),
+        checkboxInput("show_all_region_countries", "Show all countries in selected regions", TRUE),
+        selectInput("color_palette", "Color Palette:",
+          choices = names(color_palettes),
+          selected = "Viridis"
+        ),
+        selectInput("theme", "Map Theme:",
+          choices = names(theme_options),
+          selected = "Default"
+        ),
+        actionButton("update", "Update Map", class = "btn-primary")
       )
     ),
     mainPanel(
@@ -192,69 +194,69 @@ server <- function(input, output, session) {
   # Update country choices based on selected regions
   observe({
     req(input$regions)
-    
+
     countries_in_region <- indicators_data %>%
       filter(whoreg6 %in% input$regions) %>%
       distinct(setting) %>%
       pull(setting)
-    
+
     updateSelectizeInput(session, "countries",
-                         choices = sort(unique(spatial_data$NAME[spatial_data$NAME %in% countries_in_region])),
-                         selected = input$countries
+      choices = sort(unique(spatial_data$NAME[spatial_data$NAME %in% countries_in_region])),
+      selected = input$countries
     )
   })
-  
+
   # Update subgroup and source filters dynamically based on dimension AND selected countries/regions
   observe({
     req(input$indicator, input$dimension)
-    
+
     # Get base data filtered by indicator and dimension
     current_data <- indicators_data %>%
       filter(
         indicator_abbr == input$indicator,
         dimension == input$dimension
       )
-    
+
     # Further filter by selected countries if any
     if (!is.null(input$countries) && length(input$countries) > 0) {
       selected_iso3 <- spatial_data %>%
         filter(NAME %in% input$countries) %>%
         pull(iso3_code)
-      
+
       current_data <- current_data %>%
         filter(iso3 %in% selected_iso3)
     }
-    
+
     # Further filter by selected regions if any (and no specific countries selected)
     if ((is.null(input$countries) || length(input$countries) == 0) &&
-        !is.null(input$regions) && length(input$regions) > 0) {
+      !is.null(input$regions) && length(input$regions) > 0) {
       current_data <- current_data %>%
         filter(whoreg6 %in% input$regions)
     }
-    
+
     # Update subgroup filter choices
     updateSelectizeInput(session, "subgroup_filter",
-                         choices = unique(current_data$subgroup),
-                         selected = input$subgroup_filter
+      choices = unique(current_data$subgroup),
+      selected = input$subgroup_filter
     )
-    
+
     if ("source" %in% names(current_data)) {
       updateSelectizeInput(session, "source_filter",
-                           choices = unique(current_data$source),
-                           selected = input$source_filter
+        choices = unique(current_data$source),
+        selected = input$source_filter
       )
     }
   })
-  
+
   # Initial empty map
   output$map <- renderHighchart({
     hcmap(
       "custom/world-highres",
       showInLegend = FALSE,
-      borderColor = "#FAFAFA",
+      borderColor = "#DFFAFFFF",
       borderWidth = 0.1
     ) %>%
-      hc_title(text = "Select countries and click 'Update Map'") %>%
+      hc_title(text = "Select countries/regions and click 'Update Map'") %>%
       hc_add_theme(theme_options[[input$theme %||% "Default"]]) %>%
       hc_colorAxis(
         stops = color_stops(colors = color_palettes[["Viridis"]]),
@@ -262,27 +264,33 @@ server <- function(input, output, session) {
       ) %>%
       hc_legend(enabled = TRUE)
   })
-  
-  # When countries are selected or update button is pressed
+
+  # When countries/regions are selected or update button is pressed
   observeEvent(input$update, {
-    req(input$countries, input$indicator)
-    
+    req(input$indicator)
+
+    # Check if we have either countries or regions selected
+    if (is.null(input$countries) && is.null(input$regions)) {
+      showNotification("Please select at least one country or region", type = "warning")
+      return()
+    }
+
     ind_data <- filtered_data()
     if (is.null(ind_data) || nrow(ind_data) == 0) {
       showNotification("No data available for selected criteria", type = "warning")
       return()
     }
-    
+
     indicator_info <- available_indicators %>%
       filter(indicator_abbr == input$indicator)
-    
+
     higher_better <- if (nrow(indicator_info) > 0 &&
-                         "favourable_indicator" %in% names(indicator_info)) {
+      "favourable_indicator" %in% names(indicator_info)) {
       as.logical(indicator_info$favourable_indicator[1])
     } else {
       FALSE
     }
-    
+
     # Prepare hover text
     ind_data <- ind_data %>%
       mutate(
@@ -301,35 +309,37 @@ server <- function(input, output, session) {
           gsub("<br>(<br>)+", "<br>", .) %>%
           trimws()
       )
-    
+
+    # Create appropriate title text
     title_text <- paste0(
       indicator_info$indicator_name[1], " Comparison<br>",
-      "Countries: ", paste(input$countries, collapse = ", "), "<br>",
+      if (!is.null(input$countries) && length(input$countries) > 0) {
+        paste("Countries: ", paste(input$countries, collapse = ", "), "<br>")
+      } else if (!is.null(input$regions) && length(input$regions) > 0) {
+        paste("WHO Region: ", paste(input$regions, collapse = ", "), "<br>")
+      },
       "Dimension: ", input$dimension, " | ",
-      "Subgroup: ", ifelse(is.null(input$subgroup_filter) || length(input$subgroup_filter) == 0, 
-                           "All", paste(input$subgroup_filter, collapse = ", ")), " | ",
+      "Subgroup: ", ifelse(is.null(input$subgroup_filter) || length(input$subgroup_filter) == 0,
+        "All", paste(input$subgroup_filter, collapse = ", ")
+      ), " | ",
       "Source: ", ifelse(is.null(input$source_filter) || length(input$source_filter) == 0,
-                         "All", paste(input$source_filter, collapse = ", "))
+        "All", paste(input$source_filter, collapse = ", ")
+      )
     )
-    
+
     # Calculate min and max for color scale
     zmin_val <- min(ind_data$estimate, na.rm = TRUE)
     zmax_val <- max(ind_data$estimate, na.rm = TRUE)
-    
+
     # Handle case where all values are equal
-    if(zmin_val == zmax_val) {
+    if (zmin_val == zmax_val) {
       zmin_val <- zmin_val - 0.1
       zmax_val <- zmax_val + 0.1
     }
-    
+
     # Get selected color palette
     selected_palette <- color_palettes[[input$color_palette %||% "Viridis"]]
-    
-    # Get ISO3 codes for selected countries for zooming
-    selected_iso3 <- spatial_data %>%
-      filter(NAME %in% input$countries) %>%
-      pull(iso3_code)
-    
+
     # Create the choropleth map with Highcharts
     hc <- hcmap(
       "custom/world-highres",
@@ -361,50 +371,51 @@ server <- function(input, output, session) {
       ) %>%
       hc_add_theme(theme_options[[input$theme %||% "Default"]]) %>%
       hc_chart(
-        backgroundColor = ifelse(input$theme %in% c("Dark Unica", "Chalk"), 
-                               "#2a2a2b", "#FFFFFF")
+        backgroundColor = ifelse(input$theme %in% c("Dark Unica", "Chalk"),
+          "#2a2a2b", "#FFFFFF"
+        )
       ) %>%
       hc_tooltip(
         pointFormat = "{point.hover_text}",
         useHTML = TRUE
       )
-    
-    # Zoom to selected countries if any are selected
-    if (length(selected_iso3) > 0) {
+
+    # Zoom to selected countries or regions
+    if (!is.null(input$countries) && length(input$countries) > 0) {
       # Get the selected countries' spatial data
-      selected_countries_sf <- spatial_data %>% 
+      selected_countries_sf <- spatial_data %>%
         filter(NAME %in% input$countries)
-      
+
       if (nrow(selected_countries_sf) > 0) {
         # Get the bounding box of selected countries
         bbox <- st_bbox(selected_countries_sf)
-        
+
         # Calculate center point
         center_lon <- mean(c(bbox$xmin, bbox$xmax))
         center_lat <- mean(c(bbox$ymin, bbox$ymax))
-        
+
         # Calculate appropriate zoom level based on bbox size
         bbox_width <- bbox$xmax - bbox$xmin
         bbox_height <- bbox$ymax - bbox$ymin
         bbox_size <- max(bbox_width, bbox_height)
-        
+
         # Dynamic zoom level calculation
         zoom_level <- case_when(
-          length(selected_iso3) == 1 ~ 5,  # More zoom for single country
+          length(input$countries) == 1 ~ 5, # More zoom for single country
           bbox_size > 100 ~ 2,
           bbox_size > 50 ~ 3,
           bbox_size > 20 ~ 4,
           TRUE ~ 5
         )
-        
+
         hc <- hc %>%
           hc_mapNavigation(
             enabled = TRUE,
             enableMouseWheelZoom = TRUE,
             enableDoubleClickZoom = TRUE,
             buttonOptions = list(
-              verticalAlign = "bottom",
-              align = "right"
+              verticalAlign = "top",
+              align = "left"
             )
           ) %>%
           hc_chart(
@@ -412,35 +423,94 @@ server <- function(input, output, session) {
               load = JS(sprintf("
                 function() {
                   var chart = this;
-                  // Set the view after a small delay to ensure map is loaded
                   setTimeout(function() {
                     try {
-                      // First set the center point
                       chart.mapView.setCenter([%f, %f]);
-                      // Then set the zoom level
                       chart.mapView.zoom = %d;
                     } catch(e) {
                       console.log('Zoom error:', e);
                     }
-                  }, 500);  // Increased delay to ensure map is ready
+                  }, 500);
+                }
+              ", center_lon, center_lat, zoom_level))
+            )
+          )
+      }
+    } else if (!is.null(input$regions) && length(input$regions) > 0) {
+      # Zoom to show all countries in selected regions
+      region_countries_sf <- spatial_data %>%
+        filter(iso3_code %in% intersect(ind_data$iso3, iso3_code))
+
+      if (nrow(region_countries_sf) > 0) {
+        bbox <- st_bbox(region_countries_sf)
+
+        center_lon <- mean(c(bbox$xmin, bbox$xmax))
+        center_lat <- mean(c(bbox$ymin, bbox$ymax))
+
+        # Calculate appropriate zoom level for the region
+        bbox_width <- bbox$xmax - bbox$xmin
+        bbox_height <- bbox$ymax - bbox$ymin
+        bbox_size <- max(bbox_width, bbox_height)
+
+        zoom_level <- case_when(
+          bbox_size > 100 ~ 2,
+          bbox_size > 50 ~ 3,
+          bbox_size > 20 ~ 4,
+          TRUE ~ 5
+        )
+
+        hc <- hc %>%
+          hc_mapNavigation(
+            enabled = TRUE,
+            enableMouseWheelZoom = TRUE,
+            enableDoubleClickZoom = TRUE,
+            buttonOptions = list(
+              verticalAlign = "top",
+              align = "left"
+            )
+          ) %>%
+          hc_chart(
+            events = list(
+              load = JS(sprintf("
+                function() {
+                  var chart = this;
+                  setTimeout(function() {
+                    try {
+                      chart.mapView.setCenter([%f, %f]);
+                      chart.mapView.zoom = %d;
+                    } catch(e) {
+                      console.log('Zoom error:', e);
+                    }
+                  }, 500);
                 }
               ", center_lon, center_lat, zoom_level))
             )
           )
       }
     }
-    
+
     output$map <- renderHighchart(hc)
   })
-  
-  # Get filtered indicator data for selected countries
+
+  # Get filtered indicator data for selected countries or regions
   filtered_data <- reactive({
-    req(input$countries, input$indicator, input$dimension)
-    
-    selected_iso3 <- spatial_data %>%
-      filter(NAME %in% input$countries) %>%
-      pull(iso3_code)
-    
+    req(input$indicator, input$dimension)
+
+    # Get selected ISO3 codes - either from selected countries OR all in selected regions
+    if (!is.null(input$countries) && length(input$countries) > 0) {
+      selected_iso3 <- spatial_data %>%
+        filter(NAME %in% input$countries) %>%
+        pull(iso3_code)
+    } else if (!is.null(input$regions) && length(input$regions) > 0) {
+      # Get all countries in selected regions
+      selected_iso3 <- indicators_data %>%
+        filter(whoreg6 %in% input$regions) %>%
+        distinct(iso3) %>%
+        pull(iso3)
+    } else {
+      return(NULL)
+    }
+
     data <- indicators_data %>%
       filter(
         iso3 %in% selected_iso3,
@@ -449,17 +519,19 @@ server <- function(input, output, session) {
         date >= input$date_range[1],
         date <= input$date_range[2]
       )
-    
+
     if (!is.null(input$subgroup_filter) && length(input$subgroup_filter) > 0) {
       data <- data %>% filter(subgroup %in% input$subgroup_filter)
     }
-    
+
     if ("source" %in% names(data) && !is.null(input$source_filter) && length(input$source_filter) > 0) {
       data <- data %>% filter(source %in% input$source_filter)
     }
-    
-    if (nrow(data) == 0) return(NULL)
-    
+
+    if (nrow(data) == 0) {
+      return(NULL)
+    }
+
     # Calculate averages if needed
     if (input$show_average || input$show_income) {
       avg_data <- indicators_data %>%
@@ -469,14 +541,14 @@ server <- function(input, output, session) {
           date >= input$date_range[1],
           date <= input$date_range[2]
         )
-      
+
       if (!is.null(input$subgroup_filter) && length(input$subgroup_filter) > 0) {
         avg_data <- avg_data %>% filter(subgroup %in% input$subgroup_filter)
       }
       if ("source" %in% names(avg_data) && !is.null(input$source_filter) && length(input$source_filter) > 0) {
         avg_data <- avg_data %>% filter(source %in% input$source_filter)
       }
-      
+
       if (input$show_average && "whoreg6" %in% names(avg_data)) {
         who_avg <- avg_data %>%
           filter(!is.na(whoreg6)) %>%
@@ -490,7 +562,7 @@ server <- function(input, output, session) {
           )
         data <- bind_rows(data, who_avg)
       }
-      
+
       if (input$show_income && "wbincome2024" %in% names(avg_data)) {
         income_avg <- avg_data %>%
           filter(!is.na(wbincome2024)) %>%
@@ -505,7 +577,7 @@ server <- function(input, output, session) {
         data <- bind_rows(data, income_avg)
       }
     }
-    
+
     # Get most recent data for each country
     data %>%
       group_by(iso3, subgroup) %>%
@@ -513,19 +585,19 @@ server <- function(input, output, session) {
       filter(date == max(date, na.rm = TRUE)) %>%
       ungroup()
   })
-  
+
   # Create comparison table
   output$comparison_table <- DT::renderDataTable({
     req(filtered_data())
-    
+
     data <- filtered_data()
-    
+
     cols_to_select <- c(
       "setting", "whoreg6", "wbincome2024", "indicator_name",
       "dimension", "subgroup", "estimate", "date", "source"
     )
     available_cols <- cols_to_select[cols_to_select %in% names(data)]
-    
+
     comparison_data <- data %>%
       select(all_of(available_cols)) %>%
       rename(
@@ -540,7 +612,7 @@ server <- function(input, output, session) {
         Source = source
       ) %>%
       arrange(Country, Subgroup)
-    
+
     DT::datatable(
       comparison_data,
       extensions = c("Buttons", "Scroller"),
@@ -559,7 +631,7 @@ server <- function(input, output, session) {
       rownames = FALSE
     )
   })
-  
+
   # Download handler for data
   output$download_data <- downloadHandler(
     filename = function() {
