@@ -38,6 +38,8 @@ required_packages <- c(
     "remotes", # Add remotes if needed for installing from remote repositories
     "httr", # Add httr if needed for HTTP requests
     "leaflet",
+    "highcharter", # For highcharts integration
+    "viridisLite", # Color palettes
     "sf",
     "rnaturalearth",
     "rpivotTable",
@@ -74,3 +76,5 @@ cat("All required packages are installed.\n")
 #install.packages("package_name")
 # install.packages("DBI")
 # install.packages("RPostgreSQL")
+# Additional ToDos is create NAMESPACE using roxygen2 
+#for auto loading of packages and also renv.lock

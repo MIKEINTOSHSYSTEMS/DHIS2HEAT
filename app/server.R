@@ -32,16 +32,32 @@ library(slickR)
 library(rpivotTable)  # For pivot table functionality
 library(RPostgreSQL)
 library(DBI)
+library(viridisLite)
+library(sf)
+library(highcharter)
 
 # Load existing functions
 source("dhis2_data.R")
 #source("dba.R", local = TRUE)$value
-source("ethgeo.R") # not unless it is loading the geojson file
-source("dba.R")
+#source("ethgeo.R") # not unless it is loading the geojson file
+#source("dba.R")
+#source("spatial.R")
 # source("auth.R")
 
 eth_geojson <- rjson::fromJSON(file = "./www/ethiopia_regions_map_simple.json")
 mapboxToken <- "pk.eyJ1IjoiaG1vcmdhbnN0ZXdhcnQiLCJhIjoiY2tmaTg5NDljMDBwbDMwcDd2OHV6cnd5dCJ9.8eLR4FtlO079Gq0NeSNoeg"
+
+# Load the spatial data from JSON
+spatial_json <- "./www/spatial_geo/spatial_national.json"
+spatial_data <- st_read(spatial_json, quiet = TRUE) %>%
+  mutate(NAME = as.character(NAME)) # Ensure NAME is character
+
+# Load indicators data
+indicators_data <- read_parquet("./data/indicators_data/HEAT_who_indicators.parquet") %>%
+  mutate(
+    subgroup = as.character(subgroup),
+    setting = as.character(setting)
+  )
 
 options(future.globals.maxSize = 2 * 1024^3) # 2GB memory limit
 
@@ -1791,13 +1807,17 @@ observeEvent(input$apply_benchmark, {
         }
 
         # Get date range
-        if (input$benchmark_date_type == "Single Date") {
+        if (input$benchmark_date_type == "Multiple Dates") {
+        #if (input$benchmark_date_type == "Single Date") {
           req(input$benchmark_specific_date)
           date_filter <- as.numeric(input$benchmark_specific_date)
         } else {
           req(input$start_year, input$end_year)
           date_filter <- input$start_year:input$end_year
         }
+
+#          req(input$benchmark_specific_date) # Always require benchmark_specific_date
+#          date_filter <- as.numeric(input$benchmark_specific_date)
 
         # Filter data with proper error handling
         comparison_data <- tryCatch(
@@ -1858,13 +1878,17 @@ observeEvent(input$apply_benchmark, {
         )
 
         # Get date range
-        if (input$benchmark_date_type == "Single Date") {
+        if (input$benchmark_date_type == "Multiple Dates") {
+#        if (input$benchmark_date_type == "Single Date") {
           req(input$benchmark_specific_date)
           date_filter <- input$benchmark_specific_date
         } else {
           req(input$start_year, input$end_year)
           date_filter <- input$start_year:input$end_year
         }
+
+#          req(input$benchmark_specific_date)  # Always require benchmark_specific_date
+#          date_filter <- input$benchmark_specific_date
 
         # Filter data with error handling
         comparison_data <- tryCatch(

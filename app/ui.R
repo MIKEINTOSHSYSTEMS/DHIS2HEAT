@@ -25,11 +25,16 @@ library(rjson)
 library(jsonlite)
 library(slickR)
 library(rpivotTable) # For pivot table functionality
+library(purrr)
+library(viridisLite)
+library(sf)
+library(highcharter)
 
 # Source the UI and server components of data exploration and cleaning
 # source("exclean.R")
 # source("clean.R", local = TRUE)$value
 source("load_countries.R", local = TRUE)$value
+source("spatial.R", local = TRUE)$value
 source("exclean.R", local = TRUE)$value
 source("ethgeo.R", local = TRUE)$value
 source("dba.R", local = TRUE)$value
@@ -81,7 +86,7 @@ ui <- tagList(
     const progressBar = document.getElementById('progress-bar');
     const progressPercent = document.getElementById('progress-percent'); // Add this line
     const startTime = Date.now();
-    const minDuration = 27000; // Minimum duration in milliseconds (45 seconds)
+    const minDuration = 47000; // Minimum duration in milliseconds (45 seconds)
     const progressInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       progress += Math.random() * 7; // Adjust the increment to control the speed
@@ -214,6 +219,7 @@ ui <- tagList(
           sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
             menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
+            menuItem("Geographical", tabName = "geographical", icon = icon("map-location")),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
               menuSubItem("Source Setting", tabName = "source_setting", icon = icon("sliders-h")),
@@ -505,141 +511,331 @@ ui <- tagList(
                 )
               )
             ),
-tabItem(
-  tabName = "benchmarking",
-  fluidRow(
-    box(
-      title = "Benchmark Settings",
-      status = "primary",
-      solidHeader = TRUE,
-      width = 12,
-      fluidRow(
-        column(3,
-               selectInput("benchmark_setting", "Setting Level",
-                           choices = c("Country", "Region", "Zone", "Woreda"),
-                           selected = "Region")),
-        column(3,
-               selectInput("benchmark_date_type", "Date Selection",
-                           choices = c("Single Date", "Date Range"),
-                           selected = "Single Date")),
-          column(3,
-            conditionalPanel(
-              condition = "input.benchmark_date_type == 'Date Range'",
-              numericInput("start_year", "Start Year",
-                value = 2014, min = 2000, max = 2100
+            tabItem(
+              tabName = "benchmarking",
+              tags$head(
+                tags$style(HTML("
+      .map-container {
+        height: 800px;
+        width: 100%;
+      }
+    "))
               ),
-              numericInput("end_year", "End Year",
-                value = as.integer(format(Sys.Date(), "%Y")),
-                min = 2000, max = 2100
+              fluidRow(
+                box(
+                  title = "Benchmark Settings",
+                  status = "primary",
+                  solidHeader = TRUE,
+                  width = 12,
+                  fluidRow(
+                    column(
+                      3,
+                      selectInput("benchmark_setting", "Setting Level",
+                        choices = c("Country", "Region", "Zone", "Woreda"),
+                        selected = "Region"
+                      )
+                    ),
+                  ),
+                  conditionalPanel(
+                    condition = "input.benchmark_setting == 'Country'",
+                    fluidRow(
+                      column(
+                        3,
+                        selectizeInput("income_filter", "Country Income Group",
+                          choices = NULL,
+                          multiple = TRUE
+                        )
+                      ),
+                      column(
+                        3,
+                        selectizeInput("who_region_filter", "WHO Region",
+                          choices = NULL,
+                          multiple = TRUE
+                        )
+                      ),
+                      column(
+                        3,
+                        selectizeInput("country_select", "Select Countries",
+                          choices = NULL,
+                          multiple = TRUE
+                        )
+                      ),
+                      column(
+                        3,
+                        selectizeInput("benchmark_indicator_country", "Indicator",
+                          choices = NULL, multiple = TRUE
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        4,
+                        selectizeInput("benchmark_dimension_country", "Dimension",
+                          choices = NULL, multiple = TRUE
+                        )
+                      ),
+                      column(
+                        4,
+                        selectizeInput("benchmark_subgroup_country", "Reference Subgroup",
+                          choices = NULL, multiple = FALSE
+                        )
+                      ),
+                      column(
+                        4,
+                        conditionalPanel(
+                          condition = "input.benchmark_date_type == 'Date Range'",
+                          numericInput("start_year", "Start Year",
+                            value = 2014, min = 2000, max = 2100
+                          ),
+                          numericInput("end_year", "End Year",
+                            value = as.integer(format(Sys.Date(), "%Y")),
+                            min = 2000, max = 2100
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    condition = "input.benchmark_setting != 'Country'",
+                    fluidRow(
+                      column(
+                        4,
+                        selectizeInput("benchmark_indicator", "Indicator",
+                          choices = NULL, multiple = FALSE
+                        )
+                      ),
+                      column(
+                        4,
+                        selectizeInput("benchmark_dimension", "Inequality Dimension",
+                          choices = NULL,
+                          selected = "Region"
+                        )
+                      ),
+                      column(
+                        4,
+                        selectizeInput("benchmark_subgroup", "Benchmark Subgroup",
+                          choices = NULL, multiple = TRUE
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                        # column(
+                        #   3,
+                        #   selectInput("benchmark_date_type", "Date Selection",
+                        #     choices = c("Single Date", "Date Range"),
+                        #     selected = "Single Date"
+                        #   )
+                        # ),
+                        # column(
+                        #   3,
+                        #   conditionalPanel(
+                        #     condition = "input.benchmark_date_type == 'Date Range'",
+                        #     numericInput("start_year", "Start Year",
+                        #       value = 2014, min = 2000, max = 2100
+                        #     ),
+                        #     numericInput("end_year", "End Year",
+                        #       value = as.integer(format(Sys.Date(), "%Y")),
+                        #       min = 2000, max = 2100
+                        #     )
+                        #   )
+                        # ),
+                        # column(
+                        #   3,
+                        #   conditionalPanel(
+                        #     condition = "input.benchmark_date_type == 'Single Date'",
+                        #     selectizeInput("benchmark_specific_date", "Select Date", 
+                        #     choices = NULL, multiple = TRUE)
+                        #   )
+                        # ),
+                          column(
+                            4,
+                            selectInput("benchmark_date_type", "Date Selection",
+                                        choices = c("Multiple Dates", "Date Range"),
+                                        selected = "Multiple Dates"),
+                            conditionalPanel(
+                              condition = "input.benchmark_date_type == 'Multiple Dates'",
+                              selectizeInput("benchmark_specific_date", "Select Date(s)", 
+                                            choices = NULL,
+                                            multiple = TRUE)
+                            ),
+                          conditionalPanel(
+                            condition = "input.benchmark_date_type == 'Date Range'",
+                            numericInput("start_year", "Start Year",
+                              value = 2014, min = 1990, max = 2100
+                            ),
+                            numericInput("end_year", "End Year",
+                              value = as.integer(format(Sys.Date(), "%Y")),
+                              min = 1990, max = 2100
+                             )
+                          )
+                          ),
+#                          conditionalPanel(
+#                            condition = "input.benchmark_date_type == 'Multiple Dates'",
+#                          selectizeInput("benchmark_specific_date", "Select Dates",
+#                            choices = NULL, multiple = TRUE
+#                          ))
+#                        ),
+                  # column(
+                  #   3,
+                  #   conditionalPanel(
+                  #     condition = "input.benchmark_chart_type == 'Bar' || input.benchmark_chart_type == 'Horizontal Bar'",
+                  #     selectInput("benchmark_bar_mode", "Bar Mode",
+                  #       choices = c("Grouped" = "group", "Stacked" = "stack"),
+                  #       selected = "group"
+                  #     )
+                  #   )
+                  # ),
+                  # column(
+                  #   3,
+                  #   numericInput("plot_height", "Plot Height (px)", value = 600, min = 300, max = 1200)
+                  # ),
+                  # column(
+                  #   3,
+                  #   numericInput("plot_width", "Plot Width (px)", value = 900, min = 300, max = 1200)
+                  # ),
+                    column(
+                      4,
+                      actionButton("apply_benchmark", "Apply Benchmark", class = "btn-primary")
+                    )
+                  )
+                ),
+                box(
+                  title = "Benchmark Comparison",
+                  status = "success",
+                  solidHeader = TRUE,
+                  width = 12,
+                  tabsetPanel(
+                    tabPanel(
+                      "Visual Comparison",
+                      plotlyOutput("benchmark_plot",
+                        height = "600px",
+                        width = "100%"
+                      )
+                    ),
+                    tabPanel(
+                      "Dynamic Pivot Table",
+                      rpivotTableOutput("pivot_table",
+                        height = "900px",
+                        width = "100%"
+                      )
+                    ),
+                    tabPanel(
+                      "Data Table",
+                      DTOutput("benchmark_table")
+                    ),
+                    tabPanel(
+                      "Summary Statistics",
+                      verbatimTextOutput("benchmark_summary")
+                    ),                                        
+                    tabPanel(
+                      "Map Visualization",
+                      div(
+                        class = "map-container",
+                        plotlyOutput("benchmark_map", height = "100%")
+                      ),
+                      checkboxInput("show_average", "Show WHO Region Average", FALSE),
+                      checkboxInput("show_income", "Show Income Group Average", FALSE)
+                    ),
+                    tabPanel(
+                      "Comparison Table",
+                      downloadButton("download_benchmark_data", "Download Data"),
+                      DT::dataTableOutput("benchmark_comparison_table")
+                    )
+                  ),
+                  downloadButton("download_benchmark", "Download Benchmark Data",
+                    class = "btn-info"
+                  )
+                )
               )
-            )
+            ),
+            tabItem(
+              tabName = "geographical",
+              fluidRow(
+  tags$head(
+    tags$style(HTML("
+      .map-container {
+        height: 1800px;
+        width: 100%;
+      }
+    "))
+  ), # Delete the coountry health indicators benchmarking tool since we will make it to be a module
+  titlePanel("Country Health Indicators Benchmarking Tool"),
+  sidebarLayout(
+    sidebarPanel(
+      width = 3,
+      div(class = "well",
+          selectizeInput("regions", "Select WHO Regions:",
+                         choices = available_regions,
+                         multiple = TRUE,
+                         options = list(placeholder = "Select regions")
           ),
-        column(3,
-               conditionalPanel(
-                 condition = "input.benchmark_date_type == 'Single Date'",
-                 selectizeInput("benchmark_specific_date", "Select Date", choices = NULL)
-               )),
-        column(3,
-               selectInput("benchmark_chart_type", "Chart Type",
-                           choices = c("Bar", "Horizontal Bar", "Scatter", "Line"),
-                           selected = "Bar"))
-      ),
-      
-      conditionalPanel(
-        condition = "input.benchmark_setting == 'Country'",
-        fluidRow(
-          column(3,
-                 selectizeInput("income_filter", "Country Income Group",
-                                choices = NULL,
-                                multiple = TRUE)),
-          column(3,
-                 selectizeInput("who_region_filter", "WHO Region",
-                                choices = NULL,
-                                multiple = TRUE)),
-          column(3,
-                 selectizeInput("country_select", "Select Countries",
-                                choices = NULL,
-                                multiple = TRUE)),
-          column(3,
-                 selectizeInput("benchmark_indicator_country", "Indicator", 
-                                choices = NULL, multiple = TRUE))
-        ),
-        fluidRow(
-          column(4,
-                 selectizeInput("benchmark_dimension_country", "Dimension",
-                                choices = NULL, multiple = TRUE)),
-          column(4,
-                 selectizeInput("benchmark_subgroup_country", "Reference Subgroup", 
-                                choices = NULL, multiple = FALSE)),
-          column(4,
-                 conditionalPanel(
-                   condition = "input.benchmark_date_type == 'Date Range'",
-                   numericInput("start_year", "Start Year", 
-                                value = 2014, min = 2000, max = 2100),
-                   numericInput("end_year", "End Year", 
-                                value = as.integer(format(Sys.Date(), "%Y")), 
-                                min = 2000, max = 2100)
-                 ))
-        )
-      ),
-      
-      conditionalPanel(
-        condition = "input.benchmark_setting != 'Country'",
-        fluidRow(
-          column(4,
-                 selectizeInput("benchmark_indicator", "Indicator", 
-                                choices = NULL, multiple = FALSE)),
-          column(4,
-                 selectizeInput("benchmark_dimension", "Inequality Dimension",
-                                choices = NULL,
-                                selected = "Region")),
-          column(4,
-                 selectizeInput("benchmark_subgroup", "Benchmark Subgroup", 
-                                choices = NULL, multiple = TRUE))
-        )
-      ),
-      
-      fluidRow(
-        column(3,
-               conditionalPanel(
-                 condition = "input.benchmark_chart_type == 'Bar' || input.benchmark_chart_type == 'Horizontal Bar'",
-                 selectInput("benchmark_bar_mode", "Bar Mode",
-                             choices = c("Grouped" = "group", "Stacked" = "stack"),
-                             selected = "group")
-               )),
-        column(3,
-               numericInput("plot_height", "Plot Height (px)", value = 600, min = 300, max = 1200)),
-        column(3,
-               numericInput("plot_width", "Plot Width (px)", value = 900, min = 300, max = 1200)),
-        column(3,
-               actionButton("apply_benchmark", "Apply Benchmark", class = "btn-primary"))
+          selectizeInput("countries", "Select Countries:",
+                         choices = sort(unique(spatial_data$NAME)),
+                         multiple = TRUE,
+                         options = list(maxItems = 5)
+          ),
+          selectInput("indicator", "Select Indicator:",
+                      choices = setNames(
+                        available_indicators$indicator_abbr,
+                        available_indicators$indicator_name
+                      )
+          ),
+          selectInput("dimension", "Select Dimension:",
+                      choices = available_dimensions
+          ),
+          selectizeInput("subgroup_filter", "Filter by Subgroup:",
+                         choices = NULL,
+                         multiple = TRUE,
+                         options = list(placeholder = "All subgroups")
+          ),
+          selectizeInput("source_filter", "Filter by Source:",
+                         choices = NULL,
+                         multiple = TRUE,
+                         options = list(placeholder = "All sources")
+          ),
+          sliderInput("date_range", "Date Range:",
+                      min = min(indicators_data$date, na.rm = TRUE),
+                      max = max(indicators_data$date, na.rm = TRUE),
+                      value = c(
+                        max(indicators_data$date, na.rm = TRUE) - 5,
+                        max(indicators_data$date, na.rm = TRUE)
+                      ),
+                      step = 1
+          ),
+          checkboxInput("show_average", "Show WHO Region Average", FALSE),
+          checkboxInput("show_income", "Show Income Group Average", FALSE),
+          selectInput("color_palette", "Color Palette:",
+                      choices = names(color_palettes),
+                      selected = "Viridis"
+          ),
+          selectInput("theme", "Map Theme:",
+                      choices = names(theme_options),
+                      selected = "Default"
+          ),          
+          actionButton("update", "Update Map", class = "btn-primary")
       )
     ),
-    
-    box(
-      title = "Benchmark Comparison",
-      status = "success",
-      solidHeader = TRUE,
-      width = 12,
+    mainPanel(
+      width = 9,
       tabsetPanel(
-        tabPanel("Visual Comparison",
-                 plotlyOutput("benchmark_plot", 
-                             height = "600px",
-                             width = "100%")),
-        tabPanel("Data Table",
-                 DTOutput("benchmark_table")),
-        tabPanel("Summary Statistics",
-                 verbatimTextOutput("benchmark_summary")),
-        tabPanel("Pivot Table",
-                 rpivotTableOutput("pivot_table", 
-                             height = "900px",
-                             width = "100%"))
-      ),
-      downloadButton("download_benchmark", "Download Benchmark Data", 
-                     class = "btn-info")
+        tabPanel(
+          "Map",
+          div(
+            class = "map-container",
+            highchartOutput("map", height = "100%")
+          )
+        ),
+        tabPanel(
+          "Comparison Table",
+          downloadButton("download_data", "Download Data", class = "btn-primary"),
+          DT::dataTableOutput("comparison_table")
+        )
+      )
     )
   )
-),
+              )
+            ),
             tabItem(
               tabName = "dash_explore_clean",
               fluidPage(

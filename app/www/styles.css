@@ -485,3 +485,32 @@ table.dataTable td {
   color: red;
   font-weight: bold;
 }
+
+/* End Benchmarking styles */
+
+/* Spatial Analysis styles */
+.map-container {
+height: 700px;
+width: 100%;
+border: 1px solid #ddd;
+border-radius: 4px;
+}
+.dataTables_scrollBody {
+min-height: 400px;
+}
+.well {
+background-color: #f8f9fa;
+border-radius: 4px;
+}
+.btn-primary {
+background-color: #1da1b4;
+border-color: #1da1b4;
+}
+.btn-primary:hover {
+background-color: #168394;
+border-color: #168394;
+}
+.highcharts-container {
+width: 100% !important;
+height: 100% !important;
+}
