@@ -35,6 +35,11 @@ spatialUI <- function(id) {
                         multiple = TRUE,
                         options = list(placeholder = "Select regions")
                     ),
+                    selectizeInput(ns("income_groups"), "Select Income Groups:",
+                        choices = NULL,
+                        multiple = TRUE,
+                        options = list(placeholder = "Select income groups")
+                    ),
                     selectizeInput(ns("countries"), "Select Countries:",
                         choices = NULL,
                         multiple = TRUE,
@@ -132,6 +137,12 @@ spatialServer <- function(id) {
             filter(!is.na(whoreg6)) %>%
             distinct(whoreg6) %>%
             pull(whoreg6)
+            
+        # Get unique income groups from the data
+        available_income_groups <- indicators_data %>%
+            filter(!is.na(wbincome2024)) %>%
+            distinct(wbincome2024) %>%
+            pull(wbincome2024)
 
         # Define Highcharts color palettes
         color_palettes <- list(
@@ -163,6 +174,7 @@ spatialServer <- function(id) {
         # Initialize inputs
         observe({
             updateSelectizeInput(session, "regions", choices = available_regions)
+            updateSelectizeInput(session, "income_groups", choices = available_income_groups)
             updateSelectizeInput(session, "countries", choices = sort(unique(spatial_data$NAME)))
             updateSelectInput(session, "indicator",
                 choices = setNames(
@@ -200,21 +212,36 @@ spatialServer <- function(id) {
                 hc_legend(enabled = TRUE)
         })
 
-        # Update country choices based on selected regions
-        observe({
-            req(input$regions)
+# Update country choices based on selected regions and income groups
+observe({
+    # Only proceed if at least one of the filters has values
+    req(length(input$regions) > 0 || length(input$income_groups) > 0)
 
-            countries_in_region <- indicators_data %>%
-                filter(whoreg6 %in% input$regions) %>%
-                distinct(setting) %>%
-                pull(setting)
+    # Start with all countries and their attributes from indicators_data
+    filtered_countries <- indicators_data %>%
+        distinct(setting, whoreg6, wbincome2024, .keep_all = TRUE)
 
-            updateSelectizeInput(session, "countries",
-                choices = sort(unique(spatial_data$NAME[spatial_data$NAME %in% countries_in_region])),
-                selected = input$countries
-            )
-        })
+    # Filter by regions if any are selected
+    if (!is.null(input$regions) && length(input$regions) > 0) {
+        filtered_countries <- filtered_countries %>%
+            filter(whoreg6 %in% input$regions)
+    }
 
+    # Filter by income groups if any are selected
+    if (!is.null(input$income_groups) && length(input$income_groups) > 0) {
+        filtered_countries <- filtered_countries %>%
+            filter(wbincome2024 %in% input$income_groups)
+    }
+
+    # Get the country names that match our spatial data
+    available_countries <- sort(unique(spatial_data$NAME[spatial_data$NAME %in% filtered_countries$setting]))
+
+    # Update the country select input
+    updateSelectizeInput(session, "countries",
+        choices = available_countries,
+        selected = input$countries
+    )
+})
         # Update subgroup and source filters dynamically based on dimension AND selected countries/regions
         observe({
             req(input$indicator, input$dimension)
@@ -242,6 +269,13 @@ spatialServer <- function(id) {
                 current_data <- current_data %>%
                     filter(whoreg6 %in% input$regions)
             }
+            
+            # Further filter by selected income groups if any (and no specific countries selected)
+            if ((is.null(input$countries) || length(input$countries) == 0) &&
+                !is.null(input$income_groups) && length(input$income_groups) > 0) {
+                current_data <- current_data %>%
+                    filter(wbincome2024 %in% input$income_groups)
+            }
 
             # Update subgroup filter choices
             updateSelectizeInput(session, "subgroup_filter",
@@ -261,9 +295,9 @@ spatialServer <- function(id) {
         observeEvent(input$update, {
             req(input$indicator)
 
-            # Check if we have either countries or regions selected
-            if (is.null(input$countries) && is.null(input$regions)) {
-                showNotification("Please select at least one country or region", type = "warning")
+            # Check if we have either countries or regions or income groups selected
+            if (is.null(input$countries) && is.null(input$regions) && is.null(input$income_groups)) {
+                showNotification("Please select at least one country, region, or income group", type = "warning")
                 return()
             }
 
@@ -309,6 +343,8 @@ spatialServer <- function(id) {
                     paste("Countries: ", paste(input$countries, collapse = ", "), "<br>")
                 } else if (!is.null(input$regions) && length(input$regions) > 0) {
                     paste("WHO Region: ", paste(input$regions, collapse = ", "), "<br>")
+                } else if (!is.null(input$income_groups) && length(input$income_groups) > 0) {
+                    paste("Income Groups: ", paste(input$income_groups, collapse = ", "), "<br>")
                 },
                 "Dimension: ", input$dimension, " | ",
                 "Subgroup: ", ifelse(is.null(input$subgroup_filter) || length(input$subgroup_filter) == 0,
@@ -479,16 +515,67 @@ spatialServer <- function(id) {
                             )
                         )
                 }
+            } else if (!is.null(input$income_groups) && length(input$income_groups) > 0) {
+                # Zoom to show all countries in selected income groups
+                income_countries_sf <- spatial_data %>%
+                    filter(iso3_code %in% intersect(ind_data$iso3, iso3_code))
+
+                if (nrow(income_countries_sf) > 0) {
+                    bbox <- st_bbox(income_countries_sf)
+
+                    center_lon <- mean(c(bbox$xmin, bbox$xmax))
+                    center_lat <- mean(c(bbox$ymin, bbox$ymin))
+
+                    # Calculate appropriate zoom level for the income groups
+                    bbox_width <- bbox$xmax - bbox$xmin
+                    bbox_height <- bbox$ymax - bbox$ymin
+                    bbox_size <- max(bbox_width, bbox_height)
+
+                    zoom_level <- case_when(
+                        bbox_size > 100 ~ 2,
+                        bbox_size > 50 ~ 3,
+                        bbox_size > 20 ~ 4,
+                        TRUE ~ 5
+                    )
+
+                    hc <- hc %>%
+                        hc_mapNavigation(
+                            enabled = TRUE,
+                            enableMouseWheelZoom = TRUE,
+                            enableDoubleClickZoom = TRUE,
+                            buttonOptions = list(
+                                verticalAlign = "top",
+                                align = "left"
+                            )
+                        ) %>%
+                        hc_chart(
+                            events = list(
+                                load = JS(sprintf("
+                  function() {
+                    var chart = this;
+                    setTimeout(function() {
+                      try {
+                        chart.mapView.setCenter([%f, %f]);
+                        chart.mapView.zoom = %d;
+                      } catch(e) {
+                        console.log('Zoom error:', e);
+                      }
+                    }, 500);
+                  }
+                ", center_lon, center_lat, zoom_level))
+                            )
+                        )
+                }
             }
 
             output$map <- renderHighchart(hc)
         })
 
-        # Get filtered indicator data for selected countries or regions
+        # Get filtered indicator data for selected countries or regions or income groups
         filtered_data <- reactive({
             req(input$indicator, input$dimension)
 
-            # Get selected ISO3 codes - either from selected countries OR all in selected regions
+            # Get selected ISO3 codes - either from selected countries OR all in selected regions/income groups
             if (!is.null(input$countries) && length(input$countries) > 0) {
                 selected_iso3 <- spatial_data %>%
                     filter(NAME %in% input$countries) %>%
@@ -497,6 +584,12 @@ spatialServer <- function(id) {
                 # Get all countries in selected regions
                 selected_iso3 <- indicators_data %>%
                     filter(whoreg6 %in% input$regions) %>%
+                    distinct(iso3) %>%
+                    pull(iso3)
+            } else if (!is.null(input$income_groups) && length(input$income_groups) > 0) {
+                # Get all countries in selected income groups
+                selected_iso3 <- indicators_data %>%
+                    filter(wbincome2024 %in% input$income_groups) %>%
                     distinct(iso3) %>%
                     pull(iso3)
             } else {
