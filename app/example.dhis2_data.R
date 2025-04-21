@@ -4,9 +4,9 @@ library(jsonlite)
 library(openxlsx)
 
 # Set environment variables within R (replace with your actual credentials)
-Sys.setenv(DHIS2_BASE_URL = "https://dhis2.") # Enter your DHIS2 Instance URL
-Sys.setenv(DHIS2_USERNAME = "myusername") # Your DHIS2 API username
-Sys.setenv(DHIS2_PASSWORD = "mypassword") # Your DHIS2 API password
+Sys.setenv(DHIS2_BASE_URL = "https://dhis.moh.gov.et")
+Sys.setenv(DHIS2_USERNAME = "michaelk")
+Sys.setenv(DHIS2_PASSWORD = "Dhis2_12345")
 
 # Function to fetch data from DHIS2 API with error handling
 get_dhis2_data <- function(endpoint) {
@@ -31,7 +31,8 @@ get_dhis2_data <- function(endpoint) {
 
     cat("Response received. Status:", http_status(response)$category, "\n")
 
-    data <- fromJSON(content(response, as = "text"), flatten = TRUE)
+    # data <- fromJSON(content(response, as = "text"), flatten = TRUE) # OLDER VERSION OF JSONlite
+    data <- fromJSON(content(response, as = "text"), simplifyDataFrame = TRUE)
     cat("Successfully fetched data from endpoint:", endpoint, "\n")
 
     return(data)
@@ -80,7 +81,8 @@ fetch_indicator_data <- function(indicator_ids, org_unit_ids, periods, facility_
 
     cat("Response received. Status:", http_status(response)$category, "\n")
 
-    data <- fromJSON(content(response, as = "text"), flatten = TRUE)
+    # data <- fromJSON(content(response, as = "text"), flatten = TRUE) # OLDER VERSION OF JSONlite
+    data <- fromJSON(content(response, as = "text"), simplifyDataFrame = TRUE)
     cat("Successfully fetched data for indicators:", paste(indicator_ids, collapse = ", "), "\n")
 
     return(data)
@@ -420,11 +422,11 @@ cat("Zones:", length(zones_metadata), "Woredas:", length(woredas_metadata), "\n"
 
 specific_indicators <- c(
     "wiCvecPtl0T", "BsB9R6pi0uf", "SUYR67uPFMk", "DJiHqs9eJoN", "yu81UlnsaiH",
-    "r2eJDQLBSY0", "YPfTaU4EtKm", 
-  #  "Fb2ajzvMxH4", "M5KYiOXZkr7", "AYQLnL5gKNe","tFX3fkTo0tW",
-#    "Fpxqdh9XxGd", "TYYcdumng5v", "zBtEVn0BWes", "qiO8zxIsdVf",
-#    "NMzj2KrZNpD", "FDbjgpb71v6", "gecQJ4OuMkd", "FhvlCdtUnrR", "lp1lqrdAlBh",
-#    "niTCBDGkWru", "H010uaIIg62", 
+    "r2eJDQLBSY0", "YPfTaU4EtKm",
+    #  "Fb2ajzvMxH4", "M5KYiOXZkr7", "AYQLnL5gKNe","tFX3fkTo0tW",
+    #    "Fpxqdh9XxGd", "TYYcdumng5v", "zBtEVn0BWes", "qiO8zxIsdVf",
+    #    "NMzj2KrZNpD", "FDbjgpb71v6", "gecQJ4OuMkd", "FhvlCdtUnrR", "lp1lqrdAlBh",
+    #    "niTCBDGkWru", "H010uaIIg62",
     "DOjmzNXoBUS", "QPnMWX0VHL5", "cpVK4vg0qP9",
     "erfov4UPPwm", "K4xjRgFlHVA", "T2aCB3BdjFo", "STKCPnfJE0J", "moCGWgByYvu",
     "DN4DxOG0KcJ", "lyvLEgMy53I", "YyB2gQ7FNkU", "ndqrcnzGcUU", "cMvVX98HjUA",
@@ -445,18 +447,18 @@ specific_org_units <- c(
 )
 
 # Main Regions
-#specific_org_units <- c(
+# specific_org_units <- c(
 #    "yY9BLUUegel", "UFtGyqJMEZh", "yb9NKGA8uqt", "Fccw8uMlJHN",
 #    "tDoLtk2ylu4", "G9hDiPNoB7d", "moBiwh9h5Ce", "b9nYedsL8te",
 #    "XU2wpLlX4Vk", "xNUoZIrGKxQ", "PCKGSJoNHXi", "a2QIIR2UXcd",
 #    "HIlnt7Qj8do", "Gmw0DJLXGtx"
-#)
+# )
 
 # testing periods
 periods <- c("2015", "2016", "2017")
 
 # Main Periods
-#periods <- c("2013", "2014", "2015", "2016", "2017")
+# periods <- c("2013", "2014", "2015", "2016", "2017")
 
 cat("Specific Indicators:", paste(specific_indicators, collapse = ", "), "\n")
 cat("Specific Organisation Units:", paste(specific_org_units, collapse = ", "), "\n")
@@ -511,8 +513,8 @@ analytics_data_settlement <- fetch_indicator_data(
     settlement_type_ids = settlement_type_ids
 )
 population_data_settlement <- fetch_population_data(specific_org_units, periods)
-#population_data_settlement <- fetch_population_data(specific_zones, periods)  # Null Values for pop
-#population_data_settlement <- fetch_population_data(specific_woredas, periods) # Null Values for pop
+# population_data_settlement <- fetch_population_data(specific_zones, periods)  # Null Values for pop
+# population_data_settlement <- fetch_population_data(specific_woredas, periods) # Null Values for pop
 formatted_data_settlement <- format_analytics_data(
     analytics_data_settlement,
     indicators_metadata,
@@ -526,13 +528,13 @@ formatted_data_settlement <- format_analytics_data(
 combined_data <- rbind(formatted_data_region, formatted_data_zone, formatted_data_woreda, formatted_data_facility, formatted_data_settlement)
 
 # Combine and write to Excel
-#combined_data <- rbind(formatted_data_region, formatted_data_zone, formatted_data_woreda)
+# combined_data <- rbind(formatted_data_region, formatted_data_zone, formatted_data_woreda)
 
 if (nrow(combined_data) > 0) {
     cat("Writing combined data to Excel...\n")
     timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
     file_name <- paste0("fetched_data/xlsx/DHIS2_DATA_", timestamp, ".xlsx")
-    #file_name <- paste0("/srv/shiny-server/fetched_data/xlsx/DHIS2_DATA_", timestamp, ".xlsx")
+    # file_name <- paste0("/srv/shiny-server/fetched_data/xlsx/DHIS2_DATA_", timestamp, ".xlsx")
     write.xlsx(combined_data,
         file = file_name,
         sheetName = "Indicators_Data", rowNames = FALSE
