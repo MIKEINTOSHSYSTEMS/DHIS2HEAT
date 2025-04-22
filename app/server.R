@@ -39,8 +39,9 @@ library(highcharter)
 # Load existing functions
 source("dhis2_data.R")
 #source("dba.R", local = TRUE)$value
-#source("ethgeo.R") # not unless it is loading the geojson file
-#source("dba.R")
+source("ethgeo.R") # not unless it is loading the geojson file
+source("dba.R")
+source("spatial_module.R")
 #source("spatial.R")
 # source("auth.R")
 
