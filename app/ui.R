@@ -194,30 +194,31 @@ ui <- tagList(
     # Main Application (conditional display)
     conditionalPanel(
       condition = "output.logged_in",
-      dashboardPage(
-        dashboardHeader(
-          title = tags$div(
-            tags$img(src = "dhis2-icon.svg", height = "50px"),
-            HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
-          ),
-          tags$li(
-            class = "dropdown",
-            tags$a(
-              img(src = "moh_logo_white.png", height = "18px"),
-              href = "#",
-              style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
-              " Ministry of Health - ETHIOPIA"
-            )
-          )
-        ),
-        dashboardSidebar(
-          width = 350,
-          tags$li(
-            class = "dropdown user-menu",
-            uiOutput("user_profile")
-          ),
-          hr(),
-          sidebarMenu(
+dashboardPage(
+  dashboardHeader(
+    title = tags$div(
+      tags$img(src = "dhis2-icon.svg", height = "50px"),
+      HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
+    ),
+    tags$li(
+      class = "dropdown",
+      tags$a(
+        img(src = "moh_logo_white.png", height = "18px"),
+        href = "#",
+        style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
+        " Ministry of Health - ETHIOPIA"
+      )
+    ),
+    titleWidth = "350px"  # Match sidebar width
+  ),
+  dashboardSidebar(
+    width = 350,
+    tags$li(
+      class = "dropdown user-menu",
+      uiOutput("user_profile")
+    ),
+    hr(),
+    sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
             menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
             menuItem("WHO Geographical", tabName = "geographical", icon = icon("map-location")),
@@ -243,9 +244,70 @@ ui <- tagList(
             )
           )
         ),
-        dashboardBody(
-          useShinyjs(),
+  dashboardBody(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+      # Add modern fonts
+      tags$link(href = "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap", rel = "stylesheet"),
+      tags$style(HTML("
+        body {
+          font-family: 'Roboto', sans-serif;
+        }
+      "))
+    ),
+    useShinyjs(),
+    class = "dashboard-body", 
           tags$head(tags$style(HTML(css))),
+tags$script(HTML("
+  $(document).ready(function() {
+    // Add scroll behavior to header
+    $(window).scroll(function() {
+      if ($(this).scrollTop() > 20) {
+        $('.main-header').addClass('scrolled');
+      } else {
+        $('.main-header').removeClass('scrolled');
+      }
+    });
+    
+    // Enhanced hover effects
+    $('.main-header .dropdown a').hover(
+      function() {
+        $(this).css('transform', 'translateY(-2px)');
+        $(this).find('i').css({
+          'transform': 'scale(1.1)',
+          'color': '#b5e71c'
+        });
+      },
+      function() {
+        $(this).css('transform', 'translateY(0)');
+        $(this).find('i').css({
+          'transform': 'scale(1)',
+          'color': 'inherit'
+        });
+      }
+    );
+    
+    // Pulse animation for active items
+    setInterval(function() {
+      $('.navbar-nav > li.active > a').css('animation', 'pulse 2s infinite');
+    }, 3000);
+    
+    // Smooth dropdown animations
+    $('.dropdown').on('show.bs.dropdown', function() {
+      $(this).find('.dropdown-menu').first().stop(true, true).slideDown(200);
+    });
+    
+    $('.dropdown').on('hide.bs.dropdown', function() {
+      $(this).find('.dropdown-menu').first().stop(true, true).slideUp(200);
+    });
+    
+    // Mobile menu toggle enhancement
+    $('.sidebar-toggle').click(function() {
+      $(this).toggleClass('active');
+      $('.main-header').toggleClass('menu-open');
+    });
+  });
+")),
           tabItems(
 
 

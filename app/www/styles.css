@@ -514,3 +514,264 @@ border-color: #168394;
 width: 100% !important;
 height: 100% !important;
 }
+/* Enhanced Sticky Header with Animations */
+.skin-blue .main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    height: 60px;
+    min-height: 60px;
+    background-color: rgba(0, 125, 201, 0.98) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    align-items: center;
+}
+
+/* Header on scroll effect */
+.skin-blue .main-header.scrolled {
+    height: 50px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 125, 201, 0.95) !important;
+}
+
+/* Logo styling */
+.skin-blue .main-header .logo {
+    position: relative;
+    height: 60px;
+    width: 350px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.skin-blue .main-header .logo:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(2px);
+}
+
+/* Navbar styling */
+.skin-blue .main-header .navbar {
+    margin-left: 0;
+    height: 100%;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+/* Dropdown menu styling */
+.skin-blue .main-header .navbar .dropdown-menu {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-top: 0;
+    padding: 10px 0;
+    animation: fadeInDown 0.3s ease-out;
+}
+
+/* Dropdown items */
+.skin-blue .main-header .navbar .dropdown-menu>li>a {
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+    color: #333;
+}
+
+.skin-blue .main-header .navbar .dropdown-menu>li>a:hover {
+    background-color: #f5f5f5;
+    color: #007dc9;
+    padding-left: 25px;
+}
+
+/* Header links styling */
+.skin-blue .main-header .navbar .dropdown a {
+    color: white;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.skin-blue .main-header .navbar .dropdown a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.skin-blue .main-header .navbar .dropdown a i {
+    margin-right: 8px;
+    transition: all 0.3s ease;
+}
+
+.skin-blue .main-header .navbar .dropdown a:hover i {
+    transform: scale(1.1);
+    color: #b5e71c;
+}
+
+/* Active link indicator */
+.navbar-nav>li.active>a {
+    position: relative;
+    color: #b5e71c !important;
+}
+
+.navbar-nav>li.active>a:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background-color: #b5e71c;
+    border-radius: 3px;
+}
+
+/* Header toggle button */
+.skin-blue .main-header .navbar .sidebar-toggle {
+    color: white;
+    margin-right: 15px;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    padding: 10px 15px;
+}
+
+.skin-blue .main-header .navbar .sidebar-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: rotate(90deg);
+}
+
+/* Animation keyframes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(181, 231, 28, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(181, 231, 28, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(181, 231, 28, 0);
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .skin-blue .main-header {
+        height: 50px;
+    }
+
+    .skin-blue .main-header .logo {
+        width: 200px;
+        padding: 0 10px;
+    }
+
+    .skin-blue .main-header .logo img {
+        height: 30px !important;
+    }
+
+    .skin-blue .main-header .navbar .dropdown a {
+        font-size: 14px;
+        padding: 8px 10px;
+        margin: 0 2px;
+    }
+
+    .skin-blue .main-header .navbar .sidebar-toggle {
+        padding: 8px 12px;
+    }
+}
+
+/* Ensure content doesn't hide behind sticky header */
+.dashboard-body {
+    padding-top: 60px;
+    min-height: calc(100vh - 60px);
+}
+
+.skin-blue .main-header.scrolled+.dashboard-body {
+    padding-top: 50px;
+}
+
+/* Better spacing for menu items */
+.sidebar-menu li a {
+    padding: 12px 15px;
+    margin: 4px 0;
+}
+
+/* Modern scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Card styling for boxes */
+.box {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    transition: transform 0.2s ease;
+}
+
+.box:hover {
+    transform: translateY(-2px);
+}
+
+/* Modern form elements */
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007dc9;
+    box-shadow: 0 0 0 2px rgba(0, 125, 201, 0.1);
+}
+
+/* Better button styling */
+.btn {
+    border-radius: 4px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+/* Responsive tables */
+.dataTables_wrapper {
+    overflow-x: auto;
+}
