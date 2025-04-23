@@ -681,7 +681,8 @@ server <- function(input, output, session) {
   fetched_data <- reactiveVal(NULL) # Add this line to store fetched data
 
   spatialServer("spatial_module")
-  ethgeoServer("ethgeo_module") # Add this line in your main server function
+  #ethgeoServer("ethgeo_module") # main server function for ethgeo module
+  ethgeoServer("ethgeo_module", reactive(data$filtered))
   dba_module_server("dba_module")
   # Load data from main.rds if it exists
   # if (file.exists("fetched_data/main.rds")) {

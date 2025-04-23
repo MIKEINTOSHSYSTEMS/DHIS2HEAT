@@ -453,12 +453,15 @@ ui <- tagList(
                     plotlyOutput("distPlot", width = "100%", height = "380px")
                   ),
                   box(
-                    title = "Geo Heatmap",
+                    title = "Geographical Heatmap",
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
                     height = 900,
-                    ethgeoUI("ethgeo_module"), # Embed the ethgeo module inside the box
+                    p("Regional map visualization based on current filters",
+                      style = "font-size: 12px; color: #666; margin-bottom: 10px;"
+                    ),
+                    ethgeoUI("ethgeo_module"),
                     hr()
                   )
                 ),

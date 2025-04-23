@@ -99,40 +99,40 @@ ethgeoServer <- function(id) {
             return(data)
         })
 
-output$cPlot <- renderHighchart({
-    req(nrow(filtered_data()) > 0)
+        output$cPlot <- renderHighchart({
+            req(nrow(filtered_data()) > 0)
 
-    map_data <- filtered_data()
+            map_data <- filtered_data()
 
-    # Viridis palette
-    viridis_colors <- viridisLite::viridis(10)
+            # Viridis palette
+            viridis_colors <- viridisLite::viridis(10)
 
-    # Set 'name' field to match 'subgroup' (for tooltip compatibility)
-    map_data <- map_data %>%
-        mutate(
-            date = as.character(date),
-            name = subgroup  # Important: this enables `point.name` in tooltip
-        )
+            # Set 'name' field to match 'subgroup' (for tooltip compatibility)
+            map_data <- map_data %>%
+                mutate(
+                    date = as.character(date),
+                    name = subgroup # Important: this enables `point.name` in tooltip
+                )
 
-    highchart(type = "map") %>%
-        hc_add_series_map(
-            map = eth_geojson,
-            df = map_data,
-            joinBy = c("shapeName", "subgroup"),
-            value = "estimate",
-            name = "Estimate",
-            dataLabels = list(enabled = TRUE, format = "{point.name}")
-        ) %>%
-        hc_colorAxis(stops = color_stops(n = 10, colors = viridis_colors)) %>%
-        hc_mapNavigation(enabled = TRUE) %>%
-        hc_title(text = "Regional Estimates") %>%
-        hc_chart(backgroundColor = NULL) %>%
-        hc_tooltip(
-            useHTML = TRUE,
-            headerFormat = "<b>Ethiopia</b><br>",
-            pointFormat = "Region: <b>{point.subgroup}</b> <br>Estimate: <b>{point.value:.2f}</b><br>Date: <b>{point.date}</b>"
-        )
-})
+            highchart(type = "map") %>%
+                hc_add_series_map(
+                    map = eth_geojson,
+                    df = map_data,
+                    joinBy = c("shapeName", "subgroup"),
+                    value = "estimate",
+                    name = "Estimate",
+                    dataLabels = list(enabled = TRUE, format = "{point.name}")
+                ) %>%
+                hc_colorAxis(stops = color_stops(n = 10, colors = viridis_colors)) %>%
+                hc_mapNavigation(enabled = TRUE) %>%
+                hc_title(text = "Regional Estimates") %>%
+                hc_chart(backgroundColor = NULL) %>%
+                hc_tooltip(
+                    useHTML = TRUE,
+                    headerFormat = "<b>Ethiopia</b><br>",
+                    pointFormat = "Region: <b>{point.subgroup}</b> <br>Estimate: <b>{point.value:.2f}</b><br>Date: <b>{point.date}</b>"
+                )
+        })
 
         observeEvent(input$refresh, {
             region_data(load_data())
