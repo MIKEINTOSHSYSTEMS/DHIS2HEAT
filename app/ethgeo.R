@@ -1,6 +1,6 @@
 library(shiny)
 library(dplyr)
-library(plotly)
+library(highcharter)
 library(rjson)
 library(jsonlite)
 library(here)
@@ -25,11 +25,11 @@ load_data <- function() {
         }
 
         region_data <- main_data %>%
-            dplyr::filter(dimension == "Region") %>%
-            dplyr::group_by(subgroup, date) %>%
-            dplyr::summarize(estimate = mean(estimate, na.rm = TRUE), .groups = "drop") %>%
-            dplyr::filter(!is.na(subgroup)) %>%
-            dplyr::mutate(
+            filter(dimension == "Region") %>%
+            group_by(subgroup, date) %>%
+            summarize(estimate = mean(estimate, na.rm = TRUE), .groups = "drop") %>%
+            filter(!is.na(subgroup)) %>%
+            mutate(
                 subgroup = trimws(subgroup),
                 subgroup = gsub("\\s+", " ", subgroup)
             )
@@ -66,19 +66,11 @@ ethgeoUI <- function(id) {
                         width = "100%"
                     )
                 )
-                # ,
-                #    column(
-                #        4,
-                #        actionButton(ns("refresh"), "Update Map",
-                #            class = "btn btn-primary",
-                #            style = "width: 100%; height: 38px; margin-top: 25px;"
-                #        )
-                #    )
             )
         ),
         div(
             class = "map-container",
-            plotlyOutput(ns("cPlot"))
+            highchartOutput(ns("cPlot"), height = "100%")
         )
     )
 }
@@ -97,34 +89,48 @@ ethgeoServer <- function(id) {
             data <- region_data()
 
             if (!is.null(input$region) && length(input$region) > 0) {
-                data <- data %>% dplyr::filter(subgroup %in% input$region)
+                data <- data %>% filter(subgroup %in% input$region)
             }
 
             if (!is.null(input$date) && length(input$date) > 0) {
-                data <- data %>% dplyr::filter(date %in% input$date)
+                data <- data %>% filter(date %in% input$date)
             }
 
             return(data)
         })
 
-        output$cPlot <- renderPlotly({
-            plot_ly(
-                type = "choroplethmapbox",
-                geojson = eth_geojson,
-                locations = filtered_data()$subgroup,
-                z = filtered_data()$estimate,
-                colorscale = "Viridis",
-                featureidkey = "properties.shapeName",
-                marker = list(opacity = 0.7)
-            ) %>%
-                layout(
-                    mapbox = list(
-                        style = "light",
-                        zoom = 4,
-                        center = list(lon = 39.6, lat = 8.6),
-                        accesstoken = "pk.eyJ1IjoiaG1vcmdhbnN0ZXdhcnQiLCJhIjoiY2tmaTg5NDljMDBwbDMwcDd2OHV6cnd5dCJ9.8eLR4FtlO079Gq0NeSNoeg"
-                    ),
-                    margin = list(t = 0, b = 0, l = 0, r = 0)
+        output$cPlot <- renderHighchart({
+            req(nrow(filtered_data()) > 0)
+
+            map_data <- filtered_data()
+
+            # Viridis palette
+            viridis_colors <- viridisLite::viridis(10)
+
+            # Set 'name' field to match 'subgroup' (for tooltip compatibility)
+            map_data <- map_data %>%
+                mutate(
+                    date = as.character(date),
+                    name = subgroup # Important: this enables `point.name` in tooltip
+                )
+
+            highchart(type = "map") %>%
+                hc_add_series_map(
+                    map = eth_geojson,
+                    df = map_data,
+                    joinBy = c("shapeName", "subgroup"),
+                    value = "estimate",
+                    name = "Estimate",
+                    dataLabels = list(enabled = TRUE, format = "{point.name}")
+                ) %>%
+                hc_colorAxis(stops = color_stops(n = 10, colors = viridis_colors)) %>%
+                hc_mapNavigation(enabled = TRUE) %>%
+                hc_title(text = "Regional Estimates") %>%
+                hc_chart(backgroundColor = NULL) %>%
+                hc_tooltip(
+                    useHTML = TRUE,
+                    headerFormat = "<b>Ethiopia</b><br>",
+                    pointFormat = "Region: <b>{point.subgroup}</b> <br>Estimate: <b>{point.value:.2f}</b><br>Date: <b>{point.date}</b>"
                 )
         })
 
@@ -169,11 +175,6 @@ ui <- fluidPage(
                 min-height: 400px;
             }
 
-            .plotly.html-widget {
-                height: 100% !important;
-                width: 100% !important;
-            }
-
             .selectize-input {
                 width: 100% !important;
                 border-radius: 4px;
@@ -208,4 +209,4 @@ server <- function(input, output, session) {
 }
 
 # Run application
-# shinyApp(ui = ui, server = server)
+#shinyApp(ui = ui, server = server)

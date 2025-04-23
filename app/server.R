@@ -938,7 +938,7 @@ server <- function(input, output, session) {
 
     output$data_preview <- renderDT({
       datatable(data$filtered, options = list(
-        pageLength = 5, # 15
+        pageLength = 10, # 15
         lengthMenu = c(5, 10, 15, 20, 50, 100),
         scrollX = TRUE,
         autoWidth = TRUE,

@@ -457,7 +457,7 @@ ui <- tagList(
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
-                    height = 600,
+                    height = 900,
                     ethgeoUI("ethgeo_module"), # Embed the ethgeo module inside the box
                     hr()
                   )
@@ -490,6 +490,7 @@ ui <- tagList(
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
+                    height = "984px",
                     selectInput("view_by", "Dynamic Plot:", choices = c("Subgroup", "Dimension", "Date")),
                     # selectInput("view_by", "Dynamic Plot:", choices = c("Subgroup", "Dimension")),
                     selectInput("chart_type", "Chart Type:",
@@ -498,7 +499,7 @@ ui <- tagList(
                       choices = c("Scatter", "Bar", "Geo Heatmap", "Heatmap", "Pie"), selected = "Scatter"
                     ),
                     uiOutput("dynamicPlotUI"), # Dynamic UI for plots
-                    plotlyOutput("dynamicPlotOutput", width = "100%", height = "100%")
+                    plotlyOutput("dynamicPlotOutput", width = "100%", height = "700px")
                   )
                 ),
 
