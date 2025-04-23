@@ -1,5 +1,5 @@
 FROM rocker/shiny:latest
- 
+
 # Install necessary system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     systemctl \
@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev \
     libxml2-dev \
     libsodium23 \
+    libpq-dev \
+    libproj-dev proj-data proj-bin \
+    libgdal-dev libgeos-dev libudunits2-dev \
+    libglpk-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install CRAN packages and GitHub packages in a single step to reduce layers
@@ -36,6 +40,12 @@ RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/deploy_
 RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/monitor_shiny_app.sh
 RUN chown -R shiny:shiny /srv/shiny-server && chmod +x /srv/shiny-server/install_shiny_packages.sh
 
+RUN chmod 775 /srv/shiny-server/app/db
+RUN chown shiny:shiny /srv/shiny-server/app/db
+
+RUN chown shiny:shiny /srv/shiny-server/app/db/data.sqlite
+
+RUN chmod 666 /srv/shiny-server/app/db/data.sqlite
 
 # Ensure start_shiny_app.sh and other scripts are executable
 RUN chmod +x /srv/shiny-server/start_shiny_app.sh

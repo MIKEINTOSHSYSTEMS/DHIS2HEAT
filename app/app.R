@@ -16,8 +16,9 @@ library(jsonlite)
 # Source the UI and server components
 # source("system.R") # Source the standalone database administration module
 source("load_countries.R")
-source("spatial.R")
-source("./module/spatial_module.R")
+source("spatial_module.R")
+#source("spatial.R")
+#source("./module/spatial_module.R")
 source("dba.R") # Source the database administration module
 source("exclean.R")
 # source("clean.R")
