@@ -176,7 +176,16 @@ ui <- tagList(
             p("Version 1.0.0 - Initial release with core features."),
             p("Version 1.1.0 - Added data visualization and export options."),
             p("Version 1.1.1 - Added Reactive components and Dynamic Updates."),
-            p("Version 1.2.0 - Improved user interface and performance.")
+            p("Version 1.2.0 - Improved user interface and performance."),
+            p("Version 1.3.0 - Refactored UI: Updated logo links, enhanced navbar styling, and improved layout responsiveness."),
+            p("Version 1.4.0 - Enhanced UI: Implemented sticky header with animations, optimized navbar and dropdown styles, and improved mobile responsiveness."),
+            p("Version 1.5.0 - Refactored ethgeo module: Streamlined data processing, enhanced map visualization, and improved UI elements."),
+            p("Version 1.5.1 - Refactored ethgeo module: Replaced Plotly with Highcharter for map visualization, enhanced data filtering, and improved UI layout."),
+            p("Version 1.6.0 - Added spatial module with WHO Benchmarking Tool, interactive map, and comparison table."),
+            p("Version 1.6.1 - Improved income group selection in spatial module and updated filtering logic."),
+            p("Version 1.6.2 - Added spatial health indicators benchmarking tool with dynamic UI and map visualization."),
+            p("Version 1.7.0 - Added benchmarking settings and enhanced spatial data management functionalities."),
+            p("Version 1.7.1 - Modern visualizations added with WHO Benchmarking Standards, advanced data management functionalities, and streamlined UI."),  
           ),
 
           # Additional Sections
@@ -186,7 +195,7 @@ ui <- tagList(
             h2("More Information"),
             p("For more information, visit our website or contact support."),
             hr(),
-            HTML("Version-1.2 | &copy; 2025 Designed & Developed by: <a href='https://merqconsultancy.org'><b>MERQ Consultancy</b>.</a>")
+            HTML("Version-1.7.1 | &copy; 2025 Designed & Developed by: <a href='https://merqconsultancy.org'><b>MERQ Consultancy</b>.</a>")
           )
         )
       )
@@ -203,11 +212,13 @@ dashboardPage(
     ),
     tags$li(
       class = "dropdown",
-      tags$a(
-        img(src = "moh_logo_white.png", height = "18px"),
+      #tags$a(
+      tags$html(
+        img(src = "moh_logo_white.png", height = "47px", style = "padding-left: 7px",),
         #href = "#",
-        style = "vertical-align: middle; margin-right: 10px;",
-        HTML("<span style='color: white; font-weight: bold; font-size: 16px; padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
+        #style = "vertical-align: middle; margin-right: 10px;",
+        style = "vertical-align: sub; margin-right: 10px;",
+        HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 16px;padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
 
         #style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
         #" Ministry of Health - ETHIOPIA"
@@ -217,7 +228,7 @@ dashboardPage(
   ),
   dashboardSidebar(
     width = 350,
-    tags$li(
+    tags$html(
       class = "dropdown user-menu",
       uiOutput("user_profile")
     ),
@@ -228,13 +239,19 @@ dashboardPage(
             menuItem("WHO Geographical", tabName = "geographical", icon = icon("map-location")),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
+            conditionalPanel(
+              condition = "output.is_admin",
               menuSubItem("Source Setting", tabName = "source_setting", icon = icon("sliders-h")),
-              menuSubItem("Fetcher Setting", tabName = "fetcher_setting", icon = icon("download"))
+              menuSubItem("Fetcher Setting", tabName = "fetcher_setting", icon = icon("download")),
+              )
             ),
             menuItem("Data Management",
               icon = icon("database"),
-              menuSubItem("Data Cleaner", tabName = "dash_explore_clean", icon = icon("broom")) # ,
+            conditionalPanel(
+              condition = "output.is_admin",
+              menuSubItem("Data Cleaner", tabName = "dash_explore_clean", icon = icon("broom")), # ,
               # menuSubItem("Explore & Clean", tabName = "explore_clean", icon = icon("broom"))
+            )
             ),
             hr(),
             menuItem("Admin Panel",
@@ -485,10 +502,10 @@ tags$script(HTML("
             tabItem(
               tabName = "data_preview",
               fluidRow(
-                actionButton("load_settings", "Load Settings", class = "btn-info"),
-                actionButton("fetch_data", "Fetch Data", class = "btn-success"),
-                downloadButton("export_data", "Export to Excel", class = "btn-warning"),
-                downloadButton("export_parquet", "Export to Parquet", class = "btn-danger"),
+                #actionButton("load_settings", "Load Settings", class = "btn-info"),
+                #actionButton("fetch_data", "Fetch Data", class = "btn-success"),
+                downloadButton("export_data", "Export All To Excel", class = "btn-warning"),
+                #downloadButton("export_parquet", "Export to Parquet", class = "btn-danger"),
                 actionButton("help", "Help", class = "btn-info"),
                 hr(),
                 box(

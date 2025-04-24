@@ -172,6 +172,8 @@ label {
 .user-menu .dropdown-menu {
     min-width: 250px;
     padding: 10px;
+    background-color: #222d32;
+    border-color: #00dcff;
 }
 
 .user-menu .notification-item {
@@ -275,6 +277,7 @@ label {
     position: fixed;
     background: #007dc9;
     width: 100%;
+    height: 50px;
 }
 
 .main-header {
