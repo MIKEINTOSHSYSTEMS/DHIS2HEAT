@@ -136,12 +136,13 @@ ui <- tagList(
         value = "home",
         fluidPage(
           class = "start-page",
-          tags$a(
+          #tags$a(
+          tags$
             img(src = "moh_logo_blue.svg", height = "100px"),
-            href = "#",
+            #href = "#",
             # style = "color: #007BDDFF; font-weight: bold; font-size: 16px; padding: 15px;",
             # " Ministry of Health - ETHIOPIA"
-          ),
+          #),
           hr(),
           hr(),
           h1("Welcome To"),
@@ -204,9 +205,12 @@ dashboardPage(
       class = "dropdown",
       tags$a(
         img(src = "moh_logo_white.png", height = "18px"),
-        href = "#",
-        style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
-        " Ministry of Health - ETHIOPIA"
+        #href = "#",
+        style = "vertical-align: middle; margin-right: 10px;",
+        HTML("<span style='color: white; font-weight: bold; font-size: 16px; padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
+
+        #style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
+        #" Ministry of Health - ETHIOPIA"
       )
     ),
     titleWidth = "350px"  # Match sidebar width
