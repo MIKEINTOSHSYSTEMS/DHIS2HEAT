@@ -73,3 +73,9 @@ app/dhis2_data.R
 
 # Environment Variables
 .env
+
+#Removed test jsons
+app/json
+
+#removed meta
+app/meta
