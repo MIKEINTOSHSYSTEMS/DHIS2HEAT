@@ -37,7 +37,7 @@ library(sf)
 library(highcharter)
 
 # Load existing functions
-#source("dhis2_data.R")
+source("dhis2_data.R")
 #source("dba.R", local = TRUE)$value
 source("ethgeo.R") # not unless it is loading the geojson file
 source("dba.R")
