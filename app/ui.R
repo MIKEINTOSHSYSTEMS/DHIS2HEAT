@@ -508,24 +508,40 @@ tags$script(HTML("
                 #downloadButton("export_parquet", "Export to Parquet", class = "btn-danger"),
                 actionButton("help", "Help", class = "btn-info"),
                 hr(),
-                box(
-                  title = tagList(
-                    "Filters",
-                    p("To get started, select indicators and dimensions, then apply filters",
-                      style = "font-size: 14px; color: #b7b7b7;"
-                    )
-                  ),
-                  status = "primary",
-                  solidHeader = TRUE,
-                  width = 12,
-                  fluidRow(
-                    column(3, selectizeInput("filter_indicators", "Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-                    column(3, selectizeInput("filter_dimensions", "Dimensions", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-                    column(3, selectizeInput("filter_subgroups", "Subgroups", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-                    column(3, selectizeInput("filter_dates", "Dates", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-                    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;"))
-                  )
-                ),
+box(
+  title = tagList(
+    "Filters",
+    p("To get started, select indicators and dimensions, then apply filters",
+      style = "font-size: 14px; color: #b7b7b7;"
+    )
+  ),
+  status = "primary",
+  solidHeader = TRUE,
+  width = 12,
+  fluidRow(
+    column(3, selectizeInput("filter_indicators", "Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+    column(3, selectizeInput("filter_dimensions", "Dimensions",
+      choices = c("Region", "Zone", "Woreda", "Facility Type", "Settlement"),
+      multiple = TRUE, options = list(maxOptions = 1000)
+    )),
+    column(
+      3,
+      conditionalPanel(
+        condition = "input.filter_dimensions.includes('Zone') || input.filter_dimensions.includes('Woreda')",
+        selectizeInput("filter_regions", "Regions", choices = NULL, multiple = TRUE)
+      ),
+      conditionalPanel(
+        condition = "input.filter_dimensions.includes('Woreda')",
+        selectizeInput("filter_zones_woreda", "Zones", choices = NULL, multiple = TRUE)
+      )
+    ),
+    column(3, selectizeInput("filter_subgroups", "Subgroups", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+    column(3, selectizeInput("filter_dates", "Dates", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+
+    #    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;")),
+    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;"))
+  )
+),
                 column(
                   width = 6,
                   box(

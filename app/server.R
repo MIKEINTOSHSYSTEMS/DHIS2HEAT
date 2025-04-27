@@ -913,58 +913,172 @@ server <- function(input, output, session) {
   })
 
 
-  # Apply filters
-  observeEvent(input$apply_filters, {
-    req(data$combined)
 
-    filtered_data <- data$combined
 
-    if (!is.null(input$filter_indicators) && length(input$filter_indicators) > 0) {
-      filtered_data <- filtered_data[filtered_data$indicator_name %in% input$filter_indicators, ]
+
+# Add at the beginning of server.R (with other reactive values)
+drilldown_data <- reactiveValues(
+  org_hierarchy = NULL,
+  regions = NULL,
+  zones = NULL,
+  woredas = NULL
+)
+
+# Load organization hierarchy data - with error handling
+observe({
+  tryCatch(
+    {
+      org_units_json <- jsonlite::fromJSON("./meta/AIO_organisationUnits.json", simplifyVector = FALSE)
+      if (!is.null(org_units_json$organisationUnits)) {
+        drilldown_data$org_hierarchy <- org_units_json$organisationUnits
+
+        # Extract regions, zones, and woredas
+        regions <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+          if (!is.null(x$parent$parent$displayName)) x$parent$parent$displayName
+        })))
+        zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+          if (!is.null(x$parent$displayName)) x$parent$displayName
+        })))
+        woredas <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) x$displayName)))
+
+        drilldown_data$regions <- regions[!sapply(regions, is.null)]
+        drilldown_data$zones <- zones[!sapply(zones, is.null)]
+        drilldown_data$woredas <- woredas[!sapply(woredas, is.null)]
+
+        # Update region filter
+        updateSelectizeInput(session, "filter_regions", choices = drilldown_data$regions, server = TRUE)
+      }
+    },
+    error = function(e) {
+      showNotification(paste("Error loading organization units:", e$message), type = "error")
+    }
+  )
+})
+
+# When regions are selected, update zones in the zone filter
+observeEvent(input$filter_regions, {
+  req(input$filter_regions)
+  zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+    if (x$parent$parent$displayName %in% input$filter_regions) x$parent$displayName
+  })))
+  zones <- zones[!sapply(zones, is.null)]
+  updateSelectizeInput(session, "filter_zones_woreda", choices = zones, server = TRUE)
+})
+
+# When zones are selected, update woredas in the subgroup filter
+observeEvent(input$filter_zones_woreda, {
+  req(input$filter_zones_woreda)
+  woredas <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+    if (x$parent$displayName %in% input$filter_zones_woreda) x$displayName
+  })))
+  woredas <- woredas[!sapply(woredas, is.null)]
+  if ("Woreda" %in% input$filter_dimensions) {
+    updateSelectizeInput(session, "filter_subgroups", choices = woredas, server = TRUE)
+  }
+})
+
+observeEvent(input$filter_dimensions, {
+  req(data$combined, input$filter_dimensions)
+
+  # Get base subgroups based on selected dimensions
+  subgroups <- data$combined %>%
+    filter(dimension %in% input$filter_dimensions) %>%
+    pull(subgroup) %>%
+    unique()
+
+  # Apply parent filters if applicable
+  if (any(c("Zone", "Woreda") %in% input$filter_dimensions)) {
+    if ("Zone" %in% input$filter_dimensions && !is.null(input$filter_regions)) {
+      # Filter zones by selected regions
+      zones_in_regions <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+        if (!is.null(x$parent$parent) && x$parent$parent$displayName %in% input$filter_regions) {
+          x$parent$displayName
+        } else {
+          NULL
+        }
+      })))
+      zones_in_regions <- zones_in_regions[!sapply(zones_in_regions, is.null)]
+      subgroups <- intersect(subgroups, zones_in_regions)
     }
 
-    if (!is.null(input$filter_dimensions) && length(input$filter_dimensions) > 0) {
-      filtered_data <- filtered_data[filtered_data$dimension %in% input$filter_dimensions, ]
+    if ("Woreda" %in% input$filter_dimensions && !is.null(input$filter_zones_woreda)) {
+      # Filter woredas by selected zones
+      woredas_in_zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+        if (!is.null(x$parent) && x$parent$displayName %in% input$filter_zones_woreda) {
+          x$displayName
+        } else {
+          NULL
+        }
+      })))
+      woredas_in_zones <- woredas_in_zones[!sapply(woredas_in_zones, is.null)]
+      subgroups <- intersect(subgroups, woredas_in_zones)
     }
+  }
 
-    if (!is.null(input$filter_subgroups) && length(input$filter_subgroups) > 0) {
-      filtered_data <- filtered_data[filtered_data$subgroup %in% input$filter_subgroups, ]
-    }
+  updateSelectizeInput(session, "filter_subgroups", choices = subgroups, server = TRUE)
+})
 
-    if (!is.null(input$filter_dates) && length(input$filter_dates) > 0) {
-      filtered_data <- filtered_data[filtered_data$date %in% input$filter_dates, ]
-    }
 
-    data$filtered <- filtered_data
+####################
 
-    output$data_preview <- renderDT({
-      datatable(data$filtered, options = list(
-        pageLength = 10, # 15
-        lengthMenu = c(5, 10, 15, 20, 50, 100),
-        scrollX = TRUE,
-        autoWidth = TRUE,
-        searching = TRUE,
-        ordering = TRUE
-      ))
-    })
-
-    output$distPlot <- renderPlotly({
-      req(data$filtered)
-      plot_ly(
-        data = data$filtered, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
-        marker = list(color = input$plot_color, size = 5), # Use selected color
-        text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
-        hoverinfo = "text"
-      )
-    })
-
-    output$bluePlot <- renderPlot({
-      req(data$filtered)
-      x <- data$filtered$estimate
-      bins <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = input$bins + 1)
-      hist(x, breaks = bins, col = "steelblue", border = "white")
-    })
+# Modify the apply_filters observer to include drill-down filters
+observeEvent(input$apply_filters, {
+  req(data$combined)
+  
+  filtered_data <- data$combined
+  
+  # Apply basic filters
+  if (!is.null(input$filter_indicators) && length(input$filter_indicators) > 0) {
+    filtered_data <- filtered_data %>% filter(indicator_name %in% input$filter_indicators)
+  }
+  
+  if (!is.null(input$filter_dimensions) && length(input$filter_dimensions) > 0) {
+    filtered_data <- filtered_data %>% filter(dimension %in% input$filter_dimensions)
+  }
+  
+  if (!is.null(input$filter_subgroups) && length(input$filter_subgroups) > 0) {
+    filtered_data <- filtered_data %>% filter(subgroup %in% input$filter_subgroups)
+  }
+  
+  if (!is.null(input$filter_dates) && length(input$filter_dates) > 0) {
+    filtered_data <- filtered_data %>% filter(date %in% input$filter_dates)
+  }
+  
+  data$filtered <- filtered_data
+  
+  # Update the data preview table
+  output$data_preview <- renderDT({
+    datatable(data$filtered, options = list(
+      pageLength = 10,
+      lengthMenu = c(5, 10, 15, 20, 50, 100),
+      scrollX = TRUE,
+      autoWidth = TRUE,
+      searching = TRUE,
+      ordering = TRUE
+    ))
   })
+  
+  # Update plots
+output$distPlot <- renderPlotly({
+  req(data$filtered)
+
+  plot_ly(
+    data = data$filtered, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
+    marker = list(color = input$plot_color, size = 5),
+    text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
+    hoverinfo = "text"
+  ) %>%
+    layout(
+      xaxis = list(
+        #tickformat = "%Y", # Format as year only (no month/day)
+        tickmode = "linear",
+        dtick = 1, # step size of 1 year
+        tickformat = ".0f" # no decimals
+      )
+    )
+  })
+})
+
 
   # Update plots based on fetched data
   observe({
