@@ -37,7 +37,7 @@ library(sf)
 library(highcharter)
 
 # Load existing functions
-source("dhis2_data.R")
+#source("dhis2_data.R")
 #source("dba.R", local = TRUE)$value
 source("ethgeo.R") # not unless it is loading the geojson file
 source("dba.R")
@@ -119,26 +119,36 @@ server <- function(input, output, session) {
 
   output$user_profile <- renderUI({
     if (user$logged_in) {
-      dropdownMenu(
-        type = "notifications",
-        icon = icon("user-circle"),
-        headerText = paste("Logged in as:", user$info$username),
-        notificationItem(
-          text = actionLink("view_profile", "View Profile"),
-          icon = icon("user")
+      tagList(
+        div(
+          class = "user-info",
+          img(src = "images/user_picture.png", id = "user_profile_img"), # Correct image path
+          div(
+            class = "user-info-text",
+            h4(user$info$username), # Dynamic username
+            p(user$info$email) # Dynamic email or user role
+          )
         ),
-        notificationItem(
-          text = actionLink("change_password", "Change Password"),
-          icon = icon("key")
-        ),
-        notificationItem(
-          text = actionLink("logout_btn", "Logout"),
-          icon = icon("sign-out")
+        div(
+          class = "pdropdown-menu",
+          div(class = "headerText", paste("Logged in as:", user$info$username)),
+          notificationItem(
+            text = actionLink("view_profile", "View Profile"),
+            icon = icon("user")
+          ),
+          notificationItem(
+            text = actionLink("change_password", "Change Password"),
+            icon = icon("key")
+          ),
+          div(class = "divider"),
+          notificationItem(
+            text = actionLink("logout_btn", "Logout"),
+            icon = icon("sign-out")
+          )
         )
       )
     }
   })
-
 
 
   user <- reactiveValues(logged_in = FALSE, info = NULL, permissions = NULL)

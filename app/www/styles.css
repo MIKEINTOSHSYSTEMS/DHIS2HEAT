@@ -163,26 +163,114 @@ label {
     margin-bottom: 20px;
 }
 
-/* User profile dropdown styling */
+/* User Profile Dropdown */
 .user-menu .dropdown-toggle {
-    padding: 15px !important;
-    color: white !important;
-}
-
-.user-menu .dropdown-menu {
-    min-width: 250px;
-    padding: 10px;
-    background-color: #222d32;
-    border-color: #00dcff;
-}
-
-.user-menu .notification-item {
-    padding: 5px 10px;
+    padding: 15px;
+    color: white;
+    background-color: #4CAF50;
+    /* Green button color */
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.user-menu .dropdown-toggle:hover {
+    background-color: #45a049;
+    /* Darker green on hover */
+}
+
+/* User Profile Menu Styling */
+.user-menu .pdropdown-menu {
+    min-width: 250px;
+    padding: 15px;
+    background-color: #222d32;
+    border-radius: 8px;
+    border: 1px solid #00dcff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    display: none;
+    /* Initially hidden */
+}
+
+/* Header Text */
+.user-menu .pdropdown-menu .headerText {
+    font-size: 18px;
+    font-weight: 600;
+    color: #00dcff;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Notification items */
+.user-menu .notification-item {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 .user-menu .notification-item:hover {
     background-color: #f8f9fa;
+    /* Light hover effect */
+}
+
+/* Style for profile image */
+#user_profile_img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+/* Styling for the user profile info */
+.user-menu .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.user-menu .user-info h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.user-menu .user-info p {
+    font-size: 12px;
+    color: #bbb;
+}
+
+/* Styling for action buttons */
+.user-menu .action-buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-menu .action-buttons button {
+    width: 100%;
+    padding: 10px;
+    background-color: #f44336;
+    /* Red for the logout button */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.user-menu .action-buttons button:hover {
+    background-color: #d32f2f;
+}
+
+.user-menu .action-buttons button+button {
+    margin-top: 10px;
 }
 
 /* Admin panel specific styles */

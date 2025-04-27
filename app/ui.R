@@ -229,9 +229,22 @@ dashboardPage(
   dashboardSidebar(
     width = 350,
     tags$html(
-      class = "dropdown user-menu",
-      uiOutput("user_profile")
+    useShinyjs(),  # Activate shinyjs functionality      
+      class = "pdropdown user-menu",
+      uiOutput("user_profile")    
     ),
+ #   tags$html(
+ #     #class = "dropdown user-menu",
+ #     class = "pdropdown user-menu",
+ #   tags$head(tags$style(HTML(css))),
+ #   tags$script(HTML("
+ #     $(document).ready(function() {
+ #       // Toggle dropdown menu when user clicks on the profile picture or username
+
+#      });
+#    ")),      
+#      uiOutput("user_profile")
+#    ),
     hr(),
     sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
@@ -326,6 +339,23 @@ tags$script(HTML("
     $('.sidebar-toggle').click(function() {
       $(this).toggleClass('active');
       $('.main-header').toggleClass('menu-open');
+
+        $('.user-info').click(function() {
+          var $menu = $(this).siblings('.pdropdown-menu');
+          // Close any open dropdowns and toggle the current one
+          if ($menu.is(':visible')) {
+            $menu.slideUp(200);
+          } else {
+            // Close all dropdowns first
+            $('.pdropdown-menu').slideUp(200);
+            $menu.stop(true, true).slideDown(200);
+          }
+        });
+
+        // Prevent dropdown closing when clicking inside the menu
+        $('.pdropdown-menu').click(function(e) {
+          e.stopPropagation();
+
     });
   });
 ")),
