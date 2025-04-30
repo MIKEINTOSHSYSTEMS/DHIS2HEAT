@@ -87,7 +87,7 @@ ui <- tagList(
     const progressBar = document.getElementById('progress-bar');
     const progressPercent = document.getElementById('progress-percent'); // Add this line
     const startTime = Date.now();
-    const minDuration = 47000; // Minimum duration in milliseconds (45 seconds)
+    const minDuration = 7900; // Minimum duration in milliseconds (Now 7.9 sec) (45 seconds)
     const progressInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       progress += Math.random() * 7; // Adjust the increment to control the speed

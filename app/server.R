@@ -37,7 +37,9 @@ library(sf)
 library(highcharter)
 
 # Load existing functions
-source("dhis2_data.R")
+#source("dhis2_data.R")
+# Source the data fetching functions only when needed
+#source("dhis2_data.R", local = TRUE)
 #source("dba.R", local = TRUE)$value
 source("ethgeo.R") # not unless it is loading the geojson file
 source("dba.R")
@@ -64,6 +66,49 @@ options(future.globals.maxSize = 2 * 1024^3) # 2GB memory limit
 
 # Define server logic
 server <- function(input, output, session) {
+
+  # Initialize reactive values
+  data <- reactiveValues(
+    combined = NULL,
+    filtered = NULL
+  )
+
+# Error Handling for JSON Parsing
+tryCatch(
+  {
+    indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
+    custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
+  },
+  error = function(e) {
+    showNotification(paste("Error loading indicator metadata:", e$message), type = "error")
+  }
+)
+
+      custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
+      indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
+      zones_metadata <- fromJSON("./meta/organisationUnitsLevel3.json")$organisationUnits
+      woredas_metadata <- fromJSON("./meta/organisationUnitsLevel4.json")$organisationUnits
+      org_units_metadata <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+
+ # checks if the indicator paths JSON are okay
+if (!file.exists("./meta/indicators.json")) {
+  showNotification("indicators.json file not found at specified path", type = "error")
+}
+
+if (!file.exists("./meta/custom_indicators.json")) {
+  showNotification("custom_indicators.json file not found at specified path", type = "error")
+}
+
+
+  # Check Indicators Exist
+if(is.null(indicators_metadata)) {
+  showNotification("Failed to load indicators metadata", type = "error")
+}
+if(is.null(custom_indicators_metadata)) {
+  showNotification("Failed to load custom indicators metadata", type = "error")
+}
+
+
   # Content Slider
   output$content_slider <- renderSlickR({
     slickR(
@@ -75,6 +120,54 @@ server <- function(input, output, session) {
       )
     )
   })
+
+
+  # Try to load data from main.rds on startup
+observe({
+    if (file.exists("fetched_data/main.rds")) {
+      tryCatch({
+        df <- readRDS("fetched_data/main.rds")
+        if (!is.null(df) && nrow(df) > 0) {
+          data$combined <- df
+          data_fetched(TRUE)
+          
+          # Update filters based on loaded data
+          updateSelectizeInput(session, "filter_indicators",
+            choices = unique(data$combined$indicator_name))
+          updateSelectizeInput(session, "filter_dimensions",
+            choices = unique(data$combined$dimension))
+          updateSelectizeInput(session, "filter_dates",
+            choices = unique(data$combined$date))
+          
+          showNotification("InEquality Data loaded from HEAT Server", type = "message")
+        } else {
+          showNotification("Loaded data file is empty", type = "warning")
+        }
+      }, error = function(e) {
+        showNotification(paste("Error loading data:", e$message), type = "error")
+      })
+    } else {
+      showNotification("No data file found. Please fetch data first", type = "warning")
+    }
+  })
+
+
+# Data Status Indicator:
+output$data_status <- renderUI({
+  if (is.null(data$combined)) {
+    tags$div(
+      class = "alert alert-warning",
+      "No data loaded. Please fetch data using the admin panel."
+    )
+  } else {
+    tags$div(
+      class = "alert alert-success",
+      paste("Data loaded with", nrow(data$combined), "rows.")
+    )
+  }
+})
+
+
 
   # Define the validate_password function
   validate_password <- function(hashed_password, input_password) {
@@ -741,10 +834,46 @@ server <- function(input, output, session) {
     # Toggle the settings panel visibility
     toggleClass(selector = "#settings_panel", class = "settings-collapsed")
   })
-  observe({
-    indicator_choices <- setNames(indicators_metadata$id[indicators_metadata$id %in% input$indicators], indicators_metadata$displayName[indicators_metadata$id %in% input$indicators])
-    updateSelectizeInput(session, "custom_indicators", choices = indicator_choices, server = TRUE)
-  })
+
+observe({
+  # Load both standard and custom indicators
+  all_indicators <- c(
+    setNames(indicators_metadata$id, indicators_metadata$displayName),
+    setNames(custom_indicators_metadata$id, custom_indicators_metadata$displayName)
+  )
+
+  updateSelectizeInput(session, "indicators",
+    choices = all_indicators,
+    server = TRUE
+  )
+
+  # Also update the custom indicators dropdown
+  updateSelectizeInput(session, "custom_indicators",
+    choices = all_indicators,
+    server = TRUE
+  )
+})
+
+
+# debugging to see what's being passed to the selectize input
+observe({
+  print("Indicator choices:")
+  print(head(setNames(indicators_metadata$id, indicators_metadata$displayName)))
+
+  updateSelectizeInput(session, "indicators",
+    choices = setNames(indicators_metadata$id, indicators_metadata$displayName),
+    options = list(maxOptions = 1000)
+    #server = TRUE
+  )
+})
+
+#  observe({
+    #source("dhis2_data.R", local = TRUE)    
+#    indicator_choices <- setNames(indicators_metadata$id[indicators_metadata$id %in% input$indicators], indicators_metadata$displayName[indicators_metadata$id %in% input$indicators])
+    #indicator_choices <- setNames(indicators_metadata$id, indicators_metadata$displayName)
+ #   updateSelectizeInput(session, "custom_indicators", choices = indicator_choices, server = TRUE)
+    #updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
+#  })
 
   output$custom_scales_ui <- renderUI({
     req(input$custom_indicators)
@@ -755,6 +884,10 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$fetch_data, {
+
+    # Source the data fetching functions only when needed
+    source("dhis2_data.R", local = TRUE)
+
     # Validation check for indicators and abbreviations
     if (length(input$indicators) != length(strsplit(input$indicator_abbr, ",")[[1]])) {
       showModal(modalDialog(
@@ -1381,8 +1514,9 @@ output$distPlot <- renderPlotly({
   # Fetch metadata and populate select inputs
   observe({
     # Fetch Zones and Woredas metadata
-    zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
-    woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
+    #zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
+    #woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
+
 
     choices$indicators <- setNames(indicators_metadata$id, indicators_metadata$displayName)
     choices$org_units <- setNames(specific_org_units, org_units_metadata$displayName[org_units_metadata$id %in% specific_org_units])
@@ -1606,7 +1740,8 @@ output$distPlot <- renderPlotly({
 
   # Save source settings
   observeEvent(input$save_source_settings, {
-    if (user_role() == "mikeintosh") {
+    #if (user_role() == "mikeintosh") {
+    if (user$info$role == "admin") {
       source_settings <- list(
         setting = input$setting,
         source = input$source,

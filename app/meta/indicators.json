@@ -1,0 +1,5128 @@
+{
+    "indicators": [
+        {
+            "displayName": "ACCESS - ANC service availability",
+            "id": "q7Y6AB89bRA"
+        },
+        {
+            "displayName": "ACCESS - Cesarean section service availability",
+            "id": "zZtCuXH67wu"
+        },
+        {
+            "displayName": "ACCESS - Child health services availability",
+            "id": "L9TUwXKXmzd"
+        },
+        {
+            "displayName": "ACCESS - Delivery service availability",
+            "id": "LWC9VTpeoqZ"
+        },
+        {
+            "displayName": "ACCESS - EPI service availability",
+            "id": "lDYIrpULHZQ"
+        },
+        {
+            "displayName": "ACCESS - Family planning service availability",
+            "id": "iUcweDqPlSU"
+        },
+        {
+            "displayName": "ACCESS - NICU service availability",
+            "id": "ib1NZKZsiBC"
+        },
+        {
+            "displayName": "ACCESS - Nutritional screening and treatment service availability",
+            "id": "t1zKWQBxvtB"
+        },
+        {
+            "displayName": "ACCESS - PNC service availability",
+            "id": "Oy1ujG7CiEx"
+        },
+        {
+            "displayName": "ATS_Assistive Technology Service access ",
+            "id": "vpJ9a4EpgVr"
+        },
+        {
+            "displayName": "ATS_Waiting time for assistive product provision",
+            "id": "IOAxjhzA4yb"
+        },
+        {
+            "displayName": "BBP-B% Referral-out Rate",
+            "id": "aINEp2NdexR"
+        },
+        {
+            "displayName": "CH_Institutional Neonatal Deaths Rate",
+            "id": "WrNUbOvqJVq"
+        },
+        {
+            "displayName": "CH_Neonatal deaths at Community",
+            "id": "HstTwOKsv4s"
+        },
+        {
+            "displayName": "CH_%  of < 5 Children monitored for Development",
+            "id": "AHyCYDDkjwB"
+        },
+        {
+            "displayName": "CH_% of < 5 Children treated with ORS and Zinc",
+            "id": "z9hSYCMS9qc"
+        },
+        {
+            "displayName": "CH_%of < 5 Children with Pneumonia Treated with Antibiotics",
+            "id": "D6YOVzzZaEy"
+        },
+        {
+            "displayName": "CH_% of asphyxiated neonates Resuscitated and Survived",
+            "id": "Yiq21sxiQlW"
+        },
+        {
+            "displayName": "CH_% of LBW newborns KMC initiated",
+            "id": "ahhChekzTzv"
+        },
+        {
+            "displayName": "CH_% of Neonates discharged from NICU as dead",
+            "id": "wiCvecPtl0T"
+        },
+        {
+            "displayName": "CH_% of neonates   discharged from NICU as recovered",
+            "id": "BsB9R6pi0uf"
+        },
+        {
+            "displayName": "CH_% of neonates discharged from NICU as transferred out",
+            "id": "SUYR67uPFMk"
+        },
+        {
+            "displayName": "CH_% of neonates discharged from NICU others",
+            "id": "DJiHqs9eJoN"
+        },
+        {
+            "displayName": "CH_% of newborns received CHX on First Day after Birth",
+            "id": "JpkqSBckdle"
+        },
+        {
+            "displayName": "CH_% of Sick Young infant Treated",
+            "id": "Y4yEVgvab5Y"
+        },
+        {
+            "displayName": "CH_% of Sick Young infant Treated for sepsis/VSD (Very Severe Disease)",
+            "id": "L1sdHfCz0mN"
+        },
+        {
+            "displayName": "CH_ Sum of Treatments ORS and Zinc and ORS only",
+            "id": "ipmiYKQnJOX"
+        },
+        {
+            "displayName": "Commodity - Amoxicillin availability",
+            "id": "Bu85dgXSuIu"
+        },
+        {
+            "displayName": "Commodity - Gentamycin availability",
+            "id": "R356D7h0Kgt"
+        },
+        {
+            "displayName": "Commodity - IFA availability",
+            "id": "Q9RTmTmgPlT"
+        },
+        {
+            "displayName": "Commodity - ORS/Zinc availability",
+            "id": "bXeb4Z8vkkp"
+        },
+        {
+            "displayName": "Commodity - Pentavalent vaccine availability",
+            "id": "t5hqD7aNwdA"
+        },
+        {
+            "displayName": "EHCRIG - All Chapters Average",
+            "id": "nmrJd3hCJWC"
+        },
+        {
+            "displayName": "EHCRIGIND0101 - Chapter 1 Sum",
+            "id": "TEOwtMuIH6G"
+        },
+        {
+            "displayName": "EHCRIGIND0102 - Chapter 1 Average",
+            "id": "NnY5WyTfGeV"
+        },
+        {
+            "displayName": "EHCRIGIND01 - Sum of all chapters",
+            "id": "rXrBjchSH5S"
+        },
+        {
+            "displayName": "EHCRIGIND0201 - Chapter 2 Sum",
+            "id": "cFlLjGFwsAp"
+        },
+        {
+            "displayName": "EHCRIGIND0202 - Chapter 2 Average",
+            "id": "zW6VALfAsY2"
+        },
+        {
+            "displayName": "EHCRIGIND0203 - Joint comprehensive operational and budget plan developed to implement linkage between health post and health center",
+            "id": "ur6sDC6psUj"
+        },
+        {
+            "displayName": "EHCRIGIND0204 - Health center collects, analyzes and gives feedback to health posts",
+            "id": "unSyCuMA7LQ"
+        },
+        {
+            "displayName": "EHCRIGIND0206 - PHCU organizes regular monthly review meetings to follow the overall progress of HEP activities",
+            "id": "RUCTsMil28m"
+        },
+        {
+            "displayName": "EHCRIGIND02 - Average of all chapters",
+            "id": "LrlbHmekaow"
+        },
+        {
+            "displayName": "EHCRIGIND0301 - Chapter 3 Sum",
+            "id": "WNF9Bm3TCYf"
+        },
+        {
+            "displayName": "EHCRIGIND0302 - Chapter 3 Average",
+            "id": "AbLfwWqRGGn"
+        },
+        {
+            "displayName": "EHCRIGIND0401 - Chapter 4 Sum",
+            "id": "MfMx6jnvdE0"
+        },
+        {
+            "displayName": "EHCRIGIND0401 - Health Center utilizes a single, unified registration system for all patients/clients, including out-patients and emergency admissions or chronic clinic and given unique Medical Record Number for each patient",
+            "id": "z2l0KKbOZJC"
+        },
+        {
+            "displayName": "EHCRIGIND0402 - Chapter 4 Average",
+            "id": "Kde5W0YJxb2"
+        },
+        {
+            "displayName": "EHCRIGIND0402 - Health Center uses a paper-based or computer-based system (with paper based back up) to track the location of medical record",
+            "id": "iBaESsJik5c"
+        },
+        {
+            "displayName": "EHCRIGIND0403 - Health Center has medical records management guidelines for proper handling and confidentiality of medical records",
+            "id": "RXG74gNhsJN"
+        },
+        {
+            "displayName": "EHCRIGIND0404 - Health Center has establish orientation, experience sharing and training programs for all medical record personnel to ensure awareness and competency",
+            "id": "rqhqI7MfmB0"
+        },
+        {
+            "displayName": "EHCRIGIND0501 - Chapter 5 Sum",
+            "id": "HMj2VfdD4C1"
+        },
+        {
+            "displayName": "EHCRIGIND0502 - Chapter 5 Average",
+            "id": "YUuMwYjil9g"
+        },
+        {
+            "displayName": "EHCRIGIND0601 - Chapter 6 Sum",
+            "id": "Wo52Hp5i5Iy"
+        },
+        {
+            "displayName": "EHCRIGIND0602 - Chapter 6 Average",
+            "id": "PjRjqBhU7UR"
+        },
+        {
+            "displayName": "EHCRIGIND0702 - Chapter 7 Average",
+            "id": "a3KJ6SJRJaq"
+        },
+        {
+            "displayName": "EHCRIGIND0801 - Chapter 8 Sum",
+            "id": "IWQZ7CQCOrp"
+        },
+        {
+            "displayName": "EHCRIGIND0802 - Chapter 8 Average",
+            "id": "ekqhpM4RZHS"
+        },
+        {
+            "displayName": "EHCRIGIND0901 - Chapter 9 Sum",
+            "id": "Vhzvif9rQlE"
+        },
+        {
+            "displayName": "EHCRIGIND0902 - Chapter 9 Average",
+            "id": "mgxPejiQoPm"
+        },
+        {
+            "displayName": "EHCRIGIND1001 - Chapter 10 Sum",
+            "id": "g61k2fG7IC3"
+        },
+        {
+            "displayName": "EHCRIGIND1001 - Health center established a structure for performance monitoring and quality improvement",
+            "id": "wWQRndoiEDA"
+        },
+        {
+            "displayName": "EHCRIGIND1002 - Chapter 10 Average",
+            "id": "AmTONHDKuMN"
+        },
+        {
+            "displayName": "EHCRIGIND1003 - Health center implements quality improvement processes for selected priority problems",
+            "id": "VLBGGRS6Fxn"
+        },
+        {
+            "displayName": "EHCRIGIND1004 - Health center collects and reports reportable indicators to the respective body as per the HMIS standard and utilizes the report for internal service quality improvement",
+            "id": "xH56dfgaCtc"
+        },
+        {
+            "displayName": "EHCRIGIND-CH10 - Human Resources",
+            "id": "T9DvGsTMyON"
+        },
+        {
+            "displayName": "EHCRIGIND-CH11 - Quality Governance",
+            "id": "ezmOdMSkylj"
+        },
+        {
+            "displayName": "EHCRIGIND-CH12 - HMIS",
+            "id": "sqgGXJhRh3G"
+        },
+        {
+            "displayName": "EHCRIGIND-CH1 - Governance and Leadership",
+            "id": "DLCPPjpEDfJ"
+        },
+        {
+            "displayName": "EHCRIGIND-CH2 - Health Center Linkage",
+            "id": "STGhnqAdz3q"
+        },
+        {
+            "displayName": "EHCRIGIND-CH3 - Patient Flow",
+            "id": "UBCIpgdoLP8"
+        },
+        {
+            "displayName": "EHCRIGIND-CH4 - MCH Services",
+            "id": "blWjjRvlsO3"
+        },
+        {
+            "displayName": "EHCRIGIND-CH5 - Pharmacy Services",
+            "id": "XnxU8lUzBWR"
+        },
+        {
+            "displayName": "EHCRIGIND-CH6 - Laboratory Services",
+            "id": "kc1u5fbn9eo"
+        },
+        {
+            "displayName": "EHCRIGIND-CH7 - IPC",
+            "id": "qWGlbJndJZF"
+        },
+        {
+            "displayName": "EHCRIGIND-CH8 - Facility management and Infrastructure",
+            "id": "tMCHOaLW1EF"
+        },
+        {
+            "displayName": "EHCRIGIND-CH9 - Med. Equip",
+            "id": "WA3VRIV2HVh"
+        },
+        {
+            "displayName": "EHSTGIND0101 - Chapter 1 Sum",
+            "id": "dlbmHqQ39oA"
+        },
+        {
+            "displayName": "EHSTGIND0102 - Chapter 1 Average (LMG)",
+            "id": "Z0PqHVfhC0C"
+        },
+        {
+            "displayName": "EHSTGIND01 - All chapters sum",
+            "id": "x6U1SxTQmWF"
+        },
+        {
+            "displayName": "EHSTGIND0201 - Chapter 2 Sum",
+            "id": "zwILh6uD8uz"
+        },
+        {
+            "displayName": "EHSTGIND0202 - Chapter 2 Average (LRSS)",
+            "id": "HNMJWWleBeJ"
+        },
+        {
+            "displayName": "EHSTGIND02 - All chapters average",
+            "id": "RrSIwN2SGPJ"
+        },
+        {
+            "displayName": "EHSTGIND0301 - Chapter 3 Sum",
+            "id": "ikVErgNQi6O"
+        },
+        {
+            "displayName": "EHSTGIND0302 - Chapter 3 Average (EICCS)",
+            "id": "ZGAIWiZPUwu"
+        },
+        {
+            "displayName": "EHSTGIND0401 - Chapter 4 Sum",
+            "id": "BzBNCz8BOJk"
+        },
+        {
+            "displayName": "EHSTGIND0402 - Chapter 4 Average (OPDs)",
+            "id": "DbUsTuNQ5dq"
+        },
+        {
+            "displayName": "EHSTGIND0501 - Chapter 5 Sum",
+            "id": "J286GZb6l58"
+        },
+        {
+            "displayName": "EHSTGIND0502 - Chapter 5 Average (IPDs)",
+            "id": "Mq8tIPV2sQY"
+        },
+        {
+            "displayName": "EHSTGIND0601 - Chapter 6 Sum",
+            "id": "O81DX3vZ4gp"
+        },
+        {
+            "displayName": "EHSTGIND0602 - Chapter 6 Average (MRU)",
+            "id": "snW0ZrUCiFt"
+        },
+        {
+            "displayName": "EHSTGIND0701 - Chapter 7 Sum",
+            "id": "ImDBJrPWZpf"
+        },
+        {
+            "displayName": "EHSTGIND0702 - Chapter 7 Average (NMS)",
+            "id": "ifhGxHg4lr2"
+        },
+        {
+            "displayName": "EHSTGIND0801 - Chapter 8 Sum",
+            "id": "cGcv2SLLoLw"
+        },
+        {
+            "displayName": "EHSTGIND0802 - Chapter 8 Average (MCH)",
+            "id": "FTYG81oVXqf"
+        },
+        {
+            "displayName": "EHSTGIND0901 - Chapter 9 Sum",
+            "id": "jbGVkhb3Am7"
+        },
+        {
+            "displayName": "EHSTGIND0902 - Chapter 9 Average (Lab Service)",
+            "id": "g3rQME9qDHx"
+        },
+        {
+            "displayName": "EHSTGIND1001 - Chapter 10 Sum",
+            "id": "MH9sIASoGtN"
+        },
+        {
+            "displayName": "EHSTGIND1002 - Chapter 10 Average (Pharmacy Service)",
+            "id": "G1qO64ZcRBb"
+        },
+        {
+            "displayName": "EHSTGIND1101 - Chapter 11 Sum",
+            "id": "TNpRNsEcbRm"
+        },
+        {
+            "displayName": "EHSTGIND1102 - Chapter 11 Average (I&R Service)",
+            "id": "pyJHxz4Onpu"
+        },
+        {
+            "displayName": "EHSTGIND1201 - Chapter 12 Sum",
+            "id": "ZLL9TZQ2oPK"
+        },
+        {
+            "displayName": "EHSTGIND1202 - Chapter 12 Average (Rehab & Palliative Care Service)",
+            "id": "wkNgNNJSzOP"
+        },
+        {
+            "displayName": "EHSTGIND1301 - Chapter 13 Sum",
+            "id": "eKgdHygC1vE"
+        },
+        {
+            "displayName": "EHSTGIND1302 - Chapter 13 Average (IPC)",
+            "id": "PcyW9QLOdzv"
+        },
+        {
+            "displayName": "EHSTGIND1401 - Chapter 14 Sum",
+            "id": "nWc7QMizlFD"
+        },
+        {
+            "displayName": "EHSTGIND1402 - Chapter 14 Average (FTH)",
+            "id": "CjExI2GBKCG"
+        },
+        {
+            "displayName": "EHSTGIND1501 - Chapter 15 Sum",
+            "id": "bw9ahOOntPo"
+        },
+        {
+            "displayName": "EHSTGIND1502 - Chapter 15 Average (MEU)",
+            "id": "lHsZCJvGgQM"
+        },
+        {
+            "displayName": "EHSTGIND1601 - Chapter 16 Sum",
+            "id": "JDqzZSH4svR"
+        },
+        {
+            "displayName": "EHSTGIND1602 - Chapter 16 Average (FM)",
+            "id": "ZtKl505ziy8"
+        },
+        {
+            "displayName": "EHSTGIND1701 - Chapter 17 Sum",
+            "id": "AdTiFwY7Aji"
+        },
+        {
+            "displayName": "EHSTGIND1702 - Chapter 17 Average (HRM)",
+            "id": "qgrez2hL5pA"
+        },
+        {
+            "displayName": "EHSTGIND1801 - Chapter 18 Sum",
+            "id": "zfLo7rqiGO2"
+        },
+        {
+            "displayName": "EHSTGIND1802 - Chapter 18 Average (HCF)",
+            "id": "kALKXaB2PgX"
+        },
+        {
+            "displayName": "EHSTGIND1901 - Chapter 19 Sum",
+            "id": "OOzvsKMaNkX"
+        },
+        {
+            "displayName": "EHSTGIND1902 - Chapter 19 Average (CG&QI)",
+            "id": "zGK1U624vkW"
+        },
+        {
+            "displayName": "EHSTGIND2001 - Chapter 20 Sum",
+            "id": "wenu86ibCyV"
+        },
+        {
+            "displayName": "EHSTGIND2002 - Chapter 20 Average (ME)",
+            "id": "AZWjcfI6Czg"
+        },
+        {
+            "displayName": "EIDM-Composite data quality score",
+            "id": "P9SgldJyR1Y"
+        },
+        {
+            "displayName": "EIDM-Composite data use score",
+            "id": "DTx8TappiY1"
+        },
+        {
+            "displayName": "EIDM-Composite implementation and structure score",
+            "id": "wF7Tp2UITON"
+        },
+        {
+            "displayName": "EIDM-Composite IR score",
+            "id": "eS14Ebs4dNE"
+        },
+        {
+            "displayName": "EIDM_D_NOTI | % of deaths notified by HF",
+            "id": "sukoxnm77Nx"
+        },
+        {
+            "displayName": "EIDM_HC HIS Data Quality-Delete",
+            "id": "Q7rM1IAgGU5"
+        },
+        {
+            "displayName": "EIDM_HC HIS Data Use-Delete",
+            "id": "yDqpSQBHcOP"
+        },
+        {
+            "displayName": "EIDM_HC HIS Structure and Resource Score-Delete",
+            "id": "nPh6g0iAJrQ"
+        },
+        {
+            "displayName": "EIDM_HP HIS Data Quality-Delete",
+            "id": "GEvCp9wLtlo"
+        },
+        {
+            "displayName": "EIDM_HP HIS Data Use-Delete",
+            "id": "x8oYYQnMzn3"
+        },
+        {
+            "displayName": "EIDM_HP HIS Structure and Resource Score-Delete",
+            "id": "dfxMskM6KZO"
+        },
+        {
+            "displayName": "EIDM_Information use scores-Delete",
+            "id": "SaOa3pe4al1"
+        },
+        {
+            "displayName": "EIDM_LB_NOTI | % of live births notified by HF",
+            "id": "EgjCODJgONu"
+        },
+        {
+            "displayName": "EIDM_PHCU HIS Data Quality-Delete",
+            "id": "L5z2dkqy7wj"
+        },
+        {
+            "displayName": "EIDM_PHCU HIS Data Use-Delete",
+            "id": "IK3AytyO8Cs"
+        },
+        {
+            "displayName": "EIDM_PHCU HIS Structure and Resource Score-Delete",
+            "id": "LnU0leTNZux"
+        },
+        {
+            "displayName": "EIDM_PHCU HIS Total IR Score-Delete",
+            "id": "kxl0BY1TV3b"
+        },
+        {
+            "displayName": "EIDM_Proportion of emerging woreda",
+            "id": "OHYZyT1Vpp0"
+        },
+        {
+            "displayName": "EIDM_Proportion of health facilities that conduct reporting consistency check using LQAS",
+            "id": "J7274NWfmWt"
+        },
+        {
+            "displayName": "EIDM_Proportion of IR model woreda",
+            "id": "nBqDs6Wezkc"
+        },
+        {
+            "displayName": "EIDM_WorHO HC HIS Structure and Resource Score-Delete",
+            "id": "HIKnYbEiebG"
+        },
+        {
+            "displayName": "EIDM_WorHO HP HIS Structure and Resource Score-Delete",
+            "id": "rRXqQcobFFR"
+        },
+        {
+            "displayName": "EPI_BCG Coverage (< 1 Years)",
+            "id": "cn9JVFw49GF"
+        },
+        {
+            "displayName": "EPI_BCG Wastage Rate",
+            "id": "wp502FwIw8l"
+        },
+        {
+            "displayName": "EPI_Dropout Rate from Penta 1 to Measles 1",
+            "id": "FJIw4gpHEUp"
+        },
+        {
+            "displayName": "EPI_Dropout Rate from Penta 1 to Penta 3",
+            "id": "nWKgAS5lz8c"
+        },
+        {
+            "displayName": "EPI_Full Immunization Coverage (< 1 year)",
+            "id": "yu81UlnsaiH"
+        },
+        {
+            "displayName": "EPI_HepatitisB -Birth dose(BD) Wastage Rate",
+            "id": "WE4rUm54kOQ"
+        },
+        {
+            "displayName": "EPI_HepB-BD | HepatitisB -Birth dose(BD) Coverage (within 24 hours after birth)",
+            "id": "FrCi0KNyAVG"
+        },
+        {
+            "displayName": "EPI_HPV Vaccine Wastage Rate",
+            "id": "xFp2NudJILt"
+        },
+        {
+            "displayName": "EPI_Human Papilloma Virus Vaccination Coverage_1st Dose",
+            "id": "F1LaeyyKSv5"
+        },
+        {
+            "displayName": "EPI_Human Papilloma Virus Vaccination Coverage_2nd Dose",
+            "id": "lWmIbDncvrR"
+        },
+        {
+            "displayName": "EPI_IPV Coverage (< 1 Years)",
+            "id": "LWR8IdNPdQD"
+        },
+        {
+            "displayName": "EPI_IPV Wastage Rate",
+            "id": "FuJwMNiCflJ"
+        },
+        {
+            "displayName": "EPI_Measles 1st Dose Coverage (< 1 year)",
+            "id": "P3ociaYIDJZ"
+        },
+        {
+            "displayName": "EPI_Measles 2nd Dose Coverage ",
+            "id": "eQ5evujNB19"
+        },
+        {
+            "displayName": "EPI_Measles Vaccine Wastage Rate",
+            "id": "h5f5oFqw0lb"
+        },
+        {
+            "displayName": "EPI_% of < 1 Children Protected at Birth from NNT",
+            "id": "tlMWLJpK9CJ"
+        },
+        {
+            "displayName": "EPI_OPV3 coverage",
+            "id": "qyvq8h72dU7"
+        },
+        {
+            "displayName": "EPI_PCV1 Coverage (< 1 year)",
+            "id": "bOE4v0oXQ4V"
+        },
+        {
+            "displayName": "EPI_PCV3 Coverage (< 1 year)",
+            "id": "sGYr3PYOhml"
+        },
+        {
+            "displayName": "EPI_PCV Vaccine Wastage Rate",
+            "id": "F1Z5mhIyVJH"
+        },
+        {
+            "displayName": "EPI_Pentavalent 1st dose Coverage (< 1 year)",
+            "id": "r2eJDQLBSY0"
+        },
+        {
+            "displayName": "EPI_Pentavalent 3rd dose Coverage (< 1 year)",
+            "id": "YPfTaU4EtKm"
+        },
+        {
+            "displayName": "EPI_Penta Wastage Rate",
+            "id": "vcUEQqOWw0G"
+        },
+        {
+            "displayName": "EPI_Polio Vaccine Wastage Rate",
+            "id": "FUV9zm8OpzT"
+        },
+        {
+            "displayName": "EPI_Rota 1st  Dose Coverage (< 1 Year)",
+            "id": "G8lGuMPnJDA"
+        },
+        {
+            "displayName": "EPI_Rota 2nd Dose Coverage (< 1 Year)",
+            "id": "JhU8Vxsg8kS"
+        },
+        {
+            "displayName": "EPI_Rota Vaccine Wastage Rate",
+            "id": "EjLDLDRduuc"
+        },
+        {
+            "displayName": "EPI_TD Vaccine Wastage Rate",
+            "id": "mVo63SSl8kZ"
+        },
+        {
+            "displayName": "FNS_Metric tone of reserved food in the country ",
+            "id": "WpDX35puGsi"
+        },
+        {
+            "displayName": "FNS_Number of cooking demonstrations Conducted ",
+            "id": "FlZPOEoyq8o"
+        },
+        {
+            "displayName": "FNS_Number of federal level multi sectoral review  meeting conducted ",
+            "id": "hlBJ65QEW9M"
+        },
+        {
+            "displayName": "FNS_Number of import/export food items inspected (consignment)",
+            "id": "euNm7Q5ThoO"
+        },
+        {
+            "displayName": "FNS_Number of Jobs Created ",
+            "id": "Fll7oJ7e8PB"
+        },
+        {
+            "displayName": "FNS_Number of JSS conducted by national council",
+            "id": "Zp14mFe5JCF"
+        },
+        {
+            "displayName": "FNS_Number of JSS conducted by national food and nutrition Technical committee",
+            "id": "KoO5tH20hfk"
+        },
+        {
+            "displayName": "FNS_Number of JSS conducted by Regional council",
+            "id": "aiiBUJIC1q4"
+        },
+        {
+            "displayName": "FNS_Number of JSS visits conducted by Regional Technical Committee",
+            "id": "pppaV95mkmk"
+        },
+        {
+            "displayName": "FNS_Number of Kebeles addressed through JSS",
+            "id": "WdLk9OGVi5m"
+        },
+        {
+            "displayName": "FNS_Number of National level council committee meeting conducted",
+            "id": "otRRCG5n6re"
+        },
+        {
+            "displayName": "FNS_Number of regional level multi sectoral coordination body meeting conducted",
+            "id": "Ph4HdPvTT22"
+        },
+        {
+            "displayName": "FNS_Number of Region level multi sectoral review meeting conducted",
+            "id": "Bh23hk4P2sN"
+        },
+        {
+            "displayName": "FNS_Number of Region level multi sectoral technical committee meeting conducted",
+            "id": "p5pghwgG8m7"
+        },
+        {
+            "displayName": "FNS_Number of woreda level multi sectoral Council/coordination body meetings conducted",
+            "id": "d5onDQKHNmb"
+        },
+        {
+            "displayName": "FNS_Number of woreda level multi sectoral review meetings conducted",
+            "id": "b1OQ9ZSH1NO"
+        },
+        {
+            "displayName": "FNS_Number of woreda level multisectoral technical committee meetings conducted",
+            "id": "LciGPN7KgUx"
+        },
+        {
+            "displayName": "FNS_Percentage of Agronomic & livestock  Demonstrations conducted ",
+            "id": "kD74ZjDHDfJ"
+        },
+        {
+            "displayName": "FNS_Percentage of budget allocated for food and nutrition implementation from development partners disaggregated by sector",
+            "id": "akDtO9bVS2O"
+        },
+        {
+            "displayName": "FNS_Percentage of household that was provided access to safe and adequate water supply services",
+            "id": "vkYV1ekRd5b"
+        },
+        {
+            "displayName": "FNS_Percentage of primary and middle schools  with functional toilet",
+            "id": "iZHhXy3azX7"
+        },
+        {
+            "displayName": "FNS_Percentage of schools with access to improved latrines including hand washing and sanitation facilities",
+            "id": "Yyznp1ADPYW"
+        },
+        {
+            "displayName": "FNS_Proportion of adolescent girls supplemented with iron folic acid on weekly bases",
+            "id": "cRXrkxH73zX"
+        },
+        {
+            "displayName": "FNS_Proportion of agricultural extension workers who have received at least one nutrition sensitive agricultural and livestock related trainings",
+            "id": "ckmTLo9j8T5"
+        },
+        {
+            "displayName": "FNS_Proportion of budget allocated for food and nutrition from government",
+            "id": "h4p5Bc4xmLY"
+        },
+        {
+            "displayName": "FNS_Proportion of clients with HIV/TB and other infectious diseases who received nutrition assessment and counselling services",
+            "id": "nPXvnBHC9RZ"
+        },
+        {
+            "displayName": "FNS_Proportion of clinically undernourished people with HIV on ART who received therapeutic/supplementary foods",
+            "id": "qRwvfKGR6sh"
+        },
+        {
+            "displayName": "FNS_Proportion of commercial farms which produce nutrients dense crops",
+            "id": "ZVjGwGX3aA5"
+        },
+        {
+            "displayName": "FNS_proportion of community nutrient dense seed multiplication centre established",
+            "id": "ld84h9NtoJ0"
+        },
+        {
+            "displayName": "FNS_Proportion of constructed irrigation scheme in hectare",
+            "id": "zdX5bwVgqDU"
+        },
+        {
+            "displayName": "FNS_Proportion of currently pregnant women & caregivers of children 0-23m who attended a community conversation (CC) session during the reporting period.",
+            "id": "JfnjGmWNH0J"
+        },
+        {
+            "displayName": "FNS_Proportion of currently pregnant women & caregivers of children 0-23m who were exposed to  religious leaders (priest or imam) discussion of on MIYCN during this reporting period",
+            "id": "w2CejtzkzEL"
+        },
+        {
+            "displayName": "FNS_Proportion of Eggs produced by farmer/pastoral households",
+            "id": "OH7solY2mXz"
+        },
+        {
+            "displayName": "FNS_Proportion of emergency settings with routine food quality and safety checks procedure",
+            "id": "Y0ATiEUOJRw"
+        },
+        {
+            "displayName": "FNS_Proportion of established fruit and vegetables nursery sites",
+            "id": "FKwOe5whoSp"
+        },
+        {
+            "displayName": "FNS_Proportion of established nutrition sensitive agriculture (NSA) model villages",
+            "id": "Ucb31hgAmmP"
+        },
+        {
+            "displayName": "FNS_Proportion of farmer/pastoral households engaged in fish production",
+            "id": "f7gnU0vxmU6"
+        },
+        {
+            "displayName": "FNS_Proportion of farmer/pastoral households  reached with SBCC intervention on the production and consumption nutrients dense commodities",
+            "id": "HySWTjQAi0q"
+        },
+        {
+            "displayName": "FNS_Proportion of farmer/pastoral households  used post-harvest technology",
+            "id": "V8xMn1YUm5g"
+        },
+        {
+            "displayName": "FNS_Proportion of farmer/pastoral households who adopted the five safer food Key principles of WHO for food safety",
+            "id": "W6LryGetXEh"
+        },
+        {
+            "displayName": "FNS_Proportion of farmer/pastoral households with at least 3 milking goats ",
+            "id": "VHCzVG0uGGF"
+        },
+        {
+            "displayName": "FNS_Proportion of farmer/pastoral households with with poultry",
+            "id": "QVzGaSMl8qS"
+        },
+        {
+            "displayName": "FNS_Proportion of federal sectors that included food and nutrition strategic actions into their plans and implemented them",
+            "id": "lduTfIsx7wi"
+        },
+        {
+            "displayName": "FNS_Proportion of FNS implementing federal reported to have functional food and nutrition structure",
+            "id": "GKAwvFqRJWF"
+        },
+        {
+            "displayName": "FNS_Proportion of FNS implementing region sectors reported to have functional food and nutrition structure",
+            "id": "Pd5fDlwRTXe"
+        },
+        {
+            "displayName": "FNS_Proportion of FNS implementing woreda sectors reported to have functional food and nutrition structure",
+            "id": "dvRLeAh1yQT"
+        },
+        {
+            "displayName": "FNS_Proportion of functional food and nutrition coordinating body or food system and nutrition council",
+            "id": "iQsXsQfThZP"
+        },
+        {
+            "displayName": "FNS_Proportion of functional WASHCO, water board and care taker ",
+            "id": "lAdrwSmxCjJ"
+        },
+        {
+            "displayName": "FNS_Proportion of functional workplaces (public and private) that established day care centers",
+            "id": "Pq5Eelpq3lf"
+        },
+        {
+            "displayName": "FNS_Proportion of health facilities providing nutrition assessment and counselling services for people with HIV/TB and other infectious diseases",
+            "id": "k3IDTpoZUia"
+        },
+        {
+            "displayName": "FNS_Proportion of health facilities providing nutrition assessment and counselling services for people with non communicable  diseases ",
+            "id": "IgdZFuwOUPn"
+        },
+        {
+            "displayName": "FNS_Proportion of HHs reached with water safety and management messages",
+            "id": "j0hDBGFLXjc"
+        },
+        {
+            "displayName": "FNS_Proportion of hotspot priority woreda areas mapping conducted",
+            "id": "UGIFoWmCHdV"
+        },
+        {
+            "displayName": "FNS_Proportion of households that adopts neglected and under-utilized nutritious foods",
+            "id": "LKfewXagacL"
+        },
+        {
+            "displayName": "FNS_Proportion of House Holds that was restored and rehabilitated following an emergency",
+            "id": "AND8zhXVm44"
+        },
+        {
+            "displayName": "FNS_Proportion of households which accessed agricultural marketing places",
+            "id": "ycCLss2JaTs"
+        },
+        {
+            "displayName": "FNS_Proportion of households with homestead gardening",
+            "id": "K7lFMbj6v3L"
+        },
+        {
+            "displayName": "FNS_Proportion of individual who have access to WASH service during emergency",
+            "id": "kU6hjN7hCuq"
+        },
+        {
+            "displayName": "FNS_Proportion of kebeles that declared under age marriage free during the reporting period",
+            "id": "znngY5rb20b"
+        },
+        {
+            "displayName": "FNS_Proportion of Kgs. of bio-fortified crops produced by farmer/pastoral households",
+            "id": "otDXuqLadNS"
+        },
+        {
+            "displayName": "FNS_Proportion of Kgs of fish produced by farmer/pastoral households",
+            "id": "TZdxxWvtlAg"
+        },
+        {
+            "displayName": "FNS_Proportion of Kgs. of fruit produced by farmer/pastoral households",
+            "id": "dBSzCRRfEVQ"
+        },
+        {
+            "displayName": "FNS_Proportion of Kgs. of meat produced by farmer/pastoral households",
+            "id": "yEiYrcmtaKt"
+        },
+        {
+            "displayName": "FNS_Proportion of Kgs. of nutrient dense crops produced by farmer/pastoral households",
+            "id": "JZrKLrn2xoL"
+        },
+        {
+            "displayName": "FNS_Proportion of Kgs. of vegetable produced by farmer/pastoral households",
+            "id": "KeRfDRUtcPs"
+        },
+        {
+            "displayName": "FNS_Proportion of liters of milk produced by farmer/pastoral households",
+            "id": "kHzBfERmYGg"
+        },
+        {
+            "displayName": "FNS_Proportion of local manufacturers that produce perishable and high risk food products inspected",
+            "id": "Fv2WKYjhr1I"
+        },
+        {
+            "displayName": "FNS_Proportion of non-functional water supply schemes re-paired/maintained",
+            "id": "ypPXO13mXTl"
+        },
+        {
+            "displayName": "FNS_Proportion of of currently pregnant women & caregivers of children 0-23m who attended a Community conversation session during the reporting period.",
+            "id": "tGdccVRHUy4"
+        },
+        {
+            "displayName": "FNS_Proportion of Orphan and Vulnerable Children (OVCs) supported",
+            "id": "lKCr21uMRz9"
+        },
+        {
+            "displayName": "FNS_Proportion of people received food support",
+            "id": "t3h27kS99EQ"
+        },
+        {
+            "displayName": "FNS_Proportion of people with MDR TB who were screened and received therapeutic feeding",
+            "id": "ZlbrRP4p1g7"
+        },
+        {
+            "displayName": "FNS_Proportion of PLW participated on Income Generating Activities (IGAs) training session",
+            "id": "wDueVLUwwDW"
+        },
+        {
+            "displayName": "FNS_Proportion of PLWs that linked to PSNP’s TDS services",
+            "id": "tegswSLhro7"
+        },
+        {
+            "displayName": "FNS_Proportion of PLWs that participated on cooking demonstrations",
+            "id": "jVH7f20DUgv"
+        },
+        {
+            "displayName": "FNS_Proportion of pregnant women counselled for nutrition during ANC",
+            "id": "J2kzYXVjRLZ"
+        },
+        {
+            "displayName": "FNS_Proportion of pre, primary and middle schools  support through school feeding ",
+            "id": "GnDUecxJWz1"
+        },
+        {
+            "displayName": "FNS_Proportion of pre, primary, and middle schools with school gardening ",
+            "id": "Lbr4YD5ZrRU"
+        },
+        {
+            "displayName": "FNS_Proportion of primary and middle schools with water supply during the reporting period",
+            "id": "H2gXuquCLA8"
+        },
+        {
+            "displayName": "FNS_Proportion of primary schools with school feeding programs",
+            "id": "DMSAqN4ZeOU"
+        },
+        {
+            "displayName": "FNS_Proportion of promotions &training given for the community ,religious leaders, active working population &students on ITMS, Road safety ,RCAP &community roads",
+            "id": "jH3jPSR8p4Y"
+        },
+        {
+            "displayName": "FNS_Proportion of regional sectors that included food and nutrition strategic actions into their plans and implemented them",
+            "id": "civUeBBsPXw"
+        },
+        {
+            "displayName": "FNS_Proportion of registered perishable and high risk food products (market authorized food)",
+            "id": "LnmqBkK7NFp"
+        },
+        {
+            "displayName": "FNS_Proportion of schools that have health and nutrition clubs during the reporting period",
+            "id": "EQg6Y8U7n7a"
+        },
+        {
+            "displayName": "FNS_Proportion of schools with access to MHM facility",
+            "id": "BHp3Axf6upA"
+        },
+        {
+            "displayName": "FNS_Proportion of schools with gardening activities for production of nutrient dense food items",
+            "id": "Ad6BQaKOHdi"
+        },
+        {
+            "displayName": "FNS_Proportion of schools with safe and adequate drinking water supply during the reporting period",
+            "id": "eAwv2FYGelS"
+        },
+        {
+            "displayName": "FNS_Proportion of students who benefited from the school feeding programs",
+            "id": "y4eCGGTchbS"
+        },
+        {
+            "displayName": "FNS_Proportion of TDS PSNP beneficiaries who have access to basic social service",
+            "id": "JQa1RkenPQq"
+        },
+        {
+            "displayName": "FNS_Proportion of vulnerable groups received nutritional support",
+            "id": "fhrwHiOwWjD"
+        },
+        {
+            "displayName": "FNS_Proportion of water scheme tested for water quality",
+            "id": "EYxpcR08OL1"
+        },
+        {
+            "displayName": "FNS_Proportion of water scheme treated/disinfected",
+            "id": "tcIL8gkNtDT"
+        },
+        {
+            "displayName": "FNS_Proportion of women development group and community care coalition that received nutrition messages from frontline workers",
+            "id": "LMoUv7gwSsw"
+        },
+        {
+            "displayName": "FNS_Proportion of woreda sectors that included food and nutrition strategic actions into their plans and implemented them",
+            "id": "moG40xjdFFm"
+        },
+        {
+            "displayName": "FNS_Proportions of house holds using simple effective &efficient transportation means",
+            "id": "N7UuulSRtZr"
+        },
+        {
+            "displayName": "FNS_Propotion of households that received alternative energy source",
+            "id": "GrlN9lxS0lC"
+        },
+        {
+            "displayName": "FNS_Propotion of households that received safe energy and labour saving technology",
+            "id": "VkcqgvHB2qK"
+        },
+        {
+            "displayName": "FNS_Proprtion of post marketing surveillance conducted on perishable and high risk food",
+            "id": "OTzi9vLs9rW"
+        },
+        {
+            "displayName": "HBP-B % Proportion of diagnosed Hepatitis C patients who received treatment\t",
+            "id": "PsU7YzfxmCX"
+        },
+        {
+            "displayName": "HBP-T# ANC 4+ Contacts",
+            "id": "J2rNnVorvY5"
+        },
+        {
+            "displayName": "HBP-T# Contraceptive acceptance rate",
+            "id": "nYR5KxR3t8h"
+        },
+        {
+            "displayName": "HBP-T# Immediate Postpartum Contraceptive Acceptance rate (IPPCAR)",
+            "id": "j1FusPCkSeJ"
+        },
+        {
+            "displayName": "HBP-T# Long acting family plan ",
+            "id": "KASOIjL3npl"
+        },
+        {
+            "displayName": "HBP-T# of births attended by Skilled Health Personnel",
+            "id": "lpTsk3Cni1i"
+        },
+        {
+            "displayName": "HCF_Health budget Utilization",
+            "id": "YKg8CTkzjrw"
+        },
+        {
+            "displayName": "HCF_Health budget Utilization  Health center/ Hospital ",
+            "id": "bEcDrbwBLB7"
+        },
+        {
+            "displayName": "HCF_Health budget Utilization RHB",
+            "id": "TbzHECHuPgv"
+        },
+        {
+            "displayName": "HCF_Health budget Utilization WorHo",
+            "id": "MTJETHP1c92"
+        },
+        {
+            "displayName": "HCF_Health budget Utilization ZHD",
+            "id": "VKdU15lusoq"
+        },
+        {
+            "displayName": "HCF_ Proportion of HHs enrolled in CBHI Woreda",
+            "id": "Fb2ajzvMxH4"
+        },
+        {
+            "displayName": "HCF_Proportion of reimbursed amount from the total spent",
+            "id": "euEDSSe8CV0"
+        },
+        {
+            "displayName": "HEH_Proportion of health facilities with healthcare waste management services",
+            "id": "n3Gv2ruWPIo"
+        },
+        {
+            "displayName": "HEH_Proportion of Health facility has basic sanitation service",
+            "id": "nvZz222QwqW"
+        },
+        {
+            "displayName": " HEH_Proportion of health facility with water service",
+            "id": "BTM4xDQVEhz"
+        },
+        {
+            "displayName": "HEH_Proportion of HHs with liquid waste management",
+            "id": "IXwGJVZHu4h"
+        },
+        {
+            "displayName": "HEH_Proportion of HHs with safe solid waste management",
+            "id": "qBqSsNwbiCR"
+        },
+        {
+            "displayName": "HEH_Proportion of households having Basic sanitation facilities",
+            "id": "LbbLXCyF37t"
+        },
+        {
+            "displayName": "HEH_Proportion of households having hand washing facilities at the premises",
+            "id": "tGtG6zgYlbo"
+        },
+        {
+            "displayName": "HEH_Proportion of households having sanitation facilities",
+            "id": "OM7ugYqTFZz"
+        },
+        {
+            "displayName": "HEH_Proportion of households with healthy housing",
+            "id": "Z23jGahiUBv"
+        },
+        {
+            "displayName": "HEH_Proportion of kebeles declared ODF",
+            "id": "FtBzzaQ9IM7"
+        },
+        {
+            "displayName": "HEH_Proportion of water schemes for which water quality test conducted",
+            "id": "me9tlsblLCy"
+        },
+        {
+            "displayName": "HEPHC_Model Households",
+            "id": "YQybtViuSj5"
+        },
+        {
+            "displayName": "HEPHC_Model Kebele graduated",
+            "id": "IqBnAKxEVwt"
+        },
+        {
+            "displayName": "HEPHC_Proportion of health posts providing comprehensive health services",
+            "id": "A50CbTHDctq"
+        },
+        {
+            "displayName": "HEPHC_Proportion of high performing PHCUs ",
+            "id": "BtfdyD9X1jR"
+        },
+        {
+            "displayName": "HI_FUNC_INFR: Proportion health facilities with functional electricity",
+            "id": "j2cRJySwAfG"
+        },
+        {
+            "displayName": "HI_FUNC_INFR: Proportion health facilities with functional infrastructure ",
+            "id": "g2BOSPRDHkh"
+        },
+        {
+            "displayName": "HI_FUNC_INFR: Proportion health facilities with functional internet network",
+            "id": "Fc5oZ4E1ASA"
+        },
+        {
+            "displayName": "HI_FUNC_INFR: Proportion health facilities with functional sanitation",
+            "id": "rWbfh1YleOp"
+        },
+        {
+            "displayName": "HI_FUNC_INFR: Proportion health facilities with functional telephone",
+            "id": "TERNGROGQG5"
+        },
+        {
+            "displayName": "HI_FUNC_INFR: Proportion health facilities with functional water supply",
+            "id": "Wj59AuowkKV"
+        },
+        {
+            "displayName": "HI_ Functional facility to population ratio_General Hospital",
+            "id": "M5KYiOXZkr7"
+        },
+        {
+            "displayName": "HI_Functional facility to population ratio_Health center",
+            "id": "UBT1dX9Vz14"
+        },
+        {
+            "displayName": "HI_ Functional facility to population ratio_Health Post",
+            "id": "NT8sR9RmwZI"
+        },
+        {
+            "displayName": "HI_ Functional facility to population ratio_Primary Hospital",
+            "id": "AYQLnL5gKNe"
+        },
+        {
+            "displayName": "HI_ Functional facility to population ratio_Public",
+            "id": "xbrLlTbX2Zd"
+        },
+        {
+            "displayName": "HI_ Functional facility to population ratio_ Referral Hospital",
+            "id": "tFX3fkTo0tW"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 15-19 by regimen type",
+            "id": "Fpxqdh9XxGd"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 15-19 by Sex",
+            "id": "TYYcdumng5v"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 15-19 by Sex",
+            "id": "zBtEVn0BWes"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 20-24 by Sex",
+            "id": "qiO8zxIsdVf"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 25-29 by Sex",
+            "id": "NMzj2KrZNpD"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 25-49 by Sex",
+            "id": "FDbjgpb71v6"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 30-34 by Sex",
+            "id": "gecQJ4OuMkd"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 35-39 by Sex",
+            "id": "FhvlCdtUnrR"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 40-44 by Sex",
+            "id": "lp1lqrdAlBh"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 45-49 by Sex",
+            "id": "niTCBDGkWru"
+        },
+        {
+            "displayName": "HIV_Adult currently on ART aged 50+ by Sex",
+            "id": "H010uaIIg62"
+        },
+        {
+            "displayName": "HIV_Adults >=20 years currently on ART by regimen type",
+            "id": "DOjmzNXoBUS"
+        },
+        {
+            "displayName": "HIV_Adults and children with HIV infection newly started on ART",
+            "id": "ryV8thqN1y0"
+        },
+        {
+            "displayName": "HIV_Adults currently on ART",
+            "id": "QPnMWX0VHL5"
+        },
+        {
+            "displayName": "HIV_ART Clients that interrupted Treatment",
+            "id": "rHM6k3khhRE"
+        },
+        {
+            "displayName": "HIV_Children currently on ART",
+            "id": "cpVK4vg0qP9"
+        },
+        {
+            "displayName": "HIV_Children  currently on ART aged 10-14 year by regimen type",
+            "id": "erfov4UPPwm"
+        },
+        {
+            "displayName": "HIV_Children  currently on ART aged 10-14 year by Sex",
+            "id": "K4xjRgFlHVA"
+        },
+        {
+            "displayName": "HIV_Children currently on ART aged 1-4 yr by regimen type",
+            "id": "T2aCB3BdjFo"
+        },
+        {
+            "displayName": "HIV_Children currently on ART aged 1-4 yr by Sex",
+            "id": "STKCPnfJE0J"
+        },
+        {
+            "displayName": "HIV_Children currently on ART aged <1 yr by regimen type",
+            "id": "moCGWgByYvu"
+        },
+        {
+            "displayName": "HIV_Children currently on ART aged <1 yr by Sex",
+            "id": "DN4DxOG0KcJ"
+        },
+        {
+            "displayName": "HIV_Children currently on ART aged 5-9 yr by sex",
+            "id": "lyvLEgMy53I"
+        },
+        {
+            "displayName": "HIV_Children currently on ART aged 5-9 yr on by regimen type",
+            "id": "YyB2gQ7FNkU"
+        },
+        {
+            "displayName": "HIV_Clients currently on ART - under 15 - female",
+            "id": "ndqrcnzGcUU"
+        },
+        {
+            "displayName": "HIV_Clients currently on ART - under 15 - male",
+            "id": "cMvVX98HjUA"
+        },
+        {
+            "displayName": "HIV_Clients newly starting on ART - >= 15 - female",
+            "id": "jKr6hEmzdhr"
+        },
+        {
+            "displayName": "HIV_Clients newly starting on ART - >= 15 - male",
+            "id": "OPCal9D2kDt"
+        },
+        {
+            "displayName": "HIV_Clients newly starting on ART - under 15 - female",
+            "id": "hWBNgvZqiQS"
+        },
+        {
+            "displayName": "HIV_Clients newly starting on ART - under 15 - male",
+            "id": "m45TvxyEaBI"
+        },
+        {
+            "displayName": "HIV_Clients receiving HIV test results - >=15 - male ",
+            "id": "HcpyTA4jNDn"
+        },
+        {
+            "displayName": "HIV_Clients receiving HIV test results - >=15 - male - positive",
+            "id": "f7l0zCg09lT"
+        },
+        {
+            "displayName": "HIV_Clients receiving HIV test results - under 15 - male ",
+            "id": "FcxWSeP0PB9"
+        },
+        {
+            "displayName": "HIV_Clients receiving HIV test results - under 15 - male - positive",
+            "id": "cBsjMc6dDwD"
+        },
+        {
+            "displayName": "HIV_Clinically undernourished PLHIV who received therapeutic or supplementary food ",
+            "id": "pnR4Wc3TnIK"
+        },
+        {
+            "displayName": "HIV_Currently on ART - Female >15 yrs",
+            "id": "YWkcclXH1R5"
+        },
+        {
+            "displayName": "HIV_Currently on ART - Male >15 yrs",
+            "id": "nIKDxJxGgxL"
+        },
+        {
+            "displayName": "HIV_HTS received result by population group",
+            "id": "Xe9HOyCouh9"
+        },
+        {
+            "displayName": "HIV_HTS tested positive by population group ",
+            "id": "OZmNvzdxhXF"
+        },
+        {
+            "displayName": "HIV_Individuals tested and counseled for HIV and received their test results by Age",
+            "id": "rRyArleepf2"
+        },
+        {
+            "displayName": "HIV_Individuals tested for Hepatitis B and C",
+            "id": "AF9mRou9QoA"
+        },
+        {
+            "displayName": "HIV_Individuals who tested positive for HIV by Age",
+            "id": "pQYKEGUC2q1"
+        },
+        {
+            "displayName": "HIV_Number of adults and children who are currently on ART by age, sex and regimen category",
+            "id": "EM02m2HPZG6"
+        },
+        {
+            "displayName": "HIV_Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period",
+            "id": "DsrzyTfVzfw"
+        },
+        {
+            "displayName": "HIV_Number of ART patients who started TPT 12 months prior to the reporting period that completed a full course of therapy",
+            "id": "d7E1v2QbVjm"
+        },
+        {
+            "displayName": "HIV_Number of ART patients who were initiated on any course of TPT 12 months before the reporting period",
+            "id": "nFmoz5ll8dg"
+        },
+        {
+            "displayName": "HIV_Number of children (<19) who are currently on ART by regimen type",
+            "id": "hE8RPX6Vaib"
+        },
+        {
+            "displayName": "HIV_Number of index case contacts by test result (Positive)",
+            "id": "anIAOEW1ekI"
+        },
+        {
+            "displayName": "HIV_Number of Individual HIV self test KIT distributed",
+            "id": "ejNwuvkQxIy"
+        },
+        {
+            "displayName": "HIV_Number of individuals Treated for Hepatitis(B+C)",
+            "id": "fQQjOBVEDyO"
+        },
+        {
+            "displayName": "HIV_Number of individuals Treated for Hepatitis C",
+            "id": "sSnEl5pAXy3"
+        },
+        {
+            "displayName": "HIV_Percentage of adult and children on ART treatment after 12 month of initiation of ARV therapy",
+            "id": "haRqHdUsAmV"
+        },
+        {
+            "displayName": "HIV_Percentage of ART clients with a low viremia ( 50 - 1000 copies/ml) ",
+            "id": "vXCESbdolgh"
+        },
+        {
+            "displayName": "HIV_Percentage of ART clients with a suppressed viral load (< 50 copies/ml)  ",
+            "id": "mKF1Wgo6WVp"
+        },
+        {
+            "displayName": "HIV_Percentage of non-pregnant women in the reproductive age living with HIV on ART using a modern family planning method",
+            "id": "KSKrI5aH596"
+        },
+        {
+            "displayName": "HIV Percentage of people living with HIV who know their status",
+            "id": "rR9bDeLBZpQ"
+        },
+        {
+            "displayName": "HIV_PLHIV that were nutritionally assessed and found to be clinically undernourished",
+            "id": "CL6LlM3eFY5"
+        },
+        {
+            "displayName": "HIV_Proportion of clinically undernourished PLHIV received therapeutic or supplementary food",
+            "id": "ovhDvfbjdFq"
+        },
+        {
+            "displayName": "HIV_Proportion of HIV positive women (15+) on ART screened for Cervical Cancer",
+            "id": "YbyJBfbWMJq"
+        },
+        {
+            "displayName": "HIV_Proportion of patients enrolled in HIV care screened for TB",
+            "id": "MkNbX6aDzqD"
+        },
+        {
+            "displayName": "HIV_Proportion of persons provided with post-exposure prophylaxis",
+            "id": "y0wF8E85gHu"
+        },
+        {
+            "displayName": "HIV_Proportion of STI cases tested for HIV",
+            "id": "ew2ImGdb4be"
+        },
+        {
+            "displayName": "HIV_Treatment of precancerous cervical lesion",
+            "id": "VODAlAMDEif"
+        },
+        {
+            "displayName": "HIV_VIA Screening Result",
+            "id": "uIxkJk2tQRS"
+        },
+        {
+            "displayName": "HK_Anesthetic adverse outcome",
+            "id": "Fzv2vNLv0w3"
+        },
+        {
+            "displayName": "HK_Availability of blood for surgical patients",
+            "id": "AUcJ7KQZj7Q"
+        },
+        {
+            "displayName": "HK_Births by surgical, instrumental or assisted vaginal delivery",
+            "id": "bZyMB0Nu141"
+        },
+        {
+            "displayName": "HK_ Delaying time to surgical procedure at start time or before schedule",
+            "id": "tYYLirlqiPo"
+        },
+        {
+            "displayName": "HK_ Elective surgery cancellation rate",
+            "id": "qZSC89ezoGP"
+        },
+        {
+            "displayName": "HK_ Essential imaging service is avaliable ",
+            "id": "vWcuxOn153Q"
+        },
+        {
+            "displayName": "HK_IPD patients satisfaction score",
+            "id": "F64056AKPJr"
+        },
+        {
+            "displayName": "HK_ Major surgeries per surgeon   ",
+            "id": "j95bsXHez5z"
+        },
+        {
+            "displayName": "HK_MCH clients satisfaction score",
+            "id": "rMLcB51Dexv"
+        },
+        {
+            "displayName": "HK_OR table efficiency",
+            "id": "TeWTfTo8gVP"
+        },
+        {
+            "displayName": "HK_Percentage of Non-Functional Model Medical Equipment",
+            "id": "wunkdv5McSO"
+        },
+        {
+            "displayName": "HK_Physician productivity",
+            "id": "ys3dxDJlme6"
+        },
+        {
+            "displayName": "HK_Pressure ulcer incidence",
+            "id": "ajohdZ8mpgp"
+        },
+        {
+            "displayName": "HK_Proportion of admitted patients managed for pain",
+            "id": "lmDciApcacS"
+        },
+        {
+            "displayName": "HK_Proportion of Elective Surgery Procedure conducted at recommended Time",
+            "id": "AUxIHJMNDyo"
+        },
+        {
+            "displayName": "HK_Proportion of nursing staff with competency evaluation ",
+            "id": "jQdemTXTs50"
+        },
+        {
+            "displayName": "HK_Proportion of perioperative Deaths Reviewed",
+            "id": "GvoHHpBjJQg"
+        },
+        {
+            "displayName": "HK_Proportion of women Survived from PPH",
+            "id": "pz91i50A3HD"
+        },
+        {
+            "displayName": "HK_Radiologist productivity",
+            "id": "FxvA9GIFRP4"
+        },
+        {
+            "displayName": "HK_Raised revenue spending as a proportion of total operating spending",
+            "id": "LQ9kc6RqqlL"
+        },
+        {
+            "displayName": "HK_Rate of safe surgery checklist utilization",
+            "id": "mWfo96mnZam"
+        },
+        {
+            "displayName": "HK_Surgical site infection rate",
+            "id": "hbNnqLvW6eV"
+        },
+        {
+            "displayName": "HK_Turn Around Time for Imaging and Radiology Service",
+            "id": "ZDi4SCoLG4y"
+        },
+        {
+            "displayName": "HK_Turn over time of surgical procedure",
+            "id": "jzLAJkH4iKI"
+        },
+        {
+            "displayName": "HOSP_KPI - Anesthesia adverse outcome",
+            "id": "rhndiM8cJ0B"
+        },
+        {
+            "displayName": "HOSP_KPI - Births by instrumental or assisted vaginal deliveries",
+            "id": "VwxRIqKrjSU"
+        },
+        {
+            "displayName": "HOSP_KPI - EHSIG Score",
+            "id": "KnvScV8tgZ3"
+        },
+        {
+            "displayName": "HOSP_KPI - Elective Surgical Cases Treated within clinically recommended Time",
+            "id": "FffiFRA3hBm"
+        },
+        {
+            "displayName": "HOSP_KPI - Elective Surgical procedure cancellation ratio due to blood unavailability",
+            "id": "Jhd3Ceje5ig"
+        },
+        {
+            "displayName": "HOSP_KPI -Emergency room patients triaged within 5 minutes of arrival",
+            "id": "IdXAZ54UV3M"
+        },
+        {
+            "displayName": "HOSP_KPI - Inpatient Medical Record Completeness",
+            "id": "DDpS77p2Bkw"
+        },
+        {
+            "displayName": "HOSP_KPI - IPC FLAT Score (IPC-FLAT)",
+            "id": "pAOHFDGIG9f"
+        },
+        {
+            "displayName": "HOSP_KPI - Major Elective Surgeries Performed",
+            "id": "ee3QijcTl3T"
+        },
+        {
+            "displayName": "HOSP_KPI - Major OR Table Efficiency",
+            "id": "UYYUsrqUCQh"
+        },
+        {
+            "displayName": "HOSP_KPI - Medical oxygen stock out rate",
+            "id": "H6REpzaYj47"
+        },
+        {
+            "displayName": "HOSP_KPI -  Outpatient waiting time to Consultation",
+            "id": "YljFBb4mNv2"
+        },
+        {
+            "displayName": "HOSP_KPI - Patient satisfaction score",
+            "id": "eaCeAyg3ztW"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of acceptable EQA result ",
+            "id": "vi39oBdrZEG"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of hypoxemic patients treated with oxygen",
+            "id": "McoUTXsqtaP"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of imaging service completed within TAT",
+            "id": "f3NSogwwWOy"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of Imaging Service Interruption Days",
+            "id": "GFBOX61kABp"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of laboratory tests completed within TAT ",
+            "id": "McvNhDRh2eH"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of Medical Devices Repaired",
+            "id": "loB2S76kP6c"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of pathology tests completed within TAT",
+            "id": "uYVWwa5QtVe"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentage of women who died from Post-Partum Hemorrhage",
+            "id": "mtYQFM2XTlv"
+        },
+        {
+            "displayName": "HOSP_KPI - Percentages of Pathology Service Interruption Days",
+            "id": "ZoyeXcc3YQj"
+        },
+        {
+            "displayName": "HOSP_KPI - Pressure sore incidence",
+            "id": "S6QucnpE1IX"
+        },
+        {
+            "displayName": "HOSP_KPI - Safe Surgery Checklist Utilization",
+            "id": "n5rlKPZiJ48"
+        },
+        {
+            "displayName": "HOSP_KPI - Staff satisfaction score",
+            "id": "HCB26jYs0MB"
+        },
+        {
+            "displayName": "HOSP_KPI - Surgical Site Infection Rate",
+            "id": "IlT6z8oWZLG"
+        },
+        {
+            "displayName": "HOSP_KPI -Timely Outpatient service initiation ",
+            "id": "kpLkxnLl3kD"
+        },
+        {
+            "displayName": "HR_Health care workers density ",
+            "id": "zXS2JZfK2eI"
+        },
+        {
+            "displayName": "HR_Health care worker to Population ratio by Category_ESOs",
+            "id": "y82lRNArmc0"
+        },
+        {
+            "displayName": "HR_Health care worker to Population ratio by Category_Health Officer",
+            "id": "I21TCtCXE5A"
+        },
+        {
+            "displayName": "HR_Health care worker to Population ratio by Category_ Midwifes ",
+            "id": "AiMpTnvQJv1"
+        },
+        {
+            "displayName": "HR_Health care worker to Population ratio by Category_Nurses (All types)",
+            "id": "mCeXAinvC1x"
+        },
+        {
+            "displayName": "HR_Health care worker to Population ratio by Category__Others ",
+            "id": "GeMfFfOjI41"
+        },
+        {
+            "displayName": "HR_Health care worker to Population ratio by Category _ Physician (Including specialist and Sub specialits) ",
+            "id": "MscQl7yOa8b"
+        },
+        {
+            "displayName": "HR_Percentage of health professionals with an active professional license",
+            "id": "Budw2LplHII"
+        },
+        {
+            "displayName": "HR_Proportion health Facility staffed as per the standard",
+            "id": "A5ksx494VQK"
+        },
+        {
+            "displayName": "HSTQIND-CRCPC1 - The hospital developed and implements CRC and patient centered care strategy in the facility",
+            "id": "Z9MuoGFzBJN"
+        },
+        {
+            "displayName": "HSTQIND-CRCPC2 - Patients and their family experience effective interactions with staff who demonstrated competency in relevant communication and clinical skills and experience coordinated care with clear and accurate information",
+            "id": "nQYoAAPhbkJ"
+        },
+        {
+            "displayName": "HSTQIND-CRCPC3 - Patients are introduced to all healthcare professionals involved in their care, and are made aware of the roles and responsibilities of the members of the healthcare team",
+            "id": "k4Y9poQV8ey"
+        },
+        {
+            "displayName": "HSTQIND-CRCPC4 - Patients and their family have opportunities to discuss their health beliefs, concerns and preferences to inform their individualized care",
+            "id": "atDF6AB4qq8"
+        },
+        {
+            "displayName": "HSTQIND-CRCPC5 - Patients and their family are supported by healthcare professionals to understand relevant treatment options, including benefits, risks and potential consequences",
+            "id": "H2cv8Gjp9Yf"
+        },
+        {
+            "displayName": "HSTQIND-CRCPC6 - Patients, their family and the community are actively involved in shared decision making and supported by healthcare professionals to make fully informed choices about investigations, treatment and care",
+            "id": "j0xmT6mn8xI"
+        },
+        {
+            "displayName": "HSTQIND-DQ1 - The hospital ensured HMIS implementation",
+            "id": "wB5qA2150wC"
+        },
+        {
+            "displayName": "HSTQIND-DQ2 - Regular medical record audit is being done to ensure data quality",
+            "id": "iIa0yCYZ1Vj"
+        },
+        {
+            "displayName": "HSTQIND-DQ3 - HMIS registering and reports are done correctly and timely",
+            "id": "qLT3tPa9zgg"
+        },
+        {
+            "displayName": "HSTQIND-DQ4 - Lots Quality Assurance is done regularly",
+            "id": "TcrDfKjIJZl"
+        },
+        {
+            "displayName": "HSTQIND-DQ5 - The hospital evaluates reported datas and implements QI projects for identified gaps",
+            "id": "j2EMnDLSu67"
+        },
+        {
+            "displayName": "HSTQIND-HC10 - Communication with HIV/AIDS patients is effective and in response to their needs and preferences",
+            "id": "sv5CWLkTOVy"
+        },
+        {
+            "displayName": "HSTQIND-HC11 - HIV/AIDS patients receive care with respect and dignity",
+            "id": "s4Ta9A6gsIh"
+        },
+        {
+            "displayName": "HSTQIND-HC1 - RE STandARD 1: Facilities with HIV services also provide risk reduction assessment and counseling. Also have reliable supply of condoms and materials with at least one month of shelf life and displayed",
+            "id": "ENhxlYCOTGa"
+        },
+        {
+            "displayName": "HSTQIND-HC2 - Each facility has a reliable supply of HIV test kits and adult ARVs",
+            "id": "dhdPOY7jfsl"
+        },
+        {
+            "displayName": "HSTQIND-HC3 - For every HIV patient , competent and motivated staff are consistently available to provide routine care and manage complications",
+            "id": "AT7wPByuT5d"
+        },
+        {
+            "displayName": "HSTQIND-HC4 - The health information system enables the use of data for early and appropriate action to improve care for HIV/AIDS patients",
+            "id": "W6YSDlrqoKU"
+        },
+        {
+            "displayName": "HSTQIND-HC5 - For adults with HIV/AIDS, evidence based HIV care and treatment is provided",
+            "id": "qLPUqrmjpOv"
+        },
+        {
+            "displayName": "HSTQIND-HC6 - For adults with HIV/AIDS, evidence based PMTCT service is provided in ANC, LandD and postnatal",
+            "id": "ggh6jpRLPEr"
+        },
+        {
+            "displayName": "HSTQIND-HC7 - Evidence based care is provided for HIV EXPOSED INFANTS (HEI)",
+            "id": "J4AWWG1qU7J"
+        },
+        {
+            "displayName": "HSTQIND-HC8 - For adults with HIV/AIDS, evidence based PMTCT service is provided in LandD room",
+            "id": "Xbgafv9tOcV"
+        },
+        {
+            "displayName": "HSTQIND-HC9 - For children with HIV/AIDS, evidence based HIV care and treatment is given",
+            "id": "adpfMtCGcji"
+        },
+        {
+            "displayName": "HSTQIND-MH1 - The health facility has an appropriate working system and physical environment with adequate working guidelines, utilities, medicines, supplies and equipment for providing quality MCH services",
+            "id": "bPw35MmIpQR"
+        },
+        {
+            "displayName": "HSTQIND-MH2 - For every woman and newborn, competent and motivated staff are consistently available to provide routine care and manage complications",
+            "id": "SuAbAJggRvS"
+        },
+        {
+            "displayName": "HSTQIND-MH3 - Every woman and newborn receives evidence-based routine care and management of complications during labor, childbirth and the early postnatal period according to National guidelines.",
+            "id": "thTYD3LVtgq"
+        },
+        {
+            "displayName": "HSTQIND-MH4 - The health information system enables the use of data for early and appropriate action to improve care for women",
+            "id": "fwwclaGX8Bn"
+        },
+        {
+            "displayName": "HSTQIND-MH5 - Communication with women and their families is effective and in response to their needs and preferences",
+            "id": "Oklfmu9o1NK"
+        },
+        {
+            "displayName": "HSTQIND-MH6 - Women receive care with respect and dignity",
+            "id": "n6Dd1zu2NDM"
+        },
+        {
+            "displayName": "HSTQIND-ML1 - The health facility has adequate working guidelines, utilities, medicines, supplies and equipment for diagnosis and management of malaria",
+            "id": "kbwqNmA8HzP"
+        },
+        {
+            "displayName": "HSTQIND-ML2 - Evidence based care is given to all malaria patients",
+            "id": "uX4VCHsQb94"
+        },
+        {
+            "displayName": "HSTQIND-NCD10 - Every client with EPILEPSY receives evidence-based care",
+            "id": "eWnQkBFy5Q4"
+        },
+        {
+            "displayName": "HSTQIND-NCD11 - CERVICAL CANCER and BREAST CANCER screening is provided for all women with indications",
+            "id": "RooWCgd3KX3"
+        },
+        {
+            "displayName": "HSTQIND-NCD1 - The health facility has an appropriate working system and physical environment with adequate working guidelines, utilities, medicines, supplies and equipment for diagnosis and management of major NCDs",
+            "id": "Iqew3N81N1w"
+        },
+        {
+            "displayName": "HSTQIND-NCD2 - For every client with NCD , competent and motivated staff are consistently available to provide the necessary care and diagnose and manage complications early",
+            "id": "KviT4h5584Q"
+        },
+        {
+            "displayName": "HSTQIND-NCD3 - The health information system enables the use of data for early and appropriate action to improve care for clients with NCD",
+            "id": "J45PSWO78Rp"
+        },
+        {
+            "displayName": "HSTQIND-NCD4 - Communication with NCD clients is effective and in response to their needs and preferences",
+            "id": "VekBYa8W9SH"
+        },
+        {
+            "displayName": "HSTQIND-NCD5 - NCD clients receive care with respect and dignity",
+            "id": "NMEBVtjx74d"
+        },
+        {
+            "displayName": "HSTQIND-NCD6 - Every client with HYPERTENSION receives evidence-based care and all at risk groups should be screened",
+            "id": "KDG4zjkTcov"
+        },
+        {
+            "displayName": "HSTQIND-NCD7 - Every client with CONGESTIVE HEART FAILURE receives evidence-based care",
+            "id": "WwibpcRPKxs"
+        },
+        {
+            "displayName": "HSTQIND-NCD8 - Every client with DM receives evidence-based care",
+            "id": "u4KMiL0ELjP"
+        },
+        {
+            "displayName": "HSTQIND-NCD9 - Every client with ASTHMA receives evidence-based care",
+            "id": "idU7Gdwakk1"
+        },
+        {
+            "displayName": "HSTQIND-NCH10 - Evidence based care is provided for a child with MALNUTRITION as per IMNCI recommendations",
+            "id": "dFRfR0mrATO"
+        },
+        {
+            "displayName": "HSTQIND-NCH11 - The hospital has established NICU setup with adequate resources (personnel, equipment, infrastructure, guidelines)",
+            "id": "VUP9zHonGOf"
+        },
+        {
+            "displayName": "HSTQIND-NCH12 - Evidence based essential newborn care is provided",
+            "id": "yqEwFRdDXpB"
+        },
+        {
+            "displayName": "HSTQIND-NCH13 - Evidence based care is given for neonates with SUSPECTED OR CONFIRMED NEONATAL SEPSIS",
+            "id": "RWTsj6FJWwf"
+        },
+        {
+            "displayName": "HSTQIND-NCH14 - Evidence based care is given for LBW and/or PREMATURE NEONATES",
+            "id": "SWhyqJhV2Ph"
+        },
+        {
+            "displayName": "HSTQIND-NCH15 - Evidence based care is given for neonates with HYPERBILIRUBINEMIA",
+            "id": "yU13GvvAWyG"
+        },
+        {
+            "displayName": "HSTQIND-NCH16 - The facility implements safe and comprehensive EPI programme",
+            "id": "KhRXgyFcNf6"
+        },
+        {
+            "displayName": "HSTQIND-NCH1 - The health facility has an appropriate working system and physical environment with adequate working guidelines, utilities, medicines, supplies and equipment for diagnosis and management of major health problems",
+            "id": "NNnfHVUV7RR"
+        },
+        {
+            "displayName": "HSTQIND-NCH2 - The facility provides appropriate ETAT service consistently",
+            "id": "baKuT1vSpWd"
+        },
+        {
+            "displayName": "HSTQIND-NCH3 - Evidence based care is provided for a child presenting with COUGH as per IMNCI recommendations",
+            "id": "NdmVImWyTjK"
+        },
+        {
+            "displayName": "HSTQIND-NCH4 - Evidence based care is provided for a child presenting with diagnosis of ASTHMA as per IMNCI recommendations",
+            "id": "a2PfblEkMho"
+        },
+        {
+            "displayName": "HSTQIND-NCH5 - Evidence based care is provided for a child presenting with initial symptom of DIARRHEA as per IMNCI recommendations",
+            "id": "iWIFjQK7ewG"
+        },
+        {
+            "displayName": "HSTQIND-NCH6 - Evidence based care is provided for a child presenting with initial symptom of FEBRILE ILLNESS as per IMNCI recommendations",
+            "id": "OHZE98DccYp"
+        },
+        {
+            "displayName": "HSTQIND-NCH7 - Evidence based care is provided for a child suspected with MENINGITIS as per IMNCI recommendations",
+            "id": "nMQJzjHOQ0w"
+        },
+        {
+            "displayName": "HSTQIND-NCH8 - Evidence based care is provided for a child suspected with MALARIA as per IMNCI recommendations",
+            "id": "bdPTGXbnmCQ"
+        },
+        {
+            "displayName": "HSTQIND-NCH9 - Evidence based care is provided for a child suspected with MEASLES as per IMNCI recommendations",
+            "id": "A1GER5Mv4Bs"
+        },
+        {
+            "displayName": "HSTQIND-NMS1 - EACH WARD HAS ALL THE NECESSARY FACILITIES, EQUIPMENTS and SUPPLIES NEEDED TO PROVIDE A QUALITY NURSING SERVICE",
+            "id": "PqTNMVFz8zg"
+        },
+        {
+            "displayName": "HSTQIND-NMS2 - THE HOSPITAL HAS FUNCTIONAL NURSING MIDWIFERY MANAGEMENT",
+            "id": "DEEIzl9EyBB"
+        },
+        {
+            "displayName": "HSTQIND-NMS3 - QUALITY NURSING MIDWIFERY SERVICE IS ENSURED FOR ALL PATIENTS",
+            "id": "iyMNt0IqVGK"
+        },
+        {
+            "displayName": "HSTQIND-NMS4 - PATIENT CENTERED NURSING MIDWIFERY SERVICE IS GIVEN TO ALL PATIENTS",
+            "id": "cRiisXC4zph"
+        },
+        {
+            "displayName": "HSTQIND-PS1 - The hospital has leadership and management committed to ensuring patient safety",
+            "id": "kRZiCj3QJKP"
+        },
+        {
+            "displayName": "HSTQIND-PS2 - The hospital involves patient, family and community in assurance of patient safety",
+            "id": "VW40a4tBekY"
+        },
+        {
+            "displayName": "HSTQIND-PS3 - The hospital ensures safe evidence based clinical practice is performed",
+            "id": "V0C4vsYbFHl"
+        },
+        {
+            "displayName": "HSTQIND-PS4 - The hospital ensures Safe environment, safe blood transfusion and safe injection practice for patients, staff and visitor",
+            "id": "Z3wjb1sXTtF"
+        },
+        {
+            "displayName": "HSTQIND-PS5 - The hospital ensures Lifelong learning using staff development programs",
+            "id": "ybLuEFRtwMS"
+        },
+        {
+            "displayName": "HSTQIND-SS1 - The health facility has an appropriate working system and physical environment with adequate working guidelines, utilities, medicines, supplies and equipment for providing quality surgical services services.",
+            "id": "kPpTF9BVMUp"
+        },
+        {
+            "displayName": "HSTQIND-SS2 - For every surgical patient , competent and motivated staff are consistently available to provide routine care and manage complications",
+            "id": "juxvECjfQR3"
+        },
+        {
+            "displayName": "HSTQIND-SS3 - Evidence based care is provided for all surgical patients",
+            "id": "v5aJ7OJOKBo"
+        },
+        {
+            "displayName": "HSTQIND-SS4 - The health information system enables the use of data for early and appropriate action to improve care for surgical patients",
+            "id": "XcQDXABoz7A"
+        },
+        {
+            "displayName": "HSTQIND-SS5 - Communication with surgical patients and their families is effective and in response to their needs and preferences",
+            "id": "Zb6LobRavzy"
+        },
+        {
+            "displayName": "HSTQIND-SS6 - surgical patients receive care with respect and dignity",
+            "id": "uTLdqBWTXlS"
+        },
+        {
+            "displayName": "HSTQIND-STG1 - Evidence based care is provided for adults with pneumonia",
+            "id": "xZohCcqlg9y"
+        },
+        {
+            "displayName": "HSTQIND-STG2 - Evidence based care is provided for all patients with UTI",
+            "id": "gqkv0AArLsY"
+        },
+        {
+            "displayName": "HSTQIND-STG3 - Evidence based care is provided for all patients with MENINGITS",
+            "id": "wf9rfbhiYSk"
+        },
+        {
+            "displayName": "HSTQIND-TB1 - The health facility has an appropriate working system and physical environment with adequate working guidelines, utilities, medicines, supplies and equipment for diagnosis and management of TB patients",
+            "id": "s1twwJCzHfQ"
+        },
+        {
+            "displayName": "HSTQIND-TB2 - For every TB patient , competent and motivated staff are consistently available to provide the necessary care and diagnose and manage complications early",
+            "id": "m53v46bLDMM"
+        },
+        {
+            "displayName": "HSTQIND-TB3 - The health information system enables the use of data for early and appropriate action to improve care for TB patients",
+            "id": "qmt2pczw17L"
+        },
+        {
+            "displayName": "HSTQIND-TB4 - Communication with TB patients is effective and in response to their needs and preferences",
+            "id": "ANi3VUuGs7j"
+        },
+        {
+            "displayName": "HSTQIND-TB5 - TB patients receive care with respect and dignity",
+            "id": "VOJSE3R3tuw"
+        },
+        {
+            "displayName": "HSTQIND-TB6 - Every TB patient receives evidence-based care and TB screening should be done for all patients coming to the facility",
+            "id": "HZxsBzTyV6Z"
+        },
+        {
+            "displayName": "LEP_All leprosy case detected (New, Other, Relapse and defaulter)",
+            "id": "AorxhjqDzmD"
+        },
+        {
+            "displayName": "LEP_Grade II disability rate among new cases of leprosy",
+            "id": "myWEyjn5FLo"
+        },
+        {
+            "displayName": "LEP_Leprosy notification per 10,000 population",
+            "id": "Ew35slkySx9"
+        },
+        {
+            "displayName": "LEP_Leprosy treatment completion rate",
+            "id": "gcWxB44Hhqi"
+        },
+        {
+            "displayName": "LEP_New leprosy cases  detected (MB+PB)",
+            "id": "kwUWNpucLuM"
+        },
+        {
+            "displayName": "LG_Average community score card improvement rate (CSC rate)",
+            "id": "ZkkkLAnHBS3"
+        },
+        {
+            "displayName": "LG_Community score card score",
+            "id": "HVdZjTM1sZE"
+        },
+        {
+            "displayName": "LG_ Number of Gender based violence (GBV) survivors who received health care services",
+            "id": "sgFhu159JlJ"
+        },
+        {
+            "displayName": "LG_Proportion of hospitals with Good Governance Index (GGI) of >=80%",
+            "id": "Bnhsa4Rf5ky"
+        },
+        {
+            "displayName": "LG_Proportion of leadership positions in health facilities that are held by females",
+            "id": "n0lUZ6iJt7V"
+        },
+        {
+            "displayName": "LG_Proportion of Primary health Care facilities implementing Community Scorecard (CSC)>=80%",
+            "id": "Lf9u3N1BPO2"
+        },
+        {
+            "displayName": "MAL_Annual parasite incidence",
+            "id": "lP6Ps34xQu7"
+        },
+        {
+            "displayName": "Malaria cases",
+            "id": "x5w3SfqgMBE"
+        },
+        {
+            "displayName": "MAL_DX -% of Morbidity attributed to malaria",
+            "id": "aRC8oj9qZky"
+        },
+        {
+            "displayName": "MAL_Malaria positivity rate",
+            "id": "aBjlxmZHXWv"
+        },
+        {
+            "displayName": "MAL_Morbidity attributed to malaria per 1000 population at risk population",
+            "id": "tibRY2xKLLN"
+        },
+        {
+            "displayName": "MAL_Proportion of confirmed malaria cases fully investigated and classified",
+            "id": "oPyiE9DXARJ"
+        },
+        {
+            "displayName": "MAL_Proportion of Foci fully investigated and classified",
+            "id": "Sj0lt76IBoB"
+        },
+        {
+            "displayName": "MAL_Proportion of health facilities covered by external quality assurance (EQA) for malaria diagnosis ",
+            "id": "bTOblQ6zuCQ"
+        },
+        {
+            "displayName": "MAL_Proportion of targeted HH covered with Long Lasting Insecticidal bed Nets (LLIN)_ in the last 12 months",
+            "id": "z3BM3uxAhym"
+        },
+        {
+            "displayName": "MAL_Proportion of unit structures covered by indoor residual spraying (IRS)",
+            "id": "NLMn0xklEBd"
+        },
+        {
+            "displayName": "MAL_Total malaria confirmed death",
+            "id": "B8b2tQ4l0uJ"
+        },
+        {
+            "displayName": "MAT_ANC 1st Contacts before 12 Weeks Coverage",
+            "id": "mLlXCSnhSzq"
+        },
+        {
+            "displayName": "MAT_ANC 4+ Contacts Coverage",
+            "id": "kdkf3Zb6VD3"
+        },
+        {
+            "displayName": "MAT_ANC 8+ Contacts Coverage",
+            "id": "HC8b6otA0nz"
+        },
+        {
+            "displayName": "MAT_ANC coverage – First Contact",
+            "id": "wUrAHDaX3QE"
+        },
+        {
+            "displayName": "MAT_Caesarean Section (C/S) Rate",
+            "id": "iMMy5SY9mnx"
+        },
+        {
+            "displayName": "MAT_Comprehensive Abortion Care by Maternal Age",
+            "id": "wz5DEc5Whxd"
+        },
+        {
+            "displayName": "MAT_Contraceptive Acceptance Rate",
+            "id": "VGp83gMzReC"
+        },
+        {
+            "displayName": "MAT_ Drop out Rate of ANC1 to ANC 4 +",
+            "id": "ge5jwBSmmvb"
+        },
+        {
+            "displayName": "MAT_Early PNC Coverage",
+            "id": "EmPOBxh5K5S"
+        },
+        {
+            "displayName": "MAT_Early PNC Coverage (0-2 days)",
+            "id": "kiWHNOMaX8W"
+        },
+        {
+            "displayName": "MAT_Early PNC Coverage  (2-3 days)",
+            "id": "qVuwmOehUwg"
+        },
+        {
+            "displayName": "MAT_Early PNC Coverage  (4-7 days)",
+            "id": "pz1GAp7xV2I"
+        },
+        {
+            "displayName": "MAT_Immediate Postpartum Contraceptive Acceptance rate (IPPCAR)",
+            "id": "ZaV7tyCsi1G"
+        },
+        {
+            "displayName": "MAT_Long Acting FP Coverage",
+            "id": "gzUuULSg1Sd"
+        },
+        {
+            "displayName": "MAT_New and Repeat Contraceptive Acceptors by Age",
+            "id": "GLwxz5FrEHY"
+        },
+        {
+            "displayName": "MAT_New and Repeat Contraceptive Acceptors by Method",
+            "id": "x19YTGKcfS8"
+        },
+        {
+            "displayName": "MAT_%  of Births Attended at Health Post",
+            "id": "bYodxJANz89"
+        },
+        {
+            "displayName": "MAT_% of births attended by Skilled Health Personnel",
+            "id": "AxBNUGGwwXJ"
+        },
+        {
+            "displayName": "MAT_% of Implants",
+            "id": "wziHJmlu3lb"
+        },
+        {
+            "displayName": "MAT_ % of Injectables",
+            "id": "OYXPWyviYPc"
+        },
+        {
+            "displayName": "MAT_% of Institutional Maternal Deaths",
+            "id": "GiSDAhVYogM"
+        },
+        {
+            "displayName": "MAT_% of IUCD",
+            "id": "dCulYPtjemP"
+        },
+        {
+            "displayName": "MAT_% of Oral Contraceptives",
+            "id": "jn2dEEdEjrs"
+        },
+        {
+            "displayName": "MAT_ % of Other Methods",
+            "id": "a7LSv6u4gjA"
+        },
+        {
+            "displayName": "MAT_% of Pregnants Tested for Syphilis",
+            "id": "Xntj4FLb5OP"
+        },
+        {
+            "displayName": "MAT_% of Tubal ligation",
+            "id": "TxUCNxQSfEq"
+        },
+        {
+            "displayName": "MAT_% of Vasectomy",
+            "id": "itSzEqnpV7C"
+        },
+        {
+            "displayName": "MAT_Premature Removal of LAFP",
+            "id": "y3cUmpthcx0"
+        },
+        {
+            "displayName": "MAT_Short Acting FP Coverage",
+            "id": "xYPB6PoQHJO"
+        },
+        {
+            "displayName": "MAT_Stillbirth Rate",
+            "id": "jjENjatqdqI"
+        },
+        {
+            "displayName": "MAT_Teenage Pregnancy Rate    ",
+            "id": "ewPIWhjVavr"
+        },
+        {
+            "displayName": "MAT_Women Developed Postpartum hemorrhage (PPH)",
+            "id": "qRRX6XFKw0g"
+        },
+        {
+            "displayName": "MAT_% Women received uterotonics in the first one minute after delivery",
+            "id": "kR1rUE2X60X"
+        },
+        {
+            "displayName": "MH_Number of Child and adolescent treated for  Mental, Developmental and Behavioral Disorder",
+            "id": "UNaqQ6dp3iR"
+        },
+        {
+            "displayName": "MH_Number of individuals treated for Epilepsy",
+            "id": "UHf5ErKNYYX"
+        },
+        {
+            "displayName": "MH_Number of individuals treated for for Bipolar Disorder",
+            "id": "cD7fIv611cX"
+        },
+        {
+            "displayName": "MH_Number of individuals treated for for Depression",
+            "id": "uvC6rjvfpb9"
+        },
+        {
+            "displayName": "MH_Number of individuals treated for for Schizophrenia or other primary psychotic disorders",
+            "id": "WjbAAO50F9e"
+        },
+        {
+            "displayName": "MH_Number of individuals treated for Substance Use and Alcohol",
+            "id": "IonfBkGRK1w"
+        },
+        {
+            "displayName": "MH_Proportion of individuals treated for Bipolar Disorder",
+            "id": "aMeYpYzbdnN"
+        },
+        {
+            "displayName": "MH_Proportion of individuals treated for depression",
+            "id": "uec5Ss6JKlm"
+        },
+        {
+            "displayName": "MH_Proportion of individuals treated for Epilepsy",
+            "id": "axfqOFZ3Ucb"
+        },
+        {
+            "displayName": "MH_Proportion of individuals treated for  Schizophrenia or other primary psychotic disorders",
+            "id": "NTU10S7fqN2"
+        },
+        {
+            "displayName": "MH_Proportion of individuals treated for Substance Use and Alcohol",
+            "id": "ReRGBHE0MXu"
+        },
+        {
+            "displayName": "Monthly Basic health post Actual reports",
+            "id": "w46DgDhag0T"
+        },
+        {
+            "displayName": "Monthly Basic health post Actual reports on time",
+            "id": "CB3WnXgutBY"
+        },
+        {
+            "displayName": "Monthly Basic health post Expected reports",
+            "id": "rZhe4vtp51W"
+        },
+        {
+            "displayName": "Monthly Basic Health post reporting rate",
+            "id": "yjKIYBOmXbd"
+        },
+        {
+            "displayName": "Monthly Basic health post reporting rate on time",
+            "id": "lcIMSkKePDH"
+        },
+        {
+            "displayName": "Monthly Clinic Actual reports(8 Data Sets)",
+            "id": "lXEIazYMDcD"
+        },
+        {
+            "displayName": "Monthly Clinic Actual Reports on time",
+            "id": "sJnpNYXK31V"
+        },
+        {
+            "displayName": "Monthly Clinic Expected reports(8 Data Sets)",
+            "id": "wmmmUISa337"
+        },
+        {
+            "displayName": "Monthly clinic reporting rate",
+            "id": "kD7tRLGOUDM"
+        },
+        {
+            "displayName": "Monthly Clinic Reporting rate on time",
+            "id": "io9DsJ5Ff5x"
+        },
+        {
+            "displayName": "Monthly Comprehensive Health Post Actual Reports(9 Data Sets)",
+            "id": "mgUMHP7X374"
+        },
+        {
+            "displayName": "Monthly Comprehensive health Post Actual Reports on time",
+            "id": "OdsR4ceVYjA"
+        },
+        {
+            "displayName": "Monthly Comprehensive Health Post Expected Reports(9 Data Sets)",
+            "id": "OyiAZWKV415"
+        },
+        {
+            "displayName": "Monthly Comprehensive health post reporting rate",
+            "id": "vdpmPV322xw"
+        },
+        {
+            "displayName": "Monthly Comprehensive health post Reporting rate on time",
+            "id": "SI3Jd9fHb2P"
+        },
+        {
+            "displayName": "Monthly health center Actual Reports(9 data Sets)",
+            "id": "AQZSAD0fNs7"
+        },
+        {
+            "displayName": "Monthly health center Actual Reports on time",
+            "id": "XkgwUIN4Zxx"
+        },
+        {
+            "displayName": "Monthly health center Expected reports(9 data sets)",
+            "id": "zB1BfiJ7Zx1"
+        },
+        {
+            "displayName": "Monthly health center reporting rate",
+            "id": "KQnHrR6nl0J"
+        },
+        {
+            "displayName": "Monthly health center Reporting rate on time",
+            "id": "gNIfOprot5s"
+        },
+        {
+            "displayName": "Monthly Hospital Actual Reports(9 Data Sets)",
+            "id": "yFTH60y0x2o"
+        },
+        {
+            "displayName": "Monthly Hospital Actual Reports on time",
+            "id": "OWe7sz6gndt"
+        },
+        {
+            "displayName": "Monthly Hospital Expected Reports(9 Data Sets)",
+            "id": "BZ8MLJTtCAq"
+        },
+        {
+            "displayName": "Monthly hospital reporting rate",
+            "id": "gZYGF24uJyE"
+        },
+        {
+            "displayName": "Monthly Hospital Reporting rate on time",
+            "id": "ZtfhhkNPRsf"
+        },
+        {
+            "displayName": "MS_Ambulance service response rate",
+            "id": "vN0R3Zf5XxR"
+        },
+        {
+            "displayName": "MS_Ambulance service utilization for emergency referral service",
+            "id": "aarZ7SyON3t"
+        },
+        {
+            "displayName": "MS_Assistive Technology Service Coverage",
+            "id": "dAGUPaBm989"
+        },
+        {
+            "displayName": "MS_Average Length of Stay (in days)",
+            "id": "oSElpejpshC"
+        },
+        {
+            "displayName": "MS_Bed Occupancy Rate",
+            "id": "WB9RjruQ4Xp"
+        },
+        {
+            "displayName": "MS_Clients in the waiting list for elective surgical service",
+            "id": "Xd7W2d2rFM0"
+        },
+        {
+            "displayName": "MS_delay for elective surgical admission",
+            "id": "HSAmPBBxjlq"
+        },
+        {
+            "displayName": "MS_Emergency room attendances with length of stay > 24 hours",
+            "id": "wCz8HOsEO1n"
+        },
+        {
+            "displayName": "MS_Essential laboratory test availability",
+            "id": "yso784IuVrB"
+        },
+        {
+            "displayName": "MS_Facility emergency department mortality rate",
+            "id": "ETDXbJZvq2I"
+        },
+        {
+            "displayName": "MS_Hospital Bed Density",
+            "id": "oksEqSjFgQm"
+        },
+        {
+            "displayName": "MS_ICU Length of stay",
+            "id": "u5pXmrY1wCQ"
+        },
+        {
+            "displayName": " MS_ Inpatient admission per capita",
+            "id": "hbaiwgZOMWP"
+        },
+        {
+            "displayName": "MS_Inpatient mortality rate",
+            "id": "QmJZDJx2vz5"
+        },
+        {
+            "displayName": "MS_Mean duration of in-hospital pre-elective operative stay",
+            "id": "NMdr9N3wD6h"
+        },
+        {
+            "displayName": "MS_Mortality rate in Intensive Care Unit (ICU)",
+            "id": "srZPnvmUo5r"
+        },
+        {
+            "displayName": " MS_Outpatient attendance per capita",
+            "id": "TBAxe5hsc55"
+        },
+        {
+            "displayName": " MS_Outpatient attendance per capital for CBHI beneficiaries ",
+            "id": "bDEsDaR85NM"
+        },
+        {
+            "displayName": "MS_Percentage of ventilator associated pneumonia",
+            "id": "MptwPP883W8"
+        },
+        {
+            "displayName": "MS_Perioperative mortality rate",
+            "id": "BRH36PvRA5U"
+        },
+        {
+            "displayName": "MSR_Condom Distribution for Key and Priority Populations (KPPs)",
+            "id": "HY8r8hfKPAb"
+        },
+        {
+            "displayName": "MSR_Cumulative number of Orphans & PLHIV who received at least one type of care and support services",
+            "id": "rZu881BSgw7"
+        },
+        {
+            "displayName": "MS_Referral-out Rate",
+            "id": "xZ6whQIwvUS"
+        },
+        {
+            "displayName": "MSR_HIV Prevention SBCC Interventions targeting in school and out of school adolescents/youth",
+            "id": "IdETwmHxEzU"
+        },
+        {
+            "displayName": "MSR_Number of individual Key and Priority populations (KPPs) linked to HTC service ",
+            "id": "skJJHGivNtR"
+        },
+        {
+            "displayName": "MSR_Number of individuals participated in HIV/AIDS prevention SBCC sessions organized by sectors/organizations",
+            "id": "dIxUS4UswL5"
+        },
+        {
+            "displayName": "MSR_Number of people in prisons reached with HIV prevention SBCC Interventions",
+            "id": "ZjWrJMnMTY3"
+        },
+        {
+            "displayName": "MSR_Percentage of High-Risk Adolescent Girls and Young Women (HRAGYW) reached with HIV prevention SBCC Interventions",
+            "id": "aY38MzoXMKj"
+        },
+        {
+            "displayName": "MSR_Percentage of People who Inject Drugs (PWIDs) reached with intensive HIV prevention SBCC interventions ",
+            "id": "LeuMoCSmYdj"
+        },
+        {
+            "displayName": "MSR_Percentage of sex workers reached with intensive HIV prevention SBCC Interventions",
+            "id": "msrkxjByhha"
+        },
+        {
+            "displayName": "MSR_Percentage of workers in Hotspot areas reached with HIV prevention SBCC interventions",
+            "id": "dhItGwFtaCB"
+        },
+        {
+            "displayName": "MTCT_ HIV+ Women received ART  during ANC, L&D and PNC",
+            "id": "V6BzEMMJ2uG"
+        },
+        {
+            "displayName": "MTCT_Number of HIV-positive pregnant Mother who received ART to reduce the risk of Mother-to child-transmission (MTCT) during pregnancy, L&D and PNC",
+            "id": "arBoqCrox1e"
+        },
+        {
+            "displayName": "MTCT_Number of infants within 12 month received virological test result",
+            "id": "IvEjloqHYUi"
+        },
+        {
+            "displayName": "MTCT_ % of HEI receiving ARV Prophylaxis",
+            "id": "gsjEIHEG5xi"
+        },
+        {
+            "displayName": "MTCT_  of HEI Receiving HIV confirmatory (Antibody Test) test by 18 months",
+            "id": "qqQlwwFtsJp"
+        },
+        {
+            "displayName": "MTCT_% of HEI Started on Co-trimoxazole Prophylaxis",
+            "id": "nz4JyhLJH5Y"
+        },
+        {
+            "displayName": "MTCT_% of HEI with Virological Test",
+            "id": "nY0Smor9ccz"
+        },
+        {
+            "displayName": "MTCT_% of HIV Exposed Infants with Positive Virological Test",
+            "id": "FkSCJwlYAXa"
+        },
+        {
+            "displayName": "MTCT_ % of HIV+ Women received ART  during ANC, L&D and PNC",
+            "id": "cQneiMLJbiS"
+        },
+        {
+            "displayName": "MTCT_% of PLW Received HIV Test Result",
+            "id": "b7FZ4WnnvKs"
+        },
+        {
+            "displayName": "MTCT_ %of pregnant, labouring and lactating women who were tested for HIV and who know their results (PMTCT test)",
+            "id": "hYeXdLc701l"
+        },
+        {
+            "displayName": "MTCT_Pregnant and lactating Women who were Tested for HIV and know their results\t",
+            "id": "H3VqPJ3i03j"
+        },
+        {
+            "displayName": "NCD_Cataract surgical rate (CSR)",
+            "id": "c4K3EPpLiW9"
+        },
+        {
+            "displayName": "NCD_Children (<18) diagnosed and treated for childhood developmental and behavioral disorders",
+            "id": "vR39P74Y43I"
+        },
+        {
+            "displayName": "NCD_Diabetics detection rate ",
+            "id": "VHyDznyMcmg"
+        },
+        {
+            "displayName": "NCD_Hypertensive detection rate ",
+            "id": "vVtlO7kl4RL"
+        },
+        {
+            "displayName": "NCD_individuals treated for priority mental health disorders",
+            "id": "hzlUnIxEnQ4"
+        },
+        {
+            "displayName": "NCD_NCD_ Proportion of women aged 30–49 years screened for cervical Ca",
+            "id": "x2urWGBth5P"
+        },
+        {
+            "displayName": "NCD_Proportion of eligible women who received treatment for cervical lesion",
+            "id": "wI0t98sSbra"
+        },
+        {
+            "displayName": "NCD_ Proportion of patients with high CVD risk who received treatment",
+            "id": "NDdMawIhTw6"
+        },
+        {
+            "displayName": "NCD_Six-monthly control of blood pressure among people treated for hypertension",
+            "id": "FGvWE6ZoJ7B"
+        },
+        {
+            "displayName": "NCD_Six-monthly control of diabetes among individuals treated for diabetes",
+            "id": "X1G8q0Kx1p3"
+        },
+        {
+            "displayName": "NTD_% of SCH endemic districts treated with minimum WHO threshold",
+            "id": "EuArb6KQvBW"
+        },
+        {
+            "displayName": "NTD_Proportion of individuals who swallowed MDA drug for lymphatic filariasis (LF)",
+            "id": "w4LgIf0s3cZ"
+        },
+        {
+            "displayName": "NTD_Proportion of individuals who swallowed MDA drug for Onchocerciasis",
+            "id": "ISf8ytTPOBo"
+        },
+        {
+            "displayName": "NTD_Proportion of individuals who swallowed MDA drug for schistosomiasis",
+            "id": "oiQeGZ0JlfA"
+        },
+        {
+            "displayName": "NTD_Proportion of individuals who swallowed MDA drug for Soil Transmitted helminthiasis (STH)",
+            "id": "I2XZ8WfpT7I"
+        },
+        {
+            "displayName": "NTD_Proportion of individuals who swallowed MDA drug for Trachoma",
+            "id": "vRSp2l6JBpb"
+        },
+        {
+            "displayName": "NTD_Proportion of Trachomatous Trichiasis (TT) cases who received corrective TT surgery",
+            "id": "z3RV46ysojK"
+        },
+        {
+            "displayName": "NTD_TR-% of individuals who swallowed MDA drug for trachoma",
+            "id": "bWsHHB2hsW2"
+        },
+        {
+            "displayName": "NUT_ Adolescents 10-19 Years Screened for Malnutrition",
+            "id": "cfmJIPpegJB"
+        },
+        {
+            "displayName": "NUT_ % Children (< 5 years) Screened for Malnutrition ",
+            "id": "MvzDBokLgit"
+        },
+        {
+            "displayName": "NUT_ % of children 24-59 months de-wormed-2nd Dose",
+            "id": "S1HLr0a9Mw0"
+        },
+        {
+            "displayName": "NUT_ % of Children < 2 years participated in GMP",
+            "id": "mCJzGF6Nh8F"
+        },
+        {
+            "displayName": "NUT_ % of Children 6–59 months received two doses of Vit-A",
+            "id": "k8Ckl8q1fRV"
+        },
+        {
+            "displayName": "NUT_% of live-born babies with birth weight less than 2,500 gm",
+            "id": "ov6mmZx8miT"
+        },
+        {
+            "displayName": "NUT_ % of PLWs with MUAC below 23 cm",
+            "id": "XJbVsLMR8Ho"
+        },
+        {
+            "displayName": "NUT_ % of Pregnant and lactating women (PLW)  screened for malnutrition",
+            "id": "hOijhh8OCKL"
+        },
+        {
+            "displayName": "NUT_ % of Pregnants received IFA 90+",
+            "id": "TIGUsMIvnm2"
+        },
+        {
+            "displayName": "NUT_ Percentage of Low Birth Weight (LBW) Newborns",
+            "id": "VnoJhM2aYdQ"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Cured at OTP",
+            "id": "sGMe01ggOUu"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Cured at SC",
+            "id": "oRCxsqKzegw"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Defaulted from OTP",
+            "id": "IjHrhOQcdnc"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Defaulted from SC",
+            "id": "OZ7QudiNGMT"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Died at OTP",
+            "id": "vCe43gaoFRt"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Died at SC",
+            "id": "WO4rkeNh6te"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Non responders at OTP",
+            "id": "bbAdqEo2BXG"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Non responders at SC",
+            "id": "JY4TyBR2D8G"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Stabilized at SC",
+            "id": "LHbgQckakYt"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Transferred Out from OTP",
+            "id": "P7vUgHqYnO7"
+        },
+        {
+            "displayName": "NUT_ % SAM children 6-59 months Transferred Out from SC",
+            "id": "c1BbFgZjvQ4"
+        },
+        {
+            "displayName": "old_EHCRIGIND0701 - Chapter 7 Sum",
+            "id": "hlfjvGQn3qf"
+        },
+        {
+            "displayName": "Percentage of ART clients with a suppressed viral load (<1000 copies/ml)  ",
+            "id": "MjhJXa6oqXD"
+        },
+        {
+            "displayName": "Percentage of clients tested positive during HCT",
+            "id": "wf7cbciUG4q"
+        },
+        {
+            "displayName": "PMS_Clinic essential drug availability",
+            "id": "UhFmPICpnkt"
+        },
+        {
+            "displayName": "PMS_Comprehensive Health Post essential drug availability",
+            "id": "EsyGNtPGPcq"
+        },
+        {
+            "displayName": " PMS_  Essential Drugs Availability",
+            "id": "bt5VAfYrUFH"
+        },
+        {
+            "displayName": "PMS_Functionality of medical equipment",
+            "id": "pGiiQHidcz0"
+        },
+        {
+            "displayName": " PMS_Health center essential drug availability",
+            "id": "HkRjjYrWSSt"
+        },
+        {
+            "displayName": " PMS_Health Posts essential drug availability",
+            "id": "qU5HdUqVFP1"
+        },
+        {
+            "displayName": " PMS_Hospital essential drug availability",
+            "id": "v4SW605Q9p6"
+        },
+        {
+            "displayName": "PMS_Percentage of Clients with 100% prescribed drugs filled",
+            "id": "Ftx8dq0K3QJ"
+        },
+        {
+            "displayName": "PMS_Percentage of encounters with an antibiotic prescribed",
+            "id": "eRcuzeaVk1k"
+        },
+        {
+            "displayName": "PMS_Percentage of medicines prescribed from the facility’s medicines list",
+            "id": "ZtrsZz9IYvC"
+        },
+        {
+            "displayName": "PMS_Pharmaceuticals wastage rate",
+            "id": "brgFZNdbn7n"
+        },
+        {
+            "displayName": "PMS_Supplier fill rate",
+            "id": "JlftOQQIBHZ"
+        },
+        {
+            "displayName": "Proportion of health insurance beneficiaries that visited HF in the reporting period",
+            "id": "N5rYVUMlJ7y"
+        },
+        {
+            "displayName": "Proportion of HIV positive adults and children who are currently on ART",
+            "id": "yzeUuGbwEqb"
+        },
+        {
+            "displayName": "Proportion of newly enrolled PLHIV started Latent TB infection (LTBI) treatment ",
+            "id": "IdwYZBZiwAN"
+        },
+        {
+            "displayName": "Rehab_Rehabilitation service client satisfaction",
+            "id": "YOJTGMmksWM"
+        },
+        {
+            "displayName": "Rehab_Rehabilitation service utilization ",
+            "id": "GlQJnT0qR63"
+        },
+        {
+            "displayName": "Rehab_Rehabilitat service Referral-In ",
+            "id": "zdftoeuxMtO"
+        },
+        {
+            "displayName": "Report_All Anually Actual Report",
+            "id": "Ef5uAInrFKN"
+        },
+        {
+            "displayName": "Report_All Anually Actual Reports on time",
+            "id": "rQ2f2BlSUBh"
+        },
+        {
+            "displayName": "Report_All Anually Expected Report",
+            "id": "jgds30lDX2L"
+        },
+        {
+            "displayName": "Report_All Anually Reporting rate on time",
+            "id": "btDb03Zh9Nv"
+        },
+        {
+            "displayName": "Report_All Disease Actual Report",
+            "id": "GA6X2dhnRNJ"
+        },
+        {
+            "displayName": "Report_All Disease  Actual Reports on time",
+            "id": "irMqRYgCRd6"
+        },
+        {
+            "displayName": "Report_All Disease monthly Reporting rate on time",
+            "id": "Rj5VvZ5LmZ1"
+        },
+        {
+            "displayName": "Report_All Disease Reporting rate",
+            "id": "Nt6EUz11gy4"
+        },
+        {
+            "displayName": "Report_All monthly Actual Report",
+            "id": "S5eLN9LQ1oS"
+        },
+        {
+            "displayName": "Report_All monthly Actual Reports on time",
+            "id": "NhODv0NbHU7"
+        },
+        {
+            "displayName": "Report_All monthly Expected Report",
+            "id": "UOc63wDwFKH"
+        },
+        {
+            "displayName": "Report_All Monthly Reporting rate",
+            "id": "Tly4adG7tLy"
+        },
+        {
+            "displayName": "Report_All monthly Reporting rate on time",
+            "id": "wUAjWKVXd5l"
+        },
+        {
+            "displayName": "Report_All Quarterly Actual Report",
+            "id": "E8rb8aOXJ9h"
+        },
+        {
+            "displayName": "Report_All Quarterly Actual Reports on time",
+            "id": "B7vOtC5qXCX"
+        },
+        {
+            "displayName": "Report_All Quarterly Expected Report",
+            "id": "x2QNIZjtstb"
+        },
+        {
+            "displayName": "Report_All Quarterly Reporting rate on time",
+            "id": "zZSo86d7f4b"
+        },
+        {
+            "displayName": "Report_Annual facility Reporting rate",
+            "id": "ZlqteEjs2J9"
+        },
+        {
+            "displayName": "Report_Annual facility Reporting rate on time",
+            "id": "TAnIU8KqyuS"
+        },
+        {
+            "displayName": "Report_Quarterly facility Reporting rate",
+            "id": "DAAxAB693d1"
+        },
+        {
+            "displayName": "Report_Quarterly facility Reporting rate on time",
+            "id": "rM1O6kb2YQ3"
+        },
+        {
+            "displayName": "RMC_Proportion of HCs with BEmONC services",
+            "id": "RFcKIBXdMLv"
+        },
+        {
+            "displayName": "RS_Proportion of food and drinking service establishments that met Ethiopian hygiene and environmental health requirements",
+            "id": "oQrMOztocrh"
+        },
+        {
+            "displayName": "RS_Proportion of health facilities that met Ethiopian health facility requirements",
+            "id": "OOhqeQOEWe4"
+        },
+        {
+            "displayName": "TB_all forms of New TB cases notified and treated ",
+            "id": "zN6vWpuwmzM"
+        },
+        {
+            "displayName": "TB_Community based TB Treatment success rate",
+            "id": "pu0IW05Rvoc"
+        },
+        {
+            "displayName": "TB_Cure rate for bacteriologically confirmed new PTB cases (CR)",
+            "id": "G5P5RFEYOgp"
+        },
+        {
+            "displayName": "TB_Death rate among all forms of TB cases",
+            "id": "EvFVZ4h8oCE"
+        },
+        {
+            "displayName": "TB_Death rate for Drug Resistant (DR) TB cases",
+            "id": "BvY3TWkEwId"
+        },
+        {
+            "displayName": "TB_DR TB cases detected (Hr, RR Only, MDR- TB , Pre XDR and XDR TB cases)",
+            "id": "CyLJ3zxtCHC"
+        },
+        {
+            "displayName": "TB_DR TB treatment completion rate",
+            "id": "ocpDB9BzlTM"
+        },
+        {
+            "displayName": "TB_DR TB treatment coverage",
+            "id": "LW55E3FYyb7"
+        },
+        {
+            "displayName": "TB_Drug Susceptibility testing (DST) coverage for TB patients",
+            "id": "PePmfAnKV3c"
+        },
+        {
+            "displayName": "TB_Lost to follow up rate among all new forms of TB cases",
+            "id": "IFjKx4wmEOO"
+        },
+        {
+            "displayName": "TB_Percentage of new and relapse TB patients tested using a WHO recommended rapid tests at the time of diagnosis",
+            "id": "iWpWXr7r4Jx"
+        },
+        {
+            "displayName": "TB_Percent final outcome DR-TB cases_ Cured",
+            "id": "mBN7KRt2a8V"
+        },
+        {
+            "displayName": "TB_Percent of final outcome DR-TB cases_ Completed",
+            "id": "gzM0fRBYPnn"
+        },
+        {
+            "displayName": "TB_Percent of final outcome DR-TB cases_ Died",
+            "id": "tjrPkHTJpBv"
+        },
+        {
+            "displayName": "TB_Percent of final outcome DR-TB cases_failed",
+            "id": "RKHXj3AdWba"
+        },
+        {
+            "displayName": "TB_Percent of final outcome DR-TB cases_Lost to follow up",
+            "id": "KJsfzHgoQcl"
+        },
+        {
+            "displayName": "TB_Percent of final outcome DR-TB cases_ Not evaluated",
+            "id": "xYE04VHA1Jx"
+        },
+        {
+            "displayName": "TB_Proportion of all forms of TB and DR-TB patients with malnutrition",
+            "id": "rvMbMMDRzEP"
+        },
+        {
+            "displayName": "TB_Proportion of all forms of TB cases notified and treated from community referral",
+            "id": "cgywSYZ3pqH"
+        },
+        {
+            "displayName": "TB_Proportion of HIV-positive new and relapse TB patients on ART during TB treatment",
+            "id": "mmPcUfsDKdn"
+        },
+        {
+            "displayName": "TB_Proportion of TB cases (all forms) contributed by by other governmental and private facilities",
+            "id": "Vov3jV56ppF"
+        },
+        {
+            "displayName": "TB_Proportion of TB patients enrolled in DOTS with documented HIV test result",
+            "id": "mAfd9QsTt3k"
+        },
+        {
+            "displayName": "TB_TB contact investigation coverag",
+            "id": "W5IhTbVUNdH"
+        },
+        {
+            "displayName": "TB_TB Preventive Therapy (TPT) Coverage",
+            "id": "hoQjkzOYgzp"
+        },
+        {
+            "displayName": "TB_TB Treatment coverage",
+            "id": "QquJVpoNpH2"
+        },
+        {
+            "displayName": "TB_TPT Completion Rate",
+            "id": "iIu6kZmfol1"
+        },
+        {
+            "displayName": "TB_Treatment success rate among bacteriologically confirmed PTB  case",
+            "id": "jsRSjbOfBRb"
+        },
+        {
+            "displayName": "TB_Treatment success rate among clinically diagnosed new PTB cases (P/Neg)",
+            "id": "JPtReha5PDT"
+        },
+        {
+            "displayName": "TB_Treatment Success rate (TSR) among all forms of TB cases",
+            "id": "uZ7W7fosr5K"
+        },
+        {
+            "displayName": "TB_Tuberculosis re-treatment rate",
+            "id": "Atd65EryCMD"
+        },
+        {
+            "displayName": "TB_Unsuccessful treatment outcome among all forms of TB",
+            "id": "q6iwyumEKWw"
+        },
+        {
+            "displayName": "Test_Counts the number of organizational units with more than 500  malaria cases",
+            "id": "HgRe3paaiJM"
+        },
+        {
+            "displayName": "Test Counts the number of Woreda Administration  with more than 85  WT score",
+            "id": "i92mpY5G1lb"
+        },
+        {
+            "displayName": "Total number of newly enrolled ART clients initiated on LTBI Treatment - over15 female",
+            "id": "Q0BlBPWsfu3"
+        },
+        {
+            "displayName": "Total number of newly enrolled ART clients initiated on LTBI Treatment - over15 male",
+            "id": "ICDrMyvMf4t"
+        },
+        {
+            "displayName": "Total number of newly enrolled ART clients initiated on LTBI Treatment - under 15 female",
+            "id": "caZzMMLHxiG"
+        },
+        {
+            "displayName": "Total number of newly enrolled ART clients initiated on LTBI Treatment - under 15 male",
+            "id": "jCHGttfLyMd"
+        },
+        {
+            "displayName": "WBP-B# Adults and children with HIV infection newly started on ART",
+            "id": "f07ewl0Ljwp"
+        },
+        {
+            "displayName": "WBP-B% Adults and children with HIV infection newly started on ART",
+            "id": "tXPFlATKHeE"
+        },
+        {
+            "displayName": "WBP-B% All monthly Reporting rate on time",
+            "id": "u8sJUWpGd89"
+        },
+        {
+            "displayName": "WBP-B# Ambulance service response rate",
+            "id": "qVVgb9d17xs"
+        },
+        {
+            "displayName": "WBP-B% Ambulance service response rate",
+            "id": "TpXg59KeMlj"
+        },
+        {
+            "displayName": "WBP-B# ANC 4+ Contacts Coverage",
+            "id": "IbqArt1QzjM"
+        },
+        {
+            "displayName": "WBP-B% ANC 4+ Contacts Coverage",
+            "id": "megcqdyNk9c"
+        },
+        {
+            "displayName": "WBP-B# ANC 8+ Contacts Coverage",
+            "id": "CiyyE6Z96Xq"
+        },
+        {
+            "displayName": "WBP-B% ANC 8+ Contacts Coverage",
+            "id": "eUcUHsptHN3"
+        },
+        {
+            "displayName": "WBP-B# ANC coverage – First Contact (< 12 Weeks)",
+            "id": "OPmTfcNYMxE"
+        },
+        {
+            "displayName": "WBP-B% ANC coverage – First Contact (< 12 Weeks)",
+            "id": "HgfC2vTlblw"
+        },
+        {
+            "displayName": "WBP-B# Anesthesia adverse outcome",
+            "id": "ptwsQxU2vGj"
+        },
+        {
+            "displayName": "WBP-B% Anesthesia adverse outcome",
+            "id": "K2dp9iPXoIk"
+        },
+        {
+            "displayName": "WBP-B# Average Length of Stay (in days)",
+            "id": "m00GIxj2Pah"
+        },
+        {
+            "displayName": "WBP-B % Bed Occupancy Rate",
+            "id": "kI7MJJKkEqe"
+        },
+        {
+            "displayName": "WBP-B# Caesarean Section (C/S) Rate",
+            "id": "LoPZDqBvmR2"
+        },
+        {
+            "displayName": "WBP-B% Caesarean Section (C/S) Rate",
+            "id": "PfufqZPSWuf"
+        },
+        {
+            "displayName": "WBP-B#_Cataract surgery performed",
+            "id": "fjx7UNrFK5J"
+        },
+        {
+            "displayName": "WBP-B%_Cataract surgical rate (CSR)",
+            "id": "ie1WST1hvdS"
+        },
+        {
+            "displayName": "WBP-B % Children (< 5 years) Screened for Malnutrition ",
+            "id": "w8hlG4oht8k"
+        },
+        {
+            "displayName": "WBP-B#  % Children (< 5 years) Screened for Malnutrition ",
+            "id": "lxrAlC2BVak"
+        },
+        {
+            "displayName": "WBP-B# Children currently on ART",
+            "id": "Cc0lqNPVzww"
+        },
+        {
+            "displayName": "WBP-B% Children currently on ART",
+            "id": "JL6HXMwZ6f7"
+        },
+        {
+            "displayName": " WBP-B# Clients in the waiting list for elective surgical service",
+            "id": "ZozrP7cmReC"
+        },
+        {
+            "displayName": "WBP-B% Clients in the waiting list for elective surgical service",
+            "id": "AEbMKtvNcxK"
+        },
+        {
+            "displayName": "WBP-B#  Comprehensive Abortion Care by Maternal Age",
+            "id": "zcV8qRWd0Q7"
+        },
+        {
+            "displayName": "WBP-B# Contraceptive acceptance rate",
+            "id": "EfREO7uTvp8"
+        },
+        {
+            "displayName": "WBP-B% Contraceptive acceptance rate",
+            "id": "kXRAOrF8TmW"
+        },
+        {
+            "displayName": "WBP-B# Diabetic patients enrolled to care by age and sex",
+            "id": "Cv6i2FEJA0W"
+        },
+        {
+            "displayName": "WBP-B%  Drop out Rate of ANC1 to ANC 4 +",
+            "id": "i0c6aJhgdNd"
+        },
+        {
+            "displayName": "WBP B# DR TB cases detected ",
+            "id": "nSM4SEnGwcJ"
+        },
+        {
+            "displayName": "WBP-B# Drug Susceptibility testing (DST) coverage for TB patients",
+            "id": "LqOSBFEVG7r"
+        },
+        {
+            "displayName": "WBP-B% Drug Susceptibility testing (DST) coverage for TB patients",
+            "id": "aNnyhKW9YE8"
+        },
+        {
+            "displayName": "WBP-B%Early PNC Coverage witin 2 days",
+            "id": "JmO71ua3N07"
+        },
+        {
+            "displayName": "WBP-B# Early PNC  numbers (0-2 days) of delivery",
+            "id": "eZF4YLkG6Br"
+        },
+        {
+            "displayName": "WBP-B % Emergency room patients triaged within 5 minutes of arrival  ",
+            "id": "VOa487Phpw5"
+        },
+        {
+            "displayName": " WBP-B# Essential laboratory test availability",
+            "id": "pQUxObWc8gz"
+        },
+        {
+            "displayName": "WBP-B % Essential laboratory test availability",
+            "id": "zPOQvJJ18id"
+        },
+        {
+            "displayName": "WBP- B% Facility emergency department mortality rate",
+            "id": "nmGcydg2R7k"
+        },
+        {
+            "displayName": "WBP-B#-Full Immunization Coverage (< 1 year)",
+            "id": "Z5ef6Z8bCHB"
+        },
+        {
+            "displayName": "WBP-B%-Full Immunization Coverage (< 1 year)",
+            "id": "PPMAjBpPy2f"
+        },
+        {
+            "displayName": "WBP-B# Functionality of medical equipment",
+            "id": "riXb56ejfUk"
+        },
+        {
+            "displayName": "WBP-B% Functionality of medical equipment",
+            "id": "zaOQXoaFgyq"
+        },
+        {
+            "displayName": "WBP B# Grade II disability rate among new cases of leprosy",
+            "id": "GpdbQB4pQxU"
+        },
+        {
+            "displayName": "WBP B% Grade II disability rate among new cases of leprosy",
+            "id": "u9bvKT1tyIr"
+        },
+        {
+            "displayName": "WBP-B# Health care workers density ",
+            "id": "dxzmCwWf7w1"
+        },
+        {
+            "displayName": "WBP-B# Health care worker to Population ratio by Category_ESOs",
+            "id": "wdXwYbi9GbB"
+        },
+        {
+            "displayName": "WBP-B# Health care worker to Population ratio by Category_Health Officer",
+            "id": "rmq6cySpHaS"
+        },
+        {
+            "displayName": "WBP-B# Health care worker to Population ratio by Category_ Midwifes ",
+            "id": "Pjug4qlvkW2"
+        },
+        {
+            "displayName": "WBP-B# Health care worker to Population ratio by Category_Nurses (All types)",
+            "id": "HEkBtSfaEdR"
+        },
+        {
+            "displayName": "WBP-B# Health care worker to Population ratio by Category _ Physician (Including specialist and Sub specialits) ",
+            "id": "VLpz5aOab3v"
+        },
+        {
+            "displayName": "WBP-B% Health Posts essential drug availability",
+            "id": "O7gp2QJn85A"
+        },
+        {
+            "displayName": "WBP-B# HIV positive cases identified ",
+            "id": "PjN5wNfCeUp"
+        },
+        {
+            "displayName": "WBP-B# HIV-positive new and relapse TB patients on ART during TB treatment",
+            "id": "ifFtK4dMjrN"
+        },
+        {
+            "displayName": " WBP-B# - HIV_Tested for Hepatitis B",
+            "id": "l3COPiEFyKX"
+        },
+        {
+            "displayName": " WBP-B# - HIV_Tested for Hepatitis C",
+            "id": "alVcapzhSgy"
+        },
+        {
+            "displayName": " WBP-B% Hospital essential drug availability",
+            "id": "sxahwobsAj6"
+        },
+        {
+            "displayName": "WBP-B# Human Papilloma Virus Vaccination Coverage_1st Dose",
+            "id": "g5nFDsKvdXU"
+        },
+        {
+            "displayName": "WBP-B% Human Papilloma Virus Vaccination Coverage_1st Dose",
+            "id": "xXeAsAnrw99"
+        },
+        {
+            "displayName": "WBP-B# Human Papilloma Virus Vaccination Coverage_2nd Dose",
+            "id": "G2H4I5n38N8"
+        },
+        {
+            "displayName": "WBP-B% Human Papilloma Virus Vaccination Coverage_2nd Dose",
+            "id": "seKOt1Bo6DC"
+        },
+        {
+            "displayName": "WBP-B#_Hypertensive detection rate ",
+            "id": "YHk084DVdTC"
+        },
+        {
+            "displayName": "WBP-B#_Hypertensive patient enrolled to care",
+            "id": "YUlKRTJDGBk"
+        },
+        {
+            "displayName": "WBP-B# Immediate Postpartum Contraceptive Acceptance rate (IPPCAR)",
+            "id": "yyWwtaaAkS2"
+        },
+        {
+            "displayName": "WBP-B% Immediate Postpartum Contraceptive Acceptance rate (IPPCAR)",
+            "id": "u5pqEBpj84u"
+        },
+        {
+            "displayName": "WBP-B# Individuals tested for Hepatitis B and C",
+            "id": "KPFt4aenjG4"
+        },
+        {
+            "displayName": "WBP-B# Individuals Treated for Hepatitis B",
+            "id": "X7sw4rHI6BH"
+        },
+        {
+            "displayName": "WBP-B# Individuals Treated for Hepatitis C",
+            "id": "dim1tmdkYJs"
+        },
+        {
+            "displayName": "WBP-B# individuals who swallowed MDA drug for trachoma",
+            "id": "nYcxhOa4Yyl"
+        },
+        {
+            "displayName": " WBP-B# - Inpatient Medical Record Completeness",
+            "id": "yVEktLfg0bW"
+        },
+        {
+            "displayName": "WBP-B% - Inpatient Medical Record Completeness",
+            "id": "PV6EyCtcDaL"
+        },
+        {
+            "displayName": "WBP-B % Inpatient mortality rate",
+            "id": "QVwIvAXYK7b"
+        },
+        {
+            "displayName": "WBP-B# IPV Coverage (< 1 Years)",
+            "id": "koSYRDRBI69"
+        },
+        {
+            "displayName": "WBP-B% IPV Coverage (< 1 Years)",
+            "id": "jFbxx3No58K"
+        },
+        {
+            "displayName": "WBP-B# KPI -  Outpatient waiting time to Consultation",
+            "id": "DDVscPh0zEy"
+        },
+        {
+            "displayName": "WBP-B% KPI -  Outpatient waiting time to Consultation",
+            "id": "tbtXm10Y4AL"
+        },
+        {
+            "displayName": " WBP-B# -KPI - Percentage of hypoxemic patients treated with oxygen",
+            "id": "QHISG6VxZLC"
+        },
+        {
+            "displayName": "WBP-B % KPI - Percentage of hypoxemic patients treated with oxygen",
+            "id": "bmmL93OzTKh"
+        },
+        {
+            "displayName": "WBP-B# Leprosy detection per 10,000 population",
+            "id": "QFaL3l61BZy"
+        },
+        {
+            "displayName": "WBP-B% Leprosy detection per 10,000 population",
+            "id": "DhH9laI3xFL"
+        },
+        {
+            "displayName": "WBP-B# Long Acting FP ",
+            "id": "msEeZTutfI7"
+        },
+        {
+            "displayName": "WBP-B% Long Acting FP Coverage",
+            "id": "lc90dbUrGtD"
+        },
+        {
+            "displayName": " WBP-B# - Major Elective Surgeries Performed",
+            "id": "RDchn4mmFQu"
+        },
+        {
+            "displayName": " WBP-B# - Major Elective Surgeries Performed",
+            "id": "vYkeY9Wzgf1"
+        },
+        {
+            "displayName": "WBP-B % Major Elective Surgeries Performed",
+            "id": "cGGnifEtLn3"
+        },
+        {
+            "displayName": "WBP-B%:  Malaria death rate (per 100,000)",
+            "id": "HjmhLAkLgcF"
+        },
+        {
+            "displayName": "WBP-B# Maternal Deaths in the Community",
+            "id": "AMtW6fuyfkN"
+        },
+        {
+            "displayName": " WBP-B% Mean duration of in-hospital pre-elective operative stay",
+            "id": "bKoY0gofgNT"
+        },
+        {
+            "displayName": "WBP-B# Measles 1st Dose Coverage (< 1 year)",
+            "id": "NxQtzN6nN0C"
+        },
+        {
+            "displayName": "WBP-B% Measles 1st Dose Coverage (< 1 year)",
+            "id": "xUEY4eOArzs"
+        },
+        {
+            "displayName": "WBP-B#  Measles 2nd Dose Coverage ",
+            "id": "Aejsv4RDQqr"
+        },
+        {
+            "displayName": "WBP-B%  Measles 2nd Dose Coverage ",
+            "id": "QdgUKjKo7F0"
+        },
+        {
+            "displayName": "WBP-B% Measles Vaccine Wastage Rate",
+            "id": "LVTGM991t0M"
+        },
+        {
+            "displayName": "WBP-B# Model Households",
+            "id": "O9kHZpcKw9c"
+        },
+        {
+            "displayName": "WBP-B% Model Households",
+            "id": "FI5Dx0n3nBJ"
+        },
+        {
+            "displayName": "WBP-B % Model Kebele graduated",
+            "id": "Fo2nLKyQjt8"
+        },
+        {
+            "displayName": "WBP-B# Model Kebele graduated",
+            "id": "qY4EggVm0QW"
+        },
+        {
+            "displayName": "WBP-B % Monthly Facility Reporting rate",
+            "id": "xs5ye9Bb5CH"
+        },
+        {
+            "displayName": "WBP-B%_Mortality rate in Intensive Care Unit (ICU)",
+            "id": "QKjPe5SEtj2"
+        },
+        {
+            "displayName": "WBP-B #  Number of individuals treated for for Depression",
+            "id": "F3FQDIYxBuz"
+        },
+        {
+            "displayName": "WBP-B# Number of pregnant women who were tested for HBV and who know their results",
+            "id": "Z0gqEOQ3t1V"
+        },
+        {
+            "displayName": "WBP-B# % of < 1 Children Protected at Birth from NNT",
+            "id": "Hh7EMk4ZZT5"
+        },
+        {
+            "displayName": "WBP-B% % of < 1 Children Protected at Birth from NNT",
+            "id": "n4ynfWYiqq2"
+        },
+        {
+            "displayName": "WBP-B# %of < 5 Children with Pneumonia Treated with Antibiotics",
+            "id": "ga5WgQAo3V8"
+        },
+        {
+            "displayName": "WBP-B% of < 5 Children with Pneumonia Treated with Antibiotics",
+            "id": "V2szJHEV5HK"
+        },
+        {
+            "displayName": "WBP-B#% of asphyxiated neonates Resuscitated and Survived",
+            "id": "g4kKYuEPS8Z"
+        },
+        {
+            "displayName": "WBP-B% % of asphyxiated neonates Resuscitated and Survived",
+            "id": "HygwVSYuS03"
+        },
+        {
+            "displayName": "WBP-B# of births attended by Skilled Health Personnel",
+            "id": "jz5vAoc6B9W"
+        },
+        {
+            "displayName": "WBP-B% of births attended by Skilled Health Personnel",
+            "id": "liIjeRAsygH"
+        },
+        {
+            "displayName": "WBP-B# of children 24-59 months de-wormed-2nd Dose",
+            "id": "g7OAOE3KjqJ"
+        },
+        {
+            "displayName": "WBP-B% of children 24-59 months de-wormed-2nd Dose",
+            "id": "e92TXSRqtRR"
+        },
+        {
+            "displayName": "WBP-B# of Children < 2 years participated in GMP",
+            "id": "ieQivUOLhYE"
+        },
+        {
+            "displayName": "WBP-B% of Children < 2 years participated in GMP",
+            "id": "mdkvpZgpUiS"
+        },
+        {
+            "displayName": "WBP-B#% of Children 6–59 months received 2nd doses of Vit-A",
+            "id": "JudQYJkNwkd"
+        },
+        {
+            "displayName": "WBP-B% of Children 6–59 months received 2nd doses of Vit-A",
+            "id": "rxmOMoLdCWV"
+        },
+        {
+            "displayName": "WBP-B #  of cutaneous Leishmaniasis (CL) cases treated",
+            "id": "D1pgrBAXeoR"
+        },
+        {
+            "displayName": "WBP-B% of deaths notified by HF",
+            "id": "BViqWNosPoA"
+        },
+        {
+            "displayName": "WBP-B#  of Gender based violence (GBV) survivors who received health care services",
+            "id": "UYmMAKlRYAT"
+        },
+        {
+            "displayName": "WBP-B# of HEI receiving ARV Prophylaxis",
+            "id": "tjqw8oq4gdS"
+        },
+        {
+            "displayName": "WBP-B# of HEI with Virological Test",
+            "id": "RauyC1RmWYf"
+        },
+        {
+            "displayName": "WBP-B#  of HIV+ Women received ART  during ANC, L&D and PNC",
+            "id": "zt7mbf5qLif"
+        },
+        {
+            "displayName": "WBP_B % of individuals treated for Bipolar Disorder",
+            "id": "bMla4PWyF4n"
+        },
+        {
+            "displayName": "WBP-B # of individuals treated for Epilepsy",
+            "id": "qpoXDBDE3KX"
+        },
+        {
+            "displayName": "WBP-B # of individuals treated for for Bipolar Disorder",
+            "id": "c9Z1J9RhGPP"
+        },
+        {
+            "displayName": "WBP B_# of individuals treated for for Schizophrenia or other primary psychotic disorders",
+            "id": "bMJdJvA1S46"
+        },
+        {
+            "displayName": "WBP B_# of individuals treated for for Schizophrenia or other primary psychotic disorders",
+            "id": "ZnjlUB1VMY1"
+        },
+        {
+            "displayName": "WBP B_% of individuals treated for  Schizophrenia or other primary psychotic disorders",
+            "id": "NPKBneF50oa"
+        },
+        {
+            "displayName": "WBP-B # of individuals treated for Substance Use and Alcohol",
+            "id": "M34VVNabZrV"
+        },
+        {
+            "displayName": "WBP-B % of individuals treated for Substance Use and Alcohol",
+            "id": "dn4gOgU7tfs"
+        },
+        {
+            "displayName": "WBP-B #  of individuals who are treated for visceral leishmaniasis",
+            "id": "iBmhmY3CL67"
+        },
+        {
+            "displayName": "WBP-B #  of individuals who have confirmed eyelid inversion or trichiasis who received corrective TT surgery",
+            "id": "aISbbdAKXXj"
+        },
+        {
+            "displayName": "WBP-B %  of individuals who have confirmed eyelid inversion or trichiasis who received corrective TT surgery",
+            "id": "eIefIQ76qmx"
+        },
+        {
+            "displayName": "WBP-B %  of individuals who swallowed drug for lymphatic filariasis",
+            "id": "wbvJgbobTqZ"
+        },
+        {
+            "displayName": "WBP-B #   of individuals who swallowed drug for lyphatic filariasis",
+            "id": "FtSv5JzaVMI"
+        },
+        {
+            "displayName": "WBP-B #   of  individuals who swallowed drug for Onchocerciasis",
+            "id": "WcIKd4O0KvQ"
+        },
+        {
+            "displayName": "WBP-B %  of individuals who swallowed drug for Onchocerciasis",
+            "id": "qoNrABLuwfh"
+        },
+        {
+            "displayName": "WBP-B% of individuals who swallowed MDA drug for trachoma",
+            "id": "zYXAVXUyJgP"
+        },
+        {
+            "displayName": "WBP-B#  of Institutional Maternal Deaths",
+            "id": "yxW4R52SoSN"
+        },
+        {
+            "displayName": "WBP-B% of Institutional Maternal Deaths",
+            "id": "jHBr3xQ5RAO"
+        },
+        {
+            "displayName": "WBP-B#  of LBW newborns KMC initiated",
+            "id": "hiF6YybO8Ar"
+        },
+        {
+            "displayName": "WBP-B% of LBW newborns KMC initiated",
+            "id": "q2jGFsiD7oe"
+        },
+        {
+            "displayName": "WBP-B# % of live births notified by HF",
+            "id": "yeL2PNydFih"
+        },
+        {
+            "displayName": "WBP-B% of live births notified by HF",
+            "id": "LzjAaOyGIIO"
+        },
+        {
+            "displayName": "WBP-B #  of live-born babies with birth weight less than 2,500 gm",
+            "id": "yWGcBiN0MMF"
+        },
+        {
+            "displayName": "WBP-B %  of live-born babies with birth weight less than 2,500 gm",
+            "id": "XnXMbNE9jbc"
+        },
+        {
+            "displayName": "WBP-B# % of newborns received CHX on First Day after Birth",
+            "id": "SREe4OinuGY"
+        },
+        {
+            "displayName": "WBP-B% of newborns received CHX on First Day after Birth",
+            "id": "mU7MTdefJBY"
+        },
+        {
+            "displayName": "WBP-B# % of Pregnant and lactating women (PLW)  screened for malnutrition",
+            "id": "v6801IxAoEk"
+        },
+        {
+            "displayName": "WBP-B% of Pregnant and lactating women (PLW)  screened for malnutrition",
+            "id": "z86CRIX2g8Q"
+        },
+        {
+            "displayName": "WBP-B#  of pregnant, labouring and lactating women who were tested for HIV and who know their results (PMTCT test)",
+            "id": "JS8cN2B5Hta"
+        },
+        {
+            "displayName": "WBP-B% of pregnant, labouring and lactating women who were tested for HIV and who know their results (PMTCT test)",
+            "id": "JG1S7K2XBIt"
+        },
+        {
+            "displayName": "WBP-B# % of Pregnants received IFA 90+",
+            "id": "BYKtVU5hXkk"
+        },
+        {
+            "displayName": "WBP-B% of Pregnants received IFA 90+",
+            "id": "PgbDIUQgMpJ"
+        },
+        {
+            "displayName": "WBP-B#  of Pregnants Tested for Syphilis",
+            "id": "p4ZbJQHoes0"
+        },
+        {
+            "displayName": "WBP-B% of Pregnants Tested for Syphilis",
+            "id": "raJFSj7Ci1S"
+        },
+        {
+            "displayName": "WBP-B# % of Sick Young infant Treated for VSD",
+            "id": "nOIRy6yiJ6i"
+        },
+        {
+            "displayName": "WBP-B%  of Sick Young infant Treated for VSD",
+            "id": "IAUEPHpIfOE"
+        },
+        {
+            "displayName": "WBP-B# OPV3 coverage",
+            "id": "jcVn1pFQhSQ"
+        },
+        {
+            "displayName": "WBP-B% OPV3 coverage",
+            "id": "g1kp6jnPp76"
+        },
+        {
+            "displayName": "WBP-B% outpatient attendance per capital",
+            "id": "LJz7OjLzOvV"
+        },
+        {
+            "displayName": "WBP-B# Outpatient attendance per capital ",
+            "id": "Lm5B9VuYMaW"
+        },
+        {
+            "displayName": "WBP-B# Outpatient attendance per capital for CBHI beneficiaries ",
+            "id": "rUpNncfnA2N"
+        },
+        {
+            "displayName": "WBP-B% Outpatient attendance per capital for CBHI beneficiaries ",
+            "id": "B85bO3HYWAA"
+        },
+        {
+            "displayName": "WBP-B# PCV3 Coverage",
+            "id": "lrfo1QpjAdh"
+        },
+        {
+            "displayName": "WBP-B% PCV3 Coverage",
+            "id": "do2DHbiIRqU"
+        },
+        {
+            "displayName": "WBP-B# Pentavalent 1st dose Coverage (< 1 year)",
+            "id": "VPZWbqCUn7M"
+        },
+        {
+            "displayName": "WBP-B% Pentavalent 1st dose Coverage (< 1 year)",
+            "id": "BltlEvueXBg"
+        },
+        {
+            "displayName": "WBP-B% Pentavalent 1st dose Coverage (< 1 year)",
+            "id": "X8xaz8L4poL"
+        },
+        {
+            "displayName": "WBP-B# _Pentavalent 3rd Dose Coverage (< 1 year)",
+            "id": "JFHqK5rzoB4"
+        },
+        {
+            "displayName": "WBP-B%_Pentavalent 3rd Dose Coverage (< 1 year)",
+            "id": "pUPUuMhX52Y"
+        },
+        {
+            "displayName": "WBP-B% Percentage of adult and children on ART treatment after 12 month of initiation of ARV therapy",
+            "id": "Fi4xtf8inYT"
+        },
+        {
+            "displayName": "WBP-B# Percentage of ART clients with a suppressed viral load (<1000 copies/ml)  ",
+            "id": "PNhBthKKyoD"
+        },
+        {
+            "displayName": "WBP-B% Percentage of ART clients with a suppressed viral load (<1000 copies/ml)  ",
+            "id": "nV82ZtMnC81"
+        },
+        {
+            "displayName": "WBP-B% Percentage of Clients with 100% prescribed drugs filled",
+            "id": "OG4wFAtQP2O"
+        },
+        {
+            "displayName": "WBP-B# Percentage of health professionals with an active professional license",
+            "id": "VXXvU1PGSux"
+        },
+        {
+            "displayName": "WBP-B% Percentage of health professionals with an active professional license",
+            "id": "iWbnymKsj7v"
+        },
+        {
+            "displayName": "WBP-B# - Percentage of imaging service completed within TAT",
+            "id": "qxy18Mg04py"
+        },
+        {
+            "displayName": "WBP-B% - Percentage of imaging service completed within TAT",
+            "id": "f7oFqAo2vuf"
+        },
+        {
+            "displayName": "WBP-B %  Percentage of Imaging Service Interruption Days",
+            "id": "UrMqU0bT9xY"
+        },
+        {
+            "displayName": "WBP-B# - Percentage of Imaging Service Interruption Days",
+            "id": "FXObe4u9PXg"
+        },
+        {
+            "displayName": "WBP B# Percentage of new and relapse TB patients tested using a WHO recommended rapid tests at the time of diagnosis",
+            "id": "QDcEhdLMOo5"
+        },
+        {
+            "displayName": "WBP B% Percentage of new and relapse TB patients tested using a WHO recommended rapid tests at the time of diagnosis",
+            "id": "odqOF4ReDMY"
+        },
+        {
+            "displayName": "WBP-B# Percentage of non-pregnant women in the reproductive age living with HIV on ART using a modern family planning method",
+            "id": "mMLIuPwQ2sr"
+        },
+        {
+            "displayName": "WBP-B% Percentage of non-pregnant women in the reproductive age living with HIV on ART using a modern family planning method",
+            "id": "aayEqGzxRdx"
+        },
+        {
+            "displayName": "WBP-B# - Percentage of pathology tests completed within TAT",
+            "id": "KnqrM57z4Br"
+        },
+        {
+            "displayName": "WBP-B% - Percentage of pathology tests completed within TAT",
+            "id": "X9rhhpifMdQ"
+        },
+        {
+            "displayName": "WBP-B# Percentage of people living with HIV who know their status",
+            "id": "Y8tdjiceOIW"
+        },
+        {
+            "displayName": "WBP-B# - Percentages of Pathology Service Interruption Days",
+            "id": "br50DSxyvQk"
+        },
+        {
+            "displayName": "WBP-B% - Percentages of Pathology Service Interruption Days",
+            "id": "WQe7WNJCyuT"
+        },
+        {
+            "displayName": " WBP-B% Perioperative mortality rate",
+            "id": "pFXzfed1PUx"
+        },
+        {
+            "displayName": "WBP-B # Perioperative mortality rate ",
+            "id": "Y1XSBDGCmPP"
+        },
+        {
+            "displayName": "WBP-B% Pharmaceuticals wastage rate",
+            "id": "EmwrsE3ehrZ"
+        },
+        {
+            "displayName": "WBP-B %  Proportion health facilities with functional electricity",
+            "id": "mzIGDCJfnOh"
+        },
+        {
+            "displayName": "WBP-B# Proportion health facilities with functional electricity",
+            "id": "ZkSAZgyCsp6"
+        },
+        {
+            "displayName": "WBP-B#  Proportion health facilities with functional internet network",
+            "id": "sUC48ppjiyZ"
+        },
+        {
+            "displayName": "WBP-B%  Proportion health facilities with functional internet network",
+            "id": "rtTNPoY6Mlu"
+        },
+        {
+            "displayName": "WBP-B# Proportion health facilities with functional water supply",
+            "id": "lTvjZwEMJNP"
+        },
+        {
+            "displayName": "WBP-B% Proportion health facilities with functional water supply",
+            "id": "nmP4QirRmdo"
+        },
+        {
+            "displayName": "WBP-B# Proportion health Facility staffed as per the standard",
+            "id": "zI1AWmmWn27"
+        },
+        {
+            "displayName": "WBP-B% Proportion health Facility staffed as per the standard",
+            "id": "VUm7RxjaDG4"
+        },
+        {
+            "displayName": "WBP-B# Proportion of deaths notified by the health facility",
+            "id": "U9GvOIGKaij"
+        },
+        {
+            "displayName": "WBP-B % Proportion of diagnosed Hepatitis B patients who received treatment\t",
+            "id": "jshllLVSlQx"
+        },
+        {
+            "displayName": "WBP-B % Proportion of diagnosed Hepatitis C patients who received treatment\t",
+            "id": "wyR5wvV0osy"
+        },
+        {
+            "displayName": " WBP-B% Proportion of eligible households enrolled in Community Based Health Insurance (CBHI)",
+            "id": "qGia6VfzC2B"
+        },
+        {
+            "displayName": "WBP-B# Proportion of eligible households enrolled in Community Based Health Insurance (CBHI)",
+            "id": "LYaiFteVyuo"
+        },
+        {
+            "displayName": "WBP-B# Proportion of eligible women who received treatment for cervical lesion",
+            "id": "OwmklWwHw0N"
+        },
+        {
+            "displayName": "WBP-B% Proportion of eligible women who received treatment for cervical lesion",
+            "id": "a9M0Rpw9eRr"
+        },
+        {
+            "displayName": "WBP-B# Proportion of food and drinking service establishments that met Ethiopian hygiene and environmental health requirements",
+            "id": "vbx1k8ODR89"
+        },
+        {
+            "displayName": "WBP-B% Proportion of food and drinking service establishments that met Ethiopian hygiene and environmental health requirements",
+            "id": "SZZE3Uwxbez"
+        },
+        {
+            "displayName": "WBP-B# Proportion of health facilities that conduct reporting consistency check using LQAS",
+            "id": "O7qaVQyamWX"
+        },
+        {
+            "displayName": "WBP-B% Proportion of health facilities that conduct reporting consistency check using LQAS",
+            "id": "Y6oGiJsVBQ0"
+        },
+        {
+            "displayName": "WBP-B#  Proportion of health facilities that met Ethiopian health facility requirements",
+            "id": "wbuSiI3euwI"
+        },
+        {
+            "displayName": "WBP-B% Proportion of health facilities that met Ethiopian health facility requirements",
+            "id": "IG0tTkn5Oli"
+        },
+        {
+            "displayName": "WBP-B# Proportion of health facilities with healthcare waste management services",
+            "id": "ehpkB8MraL8"
+        },
+        {
+            "displayName": "WBP-B% Proportion of health facilities with healthcare waste management services",
+            "id": "PZ5k9nnLnGI"
+        },
+        {
+            "displayName": " WBP-B% Proportion of health facility with basic sanitation facilities",
+            "id": "lRWWBT1ZD9H"
+        },
+        {
+            "displayName": "WBP-B# Proportion of health facility with basic sanitation facilities",
+            "id": "WqkAlQaO4VR"
+        },
+        {
+            "displayName": "WBP-B# Proportion of HHs with liquid waste management",
+            "id": "lDgI1g22Bo8"
+        },
+        {
+            "displayName": "WBP-B% Proportion of HHs with liquid waste management",
+            "id": "asB839o8D8W"
+        },
+        {
+            "displayName": "WBP-B# Proportion of HHs with safe solid waste management",
+            "id": "cT3rKdVxi6W"
+        },
+        {
+            "displayName": "WBP-B% Proportion of HHs with safe solid waste management",
+            "id": "q5xJUNwhuvS"
+        },
+        {
+            "displayName": "WBP-B# Proportion of high performing PHCUs ",
+            "id": "DtyAFz0ZuF4"
+        },
+        {
+            "displayName": "WBP-B% Proportion of high performing PHCUs ",
+            "id": "GwcYDHhJ24W"
+        },
+        {
+            "displayName": "WBP-B# Proportion of HIV positive adults and children who are currently on ART",
+            "id": "ZwgBxeb4Tbg"
+        },
+        {
+            "displayName": "WBP-B# Proportion of HIV positive women (15+) on ART screened for Cervical Cancer",
+            "id": "CMU1dFvOv0v"
+        },
+        {
+            "displayName": "WBP-B% Proportion of HIV positive women (15+) on ART screened for Cervical Cancer",
+            "id": "wkzpNi8CA0b"
+        },
+        {
+            "displayName": "WBP-B#_Proportion of households having Basic sanitation facilities",
+            "id": "j6PcUKOA89M"
+        },
+        {
+            "displayName": "WBP-B% _Proportion of households having Basic sanitation facilities",
+            "id": "da5Feqi10hf"
+        },
+        {
+            "displayName": "WBP-B# Proportion of households having hand washing facilities at the premises",
+            "id": "qqZck7wumg9"
+        },
+        {
+            "displayName": "WBP-B%  Proportion of households having hand washing facilities at the premises",
+            "id": "H2ertyR1X0R"
+        },
+        {
+            "displayName": " WBP-B% Proportion of households with healthy housing",
+            "id": "QG2EW1T0LJr"
+        },
+        {
+            "displayName": "WBP-B # Proportion of households with healthy housing",
+            "id": "IrLH4DORLFX"
+        },
+        {
+            "displayName": "WBP-B % Proportion of individuals treated for depression",
+            "id": "F7TbMypR0aN"
+        },
+        {
+            "displayName": "WBP-B % Proportion of individuals treated for Epilepsy",
+            "id": "i3YFCrN6Y69"
+        },
+        {
+            "displayName": "WBP-B# Proportion of kebeles declared ODF",
+            "id": "EO7dzs6nCDE"
+        },
+        {
+            "displayName": "WBP-B% Proportion of kebeles declared ODF",
+            "id": "tHueip0s8fy"
+        },
+        {
+            "displayName": "WBP-B# Proportion of Neonata death in the institution",
+            "id": "QNWyYBQAhVb"
+        },
+        {
+            "displayName": "WBP-B% Proportion of Neonata death in the institution",
+            "id": "YJQ5q4yOBA9"
+        },
+        {
+            "displayName": "WBP-B# Proportion of Pregnant received deworming",
+            "id": "GaBS8bRwzco"
+        },
+        {
+            "displayName": "WBP-B% Proportion of Pregnant received deworming",
+            "id": "AFkDB7alPJq"
+        },
+        {
+            "displayName": " WBP-B# Proportion of registered new and relapse TB patients with documented HIV status",
+            "id": "Bmk5NCvwLIH"
+        },
+        {
+            "displayName": " WBP-B% Proportion of registered new and relapse TB patients with documented HIV status",
+            "id": "YMDObgWTahk"
+        },
+        {
+            "displayName": "WBP-B% Proportion of reimbursed amount from the total spent",
+            "id": "Wl1cUDqAgmY"
+        },
+        {
+            "displayName": "WBP-B# Proportion of STI cases tested for HIV",
+            "id": "lxnqZ7G0pz3"
+        },
+        {
+            "displayName": "WBP-B# Proportion of water schemes for which water quality test conducted",
+            "id": "WLmxfbZmSsv"
+        },
+        {
+            "displayName": "WBP-B% Proportion of water schemes for which water quality test conducted",
+            "id": "iANaCOANd4v"
+        },
+        {
+            "displayName": "WBP-B# Proportion of women aged 30–49 years screened for cervical Ca",
+            "id": "PkypTxiycgr"
+        },
+        {
+            "displayName": "WBP-B% Proportion of women aged 30–49 years screened for cervical Ca",
+            "id": "dOIwjuls9ls"
+        },
+        {
+            "displayName": "WBP-B# Referral-out Rate",
+            "id": "xxBenyUm5Kf"
+        },
+        {
+            "displayName": "WBP-B% Referral-out Rate",
+            "id": "RBBHqQK12N0"
+        },
+        {
+            "displayName": "WBP-B# - Rota 2nd Dose Coverage (< 1 Year)",
+            "id": "o45bN39UPwU"
+        },
+        {
+            "displayName": "WBP-B% - Rota 2nd Dose Coverage (< 1 Year)",
+            "id": "aFIL2vN5Opy"
+        },
+        {
+            "displayName": "WBP-B# - Safe Surgery Checklist Utilization",
+            "id": "hfACsFPdTqJ"
+        },
+        {
+            "displayName": "WBP-B% - Safe Surgery Checklist Utilization",
+            "id": "ry9yZn9LZje"
+        },
+        {
+            "displayName": "WBP-B% Short Acting FP Coverage",
+            "id": "W9t16DAtJCK"
+        },
+        {
+            "displayName": "WBP-B#_Six-monthly control of blood pressure among people treated for hypertension",
+            "id": "EHm4B9AtBJe"
+        },
+        {
+            "displayName": "WBP-B%_Six-monthly control of blood pressure among people treated for hypertension",
+            "id": "EQaZOhjYi6L"
+        },
+        {
+            "displayName": "WBP-B#_Six-monthly control of diabetes among individuals treated for diabetes",
+            "id": "FaXh3C8G7V6"
+        },
+        {
+            "displayName": "WBP-B%_Six-monthly control of diabetes among individuals treated for diabetes",
+            "id": "uTaRLaOOAN2"
+        },
+        {
+            "displayName": "WBP-B#  Stillbirth Rate",
+            "id": "EVd2oAPzFmh"
+        },
+        {
+            "displayName": "WBP-B% Stillbirth Rate",
+            "id": "fuE77CfKTHP"
+        },
+        {
+            "displayName": "WBP-B# Surgical cases with anesthetic adverse outcome",
+            "id": "hoAMixbvzJ1"
+        },
+        {
+            "displayName": " WBP-B% Surgical-site infection rate",
+            "id": "ATm3osWMSeq"
+        },
+        {
+            "displayName": "WBP-B# Surgical-site infection rate",
+            "id": "sTfxNALb60n"
+        },
+        {
+            "displayName": "WBP B# TB_Number of all forms of TB cases notified and treated from community referral",
+            "id": "MJWRM4rb89Q"
+        },
+        {
+            "displayName": "WBP B# TB Preventive Therapy (TPT) ",
+            "id": "EVQEtF114od"
+        },
+        {
+            "displayName": "WBP-B% TB Preventive Therapy (TPT) Coverage",
+            "id": "EzeErtUyTx9"
+        },
+        {
+            "displayName": "WBP B% TB_Proportion of all forms of TB cases notified and treated from community referral",
+            "id": "ivHwUfyVDEc"
+        },
+        {
+            "displayName": "WBP-B% TB_Proportion of HIV-positive new and relapse TB patients on ART during TB treatment",
+            "id": "J7Zg20ml4kg"
+        },
+        {
+            "displayName": "WBP-B#_TB Treatment coverage",
+            "id": "WH6iw5vDsCc"
+        },
+        {
+            "displayName": "WBP-B%_TB Treatment coverage",
+            "id": "eOpqI4PKG6o"
+        },
+        {
+            "displayName": "WBP-B# TB treatment Success rate (TSR) among all forms of TB cases",
+            "id": "CgJ9A6zcIVE"
+        },
+        {
+            "displayName": "WBP-B% TB treatment Success rate (TSR) among all forms of TB cases",
+            "id": "PU0ARAuohFG"
+        },
+        {
+            "displayName": "WBP-B# Teenage Pregnancy Rate    ",
+            "id": "C5a4mR3Vt7t"
+        },
+        {
+            "displayName": "WBP-B% Teenage Pregnancy Rate    ",
+            "id": "gr0K1MZ4JWo"
+        },
+        {
+            "displayName": " WBP-B# -Timely Outpatient service initiation",
+            "id": "MIbKjr5D026"
+        },
+        {
+            "displayName": " WBP-B% -Timely Outpatient service initiation",
+            "id": "Clw1sAlIAlZ"
+        },
+        {
+            "displayName": "WBP-B# Treatment outcomes for management of severe acute malnutrition in children 0-59 months",
+            "id": "jvFGLgh36XH"
+        },
+        {
+            "displayName": "WBP-B% Treatment outcomes for management of severe acute malnutrition in children 0-59 months",
+            "id": "WqCHxk5FbLH"
+        },
+        {
+            "displayName": "WBP-B#  Treatments ORS and Zinc ",
+            "id": "iTeRYk4ATh8"
+        },
+        {
+            "displayName": "WBP-B%  Treatments ORS and Zinc ",
+            "id": "JP6YQCQt7EH"
+        },
+        {
+            "displayName": "WBP-B# Treatment success rate among bacteriologically confirmed PTB  case",
+            "id": "NTpUGN9yd6P"
+        },
+        {
+            "displayName": "WBP-B% Treatment success rate among bacteriologically confirmed PTB  case",
+            "id": "ju12WVttpK0"
+        },
+        {
+            "displayName": "WBP-B#  Women Developed Postpartum hemorrhage (PPH)",
+            "id": "nHo9Nx4EveL"
+        },
+        {
+            "displayName": "WBP-B% Women Developed Postpartum hemorrhage (PPH)",
+            "id": "YzKhBKxH69M"
+        },
+        {
+            "displayName": "WBP-B#  Women received uterotonics in the first one minute after delivery",
+            "id": "J2ywrAXTM5C"
+        },
+        {
+            "displayName": "WBP-B% Women received uterotonics in the first one minute after delivery",
+            "id": "V8RRtMl4woi"
+        },
+        {
+            "displayName": "WBP-El Amount of fee waiver and exemption reimbursement requested",
+            "id": "N3LmRDUhnTJ"
+        },
+        {
+            "displayName": "WBP-El  children under 15 years of eligible for receiving ART",
+            "id": "dOCFUms7tES"
+        },
+        {
+            "displayName": "WBP-El  Contraceptive acceptance rate",
+            "id": "yLPmWCoIlcm"
+        },
+        {
+            "displayName": "WBP-El Estimated children under 2 years",
+            "id": "nymrvgI7lUq"
+        },
+        {
+            "displayName": "WBP-El Estimated deliveries",
+            "id": "v3E86RifGqu"
+        },
+        {
+            "displayName": "WBP-El Estimated number of children aged 24-59 months",
+            "id": "YD0wpsvMcqL"
+        },
+        {
+            "displayName": "WBP-El Estimated number of children aged 6-59 month",
+            "id": "JdenASirHOE"
+        },
+        {
+            "displayName": "WBP-El Estimated number of girls (14 years old)",
+            "id": "wpEogTpT5dV"
+        },
+        {
+            "displayName": "WBP-El Estimated number of incident TB cases in the population during the reporting period",
+            "id": "cc9dJNIA4Mk"
+        },
+        {
+            "displayName": "WBP-El Estimated number of live births",
+            "id": "hHzi8TPsynB"
+        },
+        {
+            "displayName": "WBP-El Estimated number of neonates with birth asphyxia",
+            "id": "dQyvfo06AVX"
+        },
+        {
+            "displayName": "WBP-El Estimated number of Newborn weighing <2000gm and premature delivery",
+            "id": "tqESTJn9vq0"
+        },
+        {
+            "displayName": "WBP-El Estimated number of population in the catchment area",
+            "id": "nVsJwJalgIV"
+        },
+        {
+            "displayName": "WBP-El Estimated number of pregnant women",
+            "id": "bYRFbGNM7u8"
+        },
+        {
+            "displayName": "WBP-El Estimated number of Sick young infant 0-2 months with Newborn infection",
+            "id": "XFwBT62jlKd"
+        },
+        {
+            "displayName": "WBP-El Estimated number of surviving infants",
+            "id": "r9OIilt9UoL"
+        },
+        {
+            "displayName": "WBP-El Estimated number of under 5 children",
+            "id": "rsUntPycP1G"
+        },
+        {
+            "displayName": "WBP-El Estimated number of under 5 children with Pneumonia",
+            "id": "rhN5usPLaJ0"
+        },
+        {
+            "displayName": "WBP-El Estimated number of women aged 30–49 years in the catchment",
+            "id": "HYbEvEzkCxo"
+        },
+        {
+            "displayName": "WBP-El Leprosy Case Detection Rate (per 10,000 population)",
+            "id": "gDmFJGFCvPl"
+        },
+        {
+            "displayName": "WBP-El Non-pregnant women in fertile age",
+            "id": "pPgYYvRQoqS"
+        },
+        {
+            "displayName": "WBP-El  number of live births weighed",
+            "id": "s27eMPqShQu"
+        },
+        {
+            "displayName": "WBP-El Number of women 30 - 49 years with identified pre-cancerous cervical lesion",
+            "id": "sfP2on2dOcg"
+        },
+        {
+            "displayName": "WBP-El  number of women who delivered in a Facility",
+            "id": "MFs6kogLWJS"
+        },
+        {
+            "displayName": "WBP-El Prevalence of DM",
+            "id": "mE4mS8i14rx"
+        },
+        {
+            "displayName": "WBP-El Prevalence of hypertension among adults",
+            "id": "BmgTsKM5jJe"
+        },
+        {
+            "displayName": "WBP-El Prevalence of Trachomatous Inflammation Follicular (T.F) in endemic woreda",
+            "id": "QVvmfMopz60"
+        },
+        {
+            "displayName": "WBP-El Prevallence of Bipolar cases",
+            "id": "andUvT1ZLCM"
+        },
+        {
+            "displayName": "WBP-El Prevallence of Epilepsy",
+            "id": "YMAm5JbfkvZ"
+        },
+        {
+            "displayName": "WBP-El Prevallence of psychosis",
+            "id": "jtXGd9JMjgH"
+        },
+        {
+            "displayName": "WBP-El Prevallence of sever depression",
+            "id": "kC5nZ001bel"
+        },
+        {
+            "displayName": "WBP-El Prevallence of Sever subtance use disorders( alcohol)",
+            "id": "E8QVEcBMVhL"
+        },
+        {
+            "displayName": "WBP-El Proportion of teenage female group",
+            "id": "NZVPDuDijyB"
+        },
+        {
+            "displayName": "WBP-El STI cases",
+            "id": "y93PgxjYuYz"
+        },
+        {
+            "displayName": "WBP-El Total 15+ women on ART",
+            "id": "Wr4lJbKrMHM"
+        },
+        {
+            "displayName": "WBP-El Total expected number of 1to 5 networks ",
+            "id": "QLpbFmYbijA"
+        },
+        {
+            "displayName": "WBP-El Total Government budget",
+            "id": "AgYybJBoJLW"
+        },
+        {
+            "displayName": "WBP-El Total health budget allocated for the health facility",
+            "id": "o6c6M5CbEwR"
+        },
+        {
+            "displayName": "WBP-El Total number of available medical equipment in the health facility from updated  medical equipment inventory list",
+            "id": "k3XYVxiY8DD"
+        },
+        {
+            "displayName": "WBP-El Total number of beneficiaries with in a catchment area",
+            "id": "gKNObp29Y8q"
+        },
+        {
+            "displayName": "WBP-El total number of children exiting from treatment for acute malnutrition",
+            "id": "qX2KCgQq5sk"
+        },
+        {
+            "displayName": "WBP-El Total number of civil servants",
+            "id": "DwjpSpP4MlP"
+        },
+        {
+            "displayName": "WBP-El Total number of deaths reported in the health facilities during the reporting period",
+            "id": "ilEALZOWoM2"
+        },
+        {
+            "displayName": "WBP-El Total number of estimated DR-TB incident cases among notified TB cases ",
+            "id": "i2PLOR16QRG"
+        },
+        {
+            "displayName": "WBP-El Total Number of Estimated Household",
+            "id": "zOb0ZKAmUx1"
+        },
+        {
+            "displayName": "WBP-El Total number of estimated TT cases in the specific geography or population",
+            "id": "TnRDNWklpDL"
+        },
+        {
+            "displayName": "WBP-El Total number of food and drinking providing institution",
+            "id": "Rcu4wcCLgfj"
+        },
+        {
+            "displayName": "WBP-El Total Number of HCs",
+            "id": "HSNfgUKfWnq"
+        },
+        {
+            "displayName": "WBP-El Total number of Health Facilities",
+            "id": "g1oKC5lxqN3"
+        },
+        {
+            "displayName": "WBP-El Total number of health institutions",
+            "id": "ZNBDrMeQpR3"
+        },
+        {
+            "displayName": "WBP-El Total Number of Health professionals",
+            "id": "duHjkT4aS5f"
+        },
+        {
+            "displayName": "WBP-El Total number of HHs that need LLIN in the last 12 months in targeted areas",
+            "id": "hfgoT5RHcHp"
+        },
+        {
+            "displayName": "WBP-El Total number of HPs",
+            "id": "zOUEk8GyPyr"
+        },
+        {
+            "displayName": "WBP-El total number of leprosy cases registered during the same cohort period",
+            "id": "QlpqIoEYpC9"
+        },
+        {
+            "displayName": "WBP-El Total number of new leprosy cases detected during the same period",
+            "id": "Ssqg5Z1gKo5"
+        },
+        {
+            "displayName": "WBP-El Total number of NGOs'",
+            "id": "IkcBWVSEaUG"
+        },
+        {
+            "displayName": "WBP-El Total number of non-pregnant women living with HIV on ART aged 15-49",
+            "id": "MaxGFw0DloE"
+        },
+        {
+            "displayName": "WBP-El Total number of patients on ART during the reporting period ",
+            "id": "k795z8955L1"
+        },
+        {
+            "displayName": "WBP-El Total Number of PHCU",
+            "id": "tD3iQH7xKBi"
+        },
+        {
+            "displayName": "WBP-El Total number of pregnant women who attended first ANC contact",
+            "id": "GDXfRt3DQv8"
+        },
+        {
+            "displayName": "WBP-El Total number of previous year surviving infants at 1 yr age",
+            "id": "EuikrYCSM2h"
+        },
+        {
+            "displayName": "WBP-El Total number of Water sources",
+            "id": "aCcX1eFJMRn"
+        },
+        {
+            "displayName": "WBP-El total numbers of kebeles-Aggregated",
+            "id": "j05D3563EVx"
+        },
+        {
+            "displayName": "WBP-El total numbers of kebeles- Non Aggregate",
+            "id": "r13Gy70DbsS"
+        },
+        {
+            "displayName": "WBP-El Total population at risk of malaria in the catchment area",
+            "id": "j1C4yMwXZsI"
+        },
+        {
+            "displayName": "WBP-El Total population who are eligible for the trachoma MDA within the specific cluster",
+            "id": "uxwRbDIcnI5"
+        },
+        {
+            "displayName": "WBP-El Total population whose age is above 5 years within the specific cluster or endemic district",
+            "id": "BI10jOADznH"
+        },
+        {
+            "displayName": "WBP- Individuals tested positive for Hepatitis B and C",
+            "id": "BOjI8cgyWt6"
+        },
+        {
+            "displayName": "WBP-T# ANC 4+ Contacts",
+            "id": "x9IAKLv8Ruc"
+        },
+        {
+            "displayName": "WBP-T# ANC 8+ Contacts Coverage",
+            "id": "jMBxHnJJliZ"
+        },
+        {
+            "displayName": "WBP-T# ANC coverage – First Contact (< 12 Weeks)",
+            "id": "HjA5sHGgCLO"
+        },
+        {
+            "displayName": "WBP-T# Caesarean Section (C/S) Rate",
+            "id": "Xh0fck58i6t"
+        },
+        {
+            "displayName": "WBP-T#_Cataract surgical rate (CSR)",
+            "id": "xUPPQf3HJvr"
+        },
+        {
+            "displayName": "WBP-T# Cataract Surgical Rate (Per 1,000,000 population)",
+            "id": "GBIFUIR1gjO"
+        },
+        {
+            "displayName": "WBP-T# Children (< 5 years) Screened for Malnutrition ",
+            "id": "edh9lj4Q7sY"
+        },
+        {
+            "displayName": "WBP-T# Client satisfaction rate",
+            "id": "FIf2ECJm6xo"
+        },
+        {
+            "displayName": "WBP-T# Contraceptive acceptance rate",
+            "id": "MwnVNbbbbJP"
+        },
+        {
+            "displayName": "WBP-T# Drug Susceptibility testing (DST) coverage for TB patients",
+            "id": "o147EIfQNPH"
+        },
+        {
+            "displayName": "WBP-T# Early PNC Coverage",
+            "id": "ANQeZWLHxCG"
+        },
+        {
+            "displayName": "WBP-T#-Full Immunization Coverage (< 1 year)",
+            "id": "di6D8AcdMIN"
+        },
+        {
+            "displayName": "WBP T# Grade II disability rate among new cases of leprosy",
+            "id": "gxfIo40SNRs"
+        },
+        {
+            "displayName": "WBP-T#Human Papilloma Virus Vaccination Coverage_1st Dose",
+            "id": "raIoxKoHhgL"
+        },
+        {
+            "displayName": "WBP-T# Human Papilloma Virus Vaccination Coverage_2nd Dose",
+            "id": "EWGDsxDn0rN"
+        },
+        {
+            "displayName": "WBP-T# Immediate Postpartum Contraceptive Acceptance rate (IPPCAR)",
+            "id": "ab4Mpb7Y08a"
+        },
+        {
+            "displayName": "WBP-T# IPV Coverage (< 1 Years)",
+            "id": "IdlWf6hOiiW"
+        },
+        {
+            "displayName": "WBP-T# Leprosy detection per 10,000 population",
+            "id": "ddHSM1VWUs5"
+        },
+        {
+            "displayName": "WBP-T# Long acting family plan",
+            "id": "zCgv6XhJhVY"
+        },
+        {
+            "displayName": "WBP-T# Measles 1st Dose Coverage (< 1 year)",
+            "id": "x3aThQjvOhI"
+        },
+        {
+            "displayName": "WBP-T#  Measles 2nd Dose Coverage ",
+            "id": "sI9fCczkW7g"
+        },
+        {
+            "displayName": "WBP-T# Model Households",
+            "id": "ZiiGpGaZrfb"
+        },
+        {
+            "displayName": "WBP-T# Model Kebele graduated",
+            "id": "ElCev9SCUyC"
+        },
+        {
+            "displayName": "WBP-T# Number of health centers providing major emergency and essential surgical care  ",
+            "id": "Em391G4jEfX"
+        },
+        {
+            "displayName": "WBP-T# Number of traditional healers ",
+            "id": "DR6koAmT9Aa"
+        },
+        {
+            "displayName": "WBP-T#% of < 1 Children Protected at Birth from NNT",
+            "id": "mqRrSGHgRMg"
+        },
+        {
+            "displayName": "WBP-T# of < 5 Children with Pneumonia Treated with Antibiotics",
+            "id": "bv25eTOEyq9"
+        },
+        {
+            "displayName": "WBP-T# % of asphyxiated neonates Resuscitated and Survived",
+            "id": "nPZXg2M087Y"
+        },
+        {
+            "displayName": "WBP-T# of births attended by Skilled Health Personnel",
+            "id": "uNafbvCinT3"
+        },
+        {
+            "displayName": "WBP-T# of children 24-59 months de-wormed-2nd Dose",
+            "id": "AMoOJwNpUL1"
+        },
+        {
+            "displayName": "WBP-T# of Children < 2 years participated in GMP",
+            "id": "Ei7aQ5k4dZX"
+        },
+        {
+            "displayName": "WBP-T# of Children aged 6-59 months who received vitamin A supplementation (2nd Dose)\t",
+            "id": "sFxA9YIcdOW"
+        },
+        {
+            "displayName": "WBP-T #  of Condom distributed to Key & Priority population (KPP), disaggregated by KPP group",
+            "id": "Qo0C8B1hakI"
+        },
+        {
+            "displayName": "WBP-T # of diagnosed Hepatitis B and C patients who received treatment\t",
+            "id": "nJskX48TEge"
+        },
+        {
+            "displayName": "WBP-T #  of health Centers providing youth friendly service (with minimum service package)",
+            "id": "vqWf5LeGlgW"
+        },
+        {
+            "displayName": "WBP-T #   of High-Risk Adolescent Girls and Young Women (HRAGYW) reached with HIV prevention SBCC Interventions",
+            "id": "IpApmV7UIxg"
+        },
+        {
+            "displayName": "WBP-T #  of HIV exposed Infants with Virologic test",
+            "id": "m1Z6eUYlRXX"
+        },
+        {
+            "displayName": "WBP-T # of HIV positive pregnant women who received ART to reduce the risk of mother-to child-transmission during pregnancy, labor & delivery (L&D) and postpartum",
+            "id": "lEOslpoCnwx"
+        },
+        {
+            "displayName": "WBP-T # of HIV positive women (15+) on ART screened for Cervical Ca\t",
+            "id": "C7WsAnMTNuH"
+        },
+        {
+            "displayName": "WBP-T #  of HIV Prevention SBCC Interventions targeting in school and out of school adolescents/youth",
+            "id": "kbNmRh5NQsS"
+        },
+        {
+            "displayName": "WBP-T# of individuals who have confirmed eyelid inversion or trichiasis who received corrective TT surgery",
+            "id": "LN8d0BpJRTX"
+        },
+        {
+            "displayName": "WBP-T# of individuals who swallowed drug for Onchocerciasis",
+            "id": "kWyx0eZGJZM"
+        },
+        {
+            "displayName": "WBP-T# of individuals who swallowed MDA drug for trachoma",
+            "id": "U3sN4zz1dGz"
+        },
+        {
+            "displayName": "WBP-T #  of infants born to HIV-infected women receiving antiretroviral (ARV) prophylaxis for prevention of mother-to-child transmission (PMTCT)",
+            "id": "QlcZqTn7A58"
+        },
+        {
+            "displayName": "WBP-T# of Institutional Maternal deaths ",
+            "id": "Dw4oDSF1NGG"
+        },
+        {
+            "displayName": "WBP-T#  % of LBW newborns KMC initiated",
+            "id": "Eq9AAYLzo2O"
+        },
+        {
+            "displayName": "WBP-T# of live-born babies with birth weight less than 2,500 gm",
+            "id": "qXUGMsuZzkt"
+        },
+        {
+            "displayName": "WBP-T #  of Long Distance Truck Drivers reached with HIV prevention SBCC Interventions",
+            "id": "qsoshbbKpaJ"
+        },
+        {
+            "displayName": "WBP-T#  % of newborns that received at least one dose of CHX on First Day after Birth",
+            "id": "SFfxP5NI1gw"
+        },
+        {
+            "displayName": "WBP-T # of non-pregnant women living with HIV on ART using a modern family planning method",
+            "id": "ST8TD29HYBa"
+        },
+        {
+            "displayName": "WBP-T # of patients on ART with a suppressed viral load (<1000 copies/ml) in the past 12 months",
+            "id": "EbpIZRRpYA5"
+        },
+        {
+            "displayName": "WBP-T #  of People who Inject Drugs (PWIDs) reached with intensive HIV prevention SBCC interventions",
+            "id": "v4fGk5W8e88"
+        },
+        {
+            "displayName": "WBP-T# of Pregnant and lactating women (PLW)  screened for malnutrition",
+            "id": "pjcde46WvQd"
+        },
+        {
+            "displayName": "WBP-T # of pregnant, laboring and lactating women who were tested for HIV and who know their results",
+            "id": "pabya8BWGE7"
+        },
+        {
+            "displayName": "WBP-T# of Pregnants received IFA 90+",
+            "id": "BWoJxfbbdhv"
+        },
+        {
+            "displayName": "WBP-T# of SCH endemic districts treated with minimum WHO threshold",
+            "id": "hdrHRsWoT2b"
+        },
+        {
+            "displayName": "WBP-T #  of Sexually Transmitted Infection (STI) cases tested for HIV",
+            "id": "OtjS7nukccs"
+        },
+        {
+            "displayName": "WBP-T #  of sex workers reached with intensive HIV prevention SBCC Interventions",
+            "id": "yqTgyEZJePE"
+        },
+        {
+            "displayName": "WBP-T# % of Sick Young infant Treated",
+            "id": "OSgX0zQLTDA"
+        },
+        {
+            "displayName": "WBP-T# :of unit structures sprayed",
+            "id": "Q8KDsjAt3e1"
+        },
+        {
+            "displayName": "WBP-T# OPV3 coverage",
+            "id": "pTtRQfKiREE"
+        },
+        {
+            "displayName": "WBP-Total population",
+            "id": "cpItyCYXKPd"
+        },
+        {
+            "displayName": "WBP-T# PCV3 Coverage",
+            "id": "nnr6rI2cgQF"
+        },
+        {
+            "displayName": "WBP-T# Pentavalent 1st dose Coverage (< 1 year)",
+            "id": "tZIVGvzq5Bd"
+        },
+        {
+            "displayName": "WBP-T# _Pentavalent 3rd Dose Coverage (< 1 year)",
+            "id": "u01d9sZ0GCI"
+        },
+        {
+            "displayName": " WBP-T# Percentage of confirmed cases fully investigated and classified",
+            "id": "uwFnAQwsSkR"
+        },
+        {
+            "displayName": "WBP-T# Percentage of health professionals who have active license",
+            "id": "zLVTbZm1JR6"
+        },
+        {
+            "displayName": "WBP T# Percentage of new and relapse TB patients tested using a WHO recommended rapid tests at the time of diagnosis",
+            "id": "IXO0RzmrLDl"
+        },
+        {
+            "displayName": "WBP-T # Pregnants Tested for Syphilis",
+            "id": "i9Dj9e6GHdo"
+        },
+        {
+            "displayName": "WBP-T# Proporation of health facilities reporting complete and timely weekly diseases report",
+            "id": "l1PfmrYmqw3"
+        },
+        {
+            "displayName": "WBP-T# Proportion health Facility staffed as per the standard ",
+            "id": "vg6JqWeuPpz"
+        },
+        {
+            "displayName": "WBP-T# Proportion of births notified (from total births)",
+            "id": "DWgZk4ujS4x"
+        },
+        {
+            "displayName": "WBP-T# Proportion of deaths notified by the health facility",
+            "id": "biGI4TqrXOU"
+        },
+        {
+            "displayName": "WBP-T# Proportion of eligible households enrolled in Community Based Health Insurance (CBHI)",
+            "id": "wCw3Uey1uQm"
+        },
+        {
+            "displayName": "WBP-T #  Proportion of eligible population who received care for Bipola cases\t",
+            "id": "h4M9SuFndHc"
+        },
+        {
+            "displayName": "WBP-T # Proportion of eligible population who received care for Epilepsy cases\t",
+            "id": "qC6RQK615Xc"
+        },
+        {
+            "displayName": "WBP-T #  Proportion of eligible population who received care for pychosis",
+            "id": "j7qLkKnn3EF"
+        },
+        {
+            "displayName": "WBP-T #  Proportion of eligible population who received care for sever Depression",
+            "id": "rVKwcChroHU"
+        },
+        {
+            "displayName": "WBP-T #  Proportion of eligible population who received care for sever substance use disorders (Alcohol)",
+            "id": "NmsSTWgKTIV"
+        },
+        {
+            "displayName": " WBP-T# Proportion of eligible women who received treatment for cervical lesion",
+            "id": "ih8WABRbWBA"
+        },
+        {
+            "displayName": "WBP-T# Proportion of functional health facilities with IT network",
+            "id": "MIPJc8arquT"
+        },
+        {
+            "displayName": "WBP-T# Proportion of functional health facilities with water supply",
+            "id": "jOw4PKfBNrK"
+        },
+        {
+            "displayName": "WBP-T# Proportion of government health budget allocated to the health sector in the fiscal year",
+            "id": "pngBhs5zQzR"
+        },
+        {
+            "displayName": "WBP-T# Proportion of Health Centers implementing comprehensive Basic Laboratory Quality Management System (LQMS) ",
+            "id": "TFN6OHQIqR5"
+        },
+        {
+            "displayName": "WBP-T# - Proportion of health facilities conducted Lots quality assurance Sampling (LQAS)",
+            "id": "RDWg9EOUhn8"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health facilities implementing auditable pharmaceutical transaction system (%)",
+            "id": "guLYFqsDo9p"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health facilities implementing compulsory Ethiopian health facility standard",
+            "id": "eMW8DyInVqG"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health facilities with healthcare waste management services",
+            "id": "ejlquy6Gayu"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health facility with basic sanitation facilities",
+            "id": "hBeGjFATbwB"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health institutions registered with service domain data on Master facility Registry (MFR)",
+            "id": "naBUHA37695"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health institutions with electricity supply",
+            "id": "zPGUVLd6wql"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health posts implementing electronic CHIS",
+            "id": "rjaaIQ8Usjx"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health posts providing comprehesive health extention services   ",
+            "id": "OH6SnHkZ60X"
+        },
+        {
+            "displayName": "WBP-T# Proportion of health related institutions implementing compulsory Ethiopian hygiene and environmental health standards",
+            "id": "gFGOkaakoMU"
+        },
+        {
+            "displayName": "WBP-T# Proportion of HHs with liquid waste management",
+            "id": "RFaX2VQniti"
+        },
+        {
+            "displayName": "WBP-T# Proportion of HHs with safe solid waste management",
+            "id": "u7B4NjxTohz"
+        },
+        {
+            "displayName": "WBP-T# Proportion of high performing PHCUs ",
+            "id": "puENx0Iil7X"
+        },
+        {
+            "displayName": "WBP-T#  Proportion of HIV-positive new and relapse TB patients on ART during TB treatment",
+            "id": "iaTqu45lsYr"
+        },
+        {
+            "displayName": "WBP-T# Proportion of Hospitals Implementing EMR solution",
+            "id": "Cg57WOW2aD7"
+        },
+        {
+            "displayName": "WBP-T# Proportion of households having basic sanitation facilities",
+            "id": "AyTSBuE7IZF"
+        },
+        {
+            "displayName": "WBP-T # Proportion of households with healthy housing",
+            "id": "J6UHvnf3HOi"
+        },
+        {
+            "displayName": "WBP-T # Proportion of individuals who swallowed drug for lymphatic filariasis\t",
+            "id": "uYyXES0TyPN"
+        },
+        {
+            "displayName": "WBP-T# Proportion of kebeles declared ODF",
+            "id": "umFmm1Vyq6g"
+        },
+        {
+            "displayName": "WBP-T# Proportion of laboratories providing standardized laboratory testing services as per national standard ",
+            "id": "CZ95AuZXeiA"
+        },
+        {
+            "displayName": "WBP-T# Proportion of Neonata death in the institution",
+            "id": "g9XTbv1oqJ5"
+        },
+        {
+            "displayName": "WBP-T# Proportion of Pregnant received deworming",
+            "id": "JFfa5m3QVUM"
+        },
+        {
+            "displayName": "WBP-T# Proportion of Primary health Care facilities implementing Community Scorecard (CSC) ",
+            "id": "pHWwrbOjcvF"
+        },
+        {
+            "displayName": "WBP-T# Proportion of private facilities reporting to DHIS2 (%)",
+            "id": "UuhsrJpBczM"
+        },
+        {
+            "displayName": " WBP-T# Proportion of registered new and relapse TB patients with documented HIV status",
+            "id": "fOLDmdvdK71"
+        },
+        {
+            "displayName": "WBP-T# Proportion of women aged 30–49 years screened for cervical Ca",
+            "id": "lWEfv4Wb5DQ"
+        },
+        {
+            "displayName": "WBP-T# Report Completeness",
+            "id": "VYc9bi702iI"
+        },
+        {
+            "displayName": "WBP-T# Report Timeliness",
+            "id": "zL9IydaVD89"
+        },
+        {
+            "displayName": "WBP-T# Restoration of Essential health service in all health facilities ",
+            "id": "IMRyDQKTqjO"
+        },
+        {
+            "displayName": "WBP-T# - Rota 2nd Dose Coverage (< 1 Year)",
+            "id": "isz5cghjf1Q"
+        },
+        {
+            "displayName": "WBP-T# Share of internal revenue generated of total health budget",
+            "id": "SpbiOzzAs9Q"
+        },
+        {
+            "displayName": " WBP-T# six month control of blood pressure among people treated for hypertension",
+            "id": "FEXLao3cHk0"
+        },
+        {
+            "displayName": "WBP-T#_Six-monthly control of diabetes among individuals treated for diabetes",
+            "id": "RT621xwTDn5"
+        },
+        {
+            "displayName": "WBP-T# Stillbirth Rate ",
+            "id": "S1oiT7WstX7"
+        },
+        {
+            "displayName": "WBP-T# Surgical-site infection rate",
+            "id": "uhOdazsxuhH"
+        },
+        {
+            "displayName": "WBP T# TB Preventive Therapy (TPT) ",
+            "id": "dCWHZ4eL5gi"
+        },
+        {
+            "displayName": "WBP T# TB_Proportion of all forms of TB cases notified and treated from community referral",
+            "id": "yHu1pwZy91Z"
+        },
+        {
+            "displayName": "WBP-T#_TB Treatment coverage",
+            "id": "d6PWmx1Imxz"
+        },
+        {
+            "displayName": "WBP-T# Teenage Pregnancy Rate    ",
+            "id": "pqZt8nekfsQ"
+        },
+        {
+            "displayName": "WBP-T#  Treatments ORS and Zinc ",
+            "id": "l9vAxaQVL66"
+        },
+        {
+            "displayName": "WBP-T#  Women Developed Postpartum hemorrhage (PPH)",
+            "id": "NiMvRB9NUTx"
+        },
+        {
+            "displayName": "WBP-T#  Women received uterotonics in the first one minute after delivery",
+            "id": "KMirz8Mbkas"
+        },
+        {
+            "displayName": "WBP-T #  Workers in Hotspot areas reached with HIV prevention SBCC interventions",
+            "id": "APnK5T2xhgg"
+        },
+        {
+            "displayName": "WT-Composite Health financing",
+            "id": "byjiZicxWDS"
+        },
+        {
+            "displayName": "WT-Composite Information revolution score",
+            "id": "K6YANYFpC7w"
+        },
+        {
+            "displayName": "WT-Composite Leadership and governance score",
+            "id": "C3wg0qG6GWM"
+        },
+        {
+            "displayName": "WT-Composite MCC; Health workforce",
+            "id": "Jq22eZoBGl2"
+        },
+        {
+            "displayName": "WT-Composite Quality and Equity score",
+            "id": "GrtPvSjw0vC"
+        },
+        {
+            "displayName": "WT-Composite Total score",
+            "id": "cQoeOA4l7kt"
+        },
+        {
+            "displayName": "WT_Drop-out rate from ANC1 to Delivery",
+            "id": "ATDMgjqJpxu"
+        },
+        {
+            "displayName": "WT-HC HF",
+            "id": "O4OaRTmjk43"
+        },
+        {
+            "displayName": "WT-HC IR",
+            "id": "q59tKv4BD48"
+        },
+        {
+            "displayName": "WT-HC L&G",
+            "id": "QRndsBfwvDk"
+        },
+        {
+            "displayName": "WT-HC MCC",
+            "id": "ieMU32lIeMx"
+        },
+        {
+            "displayName": "WT-HC Q&E",
+            "id": "dmiCQP9D96a"
+        },
+        {
+            "displayName": "WT-HC TS",
+            "id": "klFTC89yqXy"
+        },
+        {
+            "displayName": "WT-HP IR",
+            "id": "Z4Q1bfxeHMI"
+        },
+        {
+            "displayName": "WT-HP L&G",
+            "id": "dmCCPQHZpUg"
+        },
+        {
+            "displayName": "WT-HP Q&E",
+            "id": "s5LrYMu82J5"
+        },
+        {
+            "displayName": "WT-HP TS",
+            "id": "EjDHsXmFIgr"
+        },
+        {
+            "displayName": "WT-PHCU IR",
+            "id": "DmVRJ5t83AI"
+        },
+        {
+            "displayName": "WT-PHCU L&G",
+            "id": "TOro19isIaM"
+        },
+        {
+            "displayName": "WT-PHCU MCC",
+            "id": "pTLzLKYFaU2"
+        },
+        {
+            "displayName": "WT-PHCU Q&E",
+            "id": "MA0kjV5oF9B"
+        },
+        {
+            "displayName": "WT-PHCU TS",
+            "id": "Iwec3zv0F2w"
+        },
+        {
+            "displayName": "WT_Proportion of adults screened for DM",
+            "id": "b1VLna1ayzq"
+        },
+        {
+            "displayName": "WT_Proportion of adults screened for HPN",
+            "id": "vsBArIsnuyr"
+        },
+        {
+            "displayName": "WT_Proportion of Model Schools",
+            "id": "NciQwEEpB0C"
+        },
+        {
+            "displayName": "WT Quality and Equity score PHCU/primary hospitals",
+            "id": "qbwqrHsRlr4"
+        },
+        {
+            "displayName": "WT - Sum of actual reports for all Woreda transformation datasets",
+            "id": "PKY1yjCShmM"
+        },
+        {
+            "displayName": "WT-WR HF",
+            "id": "Zx28oap7IkN"
+        },
+        {
+            "displayName": "WT-WR IR",
+            "id": "srjUgitCV13"
+        },
+        {
+            "displayName": "WT-WR L&G",
+            "id": "Tw6xj9oNe1X"
+        },
+        {
+            "displayName": "WT-WR MCC",
+            "id": "mvUi6UbK3ml"
+        },
+        {
+            "displayName": "WT-WR Q&E",
+            "id": "sgThThgNDKF"
+        },
+        {
+            "displayName": "WT-WR TS",
+            "id": "JkDu1y3SuML"
+        }
+    ]
+}

@@ -1,0 +1,219 @@
+{
+    "indicators": [
+        {
+            "displayName": "Neonates discharged as dead from NICU",
+            "id": "wiCvecPtl0T",
+            "abbr": "3Pndn"
+        },
+        {
+            "displayName": "Neonates discharged as recovered from NICU",
+            "id": "BsB9R6pi0uf",
+            "abbr": "1Pnrn"
+        },
+        {
+            "displayName": "Neonates transferred out from NICU",
+            "id": "SUYR67uPFMk",
+            "abbr": "2Pnton"
+        },
+        {
+            "displayName": "Other NICU discharges",
+            "id": "DJiHqs9eJoN",
+            "abbr": "Pndno"
+        },
+        {
+            "displayName": "Full Immunization Coverage (< 1 year)",
+            "id": "yu81UlnsaiH",
+            "abbr": "Fv"
+        },
+        {
+            "displayName": "Pentavalent 1st Dose Coverage (< 1 year)",
+            "id": "r2eJDQLBSY0",
+            "abbr": "1Pv1"
+        },
+        {
+            "displayName": "Pentavalent 3rd Dose Coverage (< 1 year)",
+            "id": "YPfTaU4EtKm",
+            "abbr": "3Pv3"
+        },
+        {
+            "displayName": "Adults on ART >=20 by regimen",
+            "id": "DOjmzNXoBUS",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Adults on ART",
+            "id": "QPnMWX0VHL5",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART",
+            "id": "cpVK4vg0qP9",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged 10-14 by regimen",
+            "id": "erfov4UPPwm",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged 10-14 by Sex",
+            "id": "K4xjRgFlHVA",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged 1-4 by regimen",
+            "id": "T2aCB3BdjFo",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged 1-4 by Sex",
+            "id": "STKCPnfJE0J",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged <1 by regimen",
+            "id": "moCGWgByYvu",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged <1 by Sex",
+            "id": "DN4DxOG0KcJ",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged 5-9 by sex",
+            "id": "lyvLEgMy53I",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART aged 5-9 by regimen",
+            "id": "YyB2gQ7FNkU",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Under 15 female on ART",
+            "id": "ndqrcnzGcUU",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Under 15 male on ART",
+            "id": "cMvVX98HjUA",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Female >15 years on ART",
+            "id": "YWkcclXH1R5",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Male >15 years on ART",
+            "id": "nIKDxJxGgxL",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Total on ART by age, sex, regimen",
+            "id": "EM02m2HPZG6",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Children on ART (<19) by regimen",
+            "id": "hE8RPX6Vaib",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "Leprosy Grade II Disability Rate",
+            "id": "myWEyjn5FLo",
+            "abbr": "Grade2DR"
+        },
+        {
+            "displayName": "Female Leadership in Health Facilities",
+            "id": "n0lUZ6iJt7V",
+            "abbr": "LP"
+        },
+        {
+            "displayName": "Primary Health Care Facilities with CSC >=80%",
+            "id": "Lf9u3N1BPO2",
+            "abbr": "PHCUsCS"
+        },
+        {
+            "displayName": "IRS Coverage in Unit Structures",
+            "id": "NLMn0xklEBd",
+            "abbr": "IRS"
+        },
+        {
+            "displayName": "ANC 4+ Contacts Coverage",
+            "id": "kdkf3Zb6VD3",
+            "abbr": "Anc4"
+        },
+        {
+            "displayName": "C-Section Rate",
+            "id": "iMMy5SY9mnx",
+            "abbr": "Cs"
+        },
+        {
+            "displayName": "Early PNC Coverage",
+            "id": "EmPOBxh5K5S",
+            "abbr": "Pnc"
+        },
+        {
+            "displayName": "Early PNC Coverage (0-2 days)",
+            "id": "kiWHNOMaX8W",
+            "abbr": "Pnc"
+        },
+        {
+            "displayName": "Early PNC Coverage (2-3 days)",
+            "id": "qVuwmOehUwg",
+            "abbr": "Pnc"
+        },
+        {
+            "displayName": "Early PNC Coverage (4-7 days)",
+            "id": "pz1GAp7xV2I",
+            "abbr": "Pnc"
+        },
+        {
+            "displayName": "% of Births Attended by Skilled Personnel",
+            "id": "AxBNUGGwwXJ",
+            "abbr": "Sba"
+        },
+        {
+            "displayName": "Assistive Technology Service Coverage",
+            "id": "dAGUPaBm989",
+            "abbr": "ATSU"
+        },
+        {
+            "displayName": "Hospital Bed Density",
+            "id": "oksEqSjFgQm",
+            "abbr": "HBD"
+        },
+        {
+            "displayName": "Inpatient Mortality Rate",
+            "id": "QmJZDJx2vz5",
+            "abbr": "IPMR"
+        },
+        {
+            "displayName": "Outpatient Attendance per Capita",
+            "id": "TBAxe5hsc55",
+            "abbr": "OPD_A"
+        },
+        {
+            "displayName": "% of HEI with Virological Test",
+            "id": "nY0Smor9ccz",
+            "abbr": "PHIVexposedVT"
+        },
+        {
+            "displayName": "Women Aged 30–49 Screened for Cervical Cancer",
+            "id": "x2urWGBth5P",
+            "abbr": "ScrCervCa"
+        },
+        {
+            "displayName": "HIV Positive Adults and Children on ART",
+            "id": "yzeUuGbwEqb",
+            "abbr": "CART"
+        },
+        {
+            "displayName": "TB Treatment Coverage",
+            "id": "QquJVpoNpH2",
+            "abbr": "TBRxCov"
+        }
+    ]
+}
