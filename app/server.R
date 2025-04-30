@@ -85,10 +85,20 @@ tryCatch(
 )
 
       custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
-      indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
+      indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
+      #indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
       zones_metadata <- fromJSON("./meta/organisationUnitsLevel3.json")$organisationUnits
       woredas_metadata <- fromJSON("./meta/organisationUnitsLevel4.json")$organisationUnits
       org_units_metadata <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+      #specific_org_units <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+
+# Define specific organisation units (regions) server-side
+specific_org_units <- c(
+  "yY9BLUUegel", "UFtGyqJMEZh", "yb9NKGA8uqt", "Fccw8uMlJHN",
+  "tDoLtk2ylu4", "G9hDiPNoB7d", "moBiwh9h5Ce", "b9nYedsL8te",
+  "XU2wpLlX4Vk", "xNUoZIrGKxQ", "PCKGSJoNHXi", "a2QIIR2UXcd",
+  "HIlnt7Qj8do", "Gmw0DJLXGtx"
+)
 
  # checks if the indicator paths JSON are okay
 if (!file.exists("./meta/indicators.json")) {
