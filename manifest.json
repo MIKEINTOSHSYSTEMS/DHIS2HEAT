@@ -1,0 +1,385 @@
+{
+  "version": 1,
+  "locale": "en_US",
+  "platform": "4.5.0",
+  "metadata": {
+    "appmode": "static",
+    "primary_rmd": null,
+    "primary_html": "index.html",
+    "content_category": null,
+    "has_parameters": false
+  },
+  "packages": null,
+  "files": {
+    ".env": {
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "app/.RData": {
+      "checksum": "6419e564b29fdd9e974a80a24bbfcd0d"
+    },
+    "app/aioconverter.R": {
+      "checksum": "80191bceb4b2f5d963ed6c8f81f85548"
+    },
+    "app/app.R": {
+      "checksum": "3578d2bf7248840e78e6506d6094642c"
+    },
+    "app/auth.R": {
+      "checksum": "d771865483adf90912fc8abc6e2b02cd"
+    },
+    "app/BACK_install.R": {
+      "checksum": "beef32431f42d32dd4c304859af9e487"
+    },
+    "app/bak_server.R": {
+      "checksum": "45311a7b7b2cf9e1ef4bfce0e31893d0"
+    },
+    "app/clean.R": {
+      "checksum": "3df37cf6f189296aaeacf2c490ec402d"
+    },
+    "app/converter.R": {
+      "checksum": "b02f89dca54500d1276efda549ba9b58"
+    },
+    "app/country_comparison.R": {
+      "checksum": "6bf53bf3b97af708364eb4d81e094b7f"
+    },
+    "app/data/data_countries.rda": {
+      "checksum": "8f5d90b776fea5fb0b82f15db1eeba43"
+    },
+    "app/data/HEAT_indicators_max100.rda": {
+      "checksum": "f83453fc23a7c25d99773d85ba90d0e3"
+    },
+    "app/data/HEAT_palette_table.rda": {
+      "checksum": "c61b9e3b53626a30630d3541e2ea72ac"
+    },
+    "app/data/HEAT_variable_descriptions.rda": {
+      "checksum": "1b668c13db85f2a92946fe184a9e339a"
+    },
+    "app/data/indicators_data/HEAT_who_indicators.parquet": {
+      "checksum": "30a55fc2c030d24ec5eb58a91ce12c09"
+    },
+    "app/data/info_databases.rda": {
+      "checksum": "2485b0f0e0c0bf6dc917c848042e8254"
+    },
+    "app/data/info_determinants.rda": {
+      "checksum": "1accaed162d59411837ffe5324393e38"
+    },
+    "app/data/info_dimension_colors.rda": {
+      "checksum": "006a56cc67dcabcc564fada9a9f3d026"
+    },
+    "app/data/info_indicators.rda": {
+      "checksum": "62e07b60584ec4497d0141b5aa32001d"
+    },
+    "app/data/info_setting_yr_src.rda": {
+      "checksum": "8653f3ecee55d0bf850854feffd5aa41"
+    },
+    "app/data/info_subregion_minmax.rda": {
+      "checksum": "6372c8081cc950388563418b9698d5bf"
+    },
+    "app/data/spatial_disputed.rda": {
+      "checksum": "832bbaf572da58a369bc2143d80e3a21"
+    },
+    "app/data/spatial_national.rda": {
+      "checksum": "83c81e627d991482835d462c28ca500c"
+    },
+    "app/data/spatial_subnational_simplified.rda": {
+      "checksum": "e07dd701603a6fdf56658678b4c3f08b"
+    },
+    "app/db/data.sqlite": {
+      "checksum": "5fb64fccd2c398dc6da604958ec1b40e"
+    },
+    "app/dba.R": {
+      "checksum": "0c20ff1a0a4c7f0ca943284d49b2a2fb"
+    },
+    "app/dbackup/data_backup_2025-03-06_19-26-38.sqlite": {
+      "checksum": "86b80afe8d65760ed553024e6f09105e"
+    },
+    "app/dbackup/data_backup_2025-03-06_19-33-33.sqlite": {
+      "checksum": "b0540ce28b4b8f4dd44bfd6b91887816"
+    },
+    "app/dbackup/data_backup_2025-03-26_22-49-16.sqlite": {
+      "checksum": "b62f46f886ae7800e31fff56ffcc695f"
+    },
+    "app/dhis2_data.R": {
+      "checksum": "56fc7d9183858701488d0bbb097e3d41"
+    },
+    "app/ethgeo.R": {
+      "checksum": "43efc3bdb5681809f5fec32376d77b25"
+    },
+    "app/ethgeos.R": {
+      "checksum": "98983a7f689e9c8da77b684732a4eec7"
+    },
+    "app/example.dhis2_data.R": {
+      "checksum": "d20021e3020eb3c4d0149b154f1e1a0b"
+    },
+    "app/exclean.R": {
+      "checksum": "eb1cca9261e640bd798a60723fb20a0b"
+    },
+    "app/fetched_data/main.rds": {
+      "checksum": "edf801a5936590276b78d875113cbf93"
+    },
+    "app/fetched_data/test_main.rds": {
+      "checksum": "098f6bcd4621d373cade4e832627b4f6"
+    },
+    "app/fetched_data/xlsx/DHIS2_DATA_20250430_190412.xlsx": {
+      "checksum": "ddb657f943fe3cb5a46738c1be1254ff"
+    },
+    "app/fetched_data/XmainX.rds": {
+      "checksum": "b7c3814be7bc077bd76693718955b88b"
+    },
+    "app/install.R": {
+      "checksum": "e404b5dd2fa74375985d5a62a4f64894"
+    },
+    "app/json/Ethiopia_geoFeatures_regions.json": {
+      "checksum": "a0689ca115c29d1f56d4d3f3dba3325d"
+    },
+    "app/json/Ethiopia_geoFeatures_woredas.json": {
+      "checksum": "a7d2e53b405774aacde4ef6024a1d0e8"
+    },
+    "app/json/Ethiopia_geoFeatures_zones.json": {
+      "checksum": "08591b64ab39dea542e11cea92a66ef0"
+    },
+    "app/json/GeoLevel2_Region_organisationUnits.json": {
+      "checksum": "1a538cf22ba118e5c9145bda9047aaaf"
+    },
+    "app/json/GeoLevel3_Zone_organisationUnits.json": {
+      "checksum": "497c18da20829ee8ef6a39146ded5d28"
+    },
+    "app/json/GeoLevel4_Woreda_organisationUnits.json": {
+      "checksum": "6f97b1cbce494ca04c72bb408081fcd6"
+    },
+    "app/json/metajsons/AIO_organisationUnits.json": {
+      "checksum": "7dde3d8bb6fb0ea4731c880f8ca6f1d8"
+    },
+    "app/json/metajsons/indicators.json": {
+      "checksum": "d6cec912a2b5daba49dde0f4273a59e1"
+    },
+    "app/json/metajsons/organisationUnits.json": {
+      "checksum": "d593bf573cfbc52afc3067c3918ad9c0"
+    },
+    "app/json/metajsons/organisationUnitsLevel2.json": {
+      "checksum": "a8474a22c44e020e4bd50de20736ef43"
+    },
+    "app/json/metajsons/organisationUnitsLevel3.json": {
+      "checksum": "4dc24730a3db35a325cb566d37393ccc"
+    },
+    "app/json/metajsons/organisationUnitsLevel4.json": {
+      "checksum": "f20a4f062500b41351182af7b7e282a5"
+    },
+    "app/json/metajsons/organisationUnitsLevel4_600.json": {
+      "checksum": "a2e308e95eabb8fa265eea9429788f05"
+    },
+    "app/load_countries.R": {
+      "checksum": "7341bcfef5e0b4252d1b695c57ef4ac3"
+    },
+    "app/meta/AIO_organisationUnits.json": {
+      "checksum": "7dde3d8bb6fb0ea4731c880f8ca6f1d8"
+    },
+    "app/meta/custom_indicators.json": {
+      "checksum": "bdb01e293d535f12affc00eef33e1827"
+    },
+    "app/meta/indicators.json": {
+      "checksum": "d6cec912a2b5daba49dde0f4273a59e1"
+    },
+    "app/meta/organisationUnitsLevel2.json": {
+      "checksum": "a8474a22c44e020e4bd50de20736ef43"
+    },
+    "app/meta/organisationUnitsLevel3.json": {
+      "checksum": "4dc24730a3db35a325cb566d37393ccc"
+    },
+    "app/meta/organisationUnitsLevel4.json": {
+      "checksum": "f20a4f062500b41351182af7b7e282a5"
+    },
+    "app/module/ethgeo_map_module.R": {
+      "checksum": "5cb62b925cea3cb2b682ef64b01f2510"
+    },
+    "app/module/ethiog.R": {
+      "checksum": "925c36867839c77d193f4f502b88a969"
+    },
+    "app/module/spatial_module.R": {
+      "checksum": "1a57b1b6c5b182f95aa0314e6ff99e32"
+    },
+    "app/red_index.html": {
+      "checksum": "d41dd39c381b2216691cbce28efb482c"
+    },
+    "app/saved_setting/geo/eth.html": {
+      "checksum": "155973288ef3a246086b6f69d2a2f4dc"
+    },
+    "app/saved_setting/geo/ethiopia_region_Zone_map_MAIN.json": {
+      "checksum": "a3e240ba82069e81af4ce10a9f9f9907"
+    },
+    "app/saved_setting/geo/ethiopia_regions.json": {
+      "checksum": "e49dc67e5e7469315060924fc1951c58"
+    },
+    "app/saved_setting/geo/ethiopia_regions_map_simple.json": {
+      "checksum": "555dee57d870f5eb8d1f3a3ec66a07ae"
+    },
+    "app/saved_setting/geo/ethiopia_regions_mfr.json": {
+      "checksum": "54e29b8dc74c1f2850e3cf30a64d0e80"
+    },
+    "app/saved_setting/settings.rds": {
+      "checksum": "6e5fef1c2d84aa352ce3194707be3926"
+    },
+    "app/saved_setting/source_settings.rds": {
+      "checksum": "eec855018325e243e3f606d566c28cb6"
+    },
+    "app/saved_setting/test_source_settings.rds": {
+      "checksum": "0068c85181173a8bd25178aeb7bc1e86"
+    },
+    "app/server.R": {
+      "checksum": "428a891f1a1ad78f0c07b6db9cada065"
+    },
+    "app/spatial.R": {
+      "checksum": "dee87279560d5ebce3c2570d81bd67e7"
+    },
+    "app/spatial_module.R": {
+      "checksum": "1ccbb0f039892c5fc3d107e388a0115e"
+    },
+    "app/spatials.R": {
+      "checksum": "94c257a17c0c32ce4ff272c15eadfc4b"
+    },
+    "app/start.R": {
+      "checksum": "fa3664d72f6dbd65d1266eb6a5dcb374"
+    },
+    "app/system.R": {
+      "checksum": "60f1d2d7aa9c78eebe8a86f339971b8f"
+    },
+    "app/ui.R": {
+      "checksum": "4ad793d67201fde2bf5a2d0ee146b62b"
+    },
+    "app/unload.R": {
+      "checksum": "7a16dfe542399f5575484486cbe78ef4"
+    },
+    "app/www/assets/app_loading.jpeg": {
+      "checksum": "244ada70a82696794d17cf81c3d4313d"
+    },
+    "app/www/assets/feature.jpeg": {
+      "checksum": "423a46e48dec25b3e7d4b7b427207290"
+    },
+    "app/www/assets/feature1.jpeg": {
+      "checksum": "fcd7d5632fa7497f299fb83935962676"
+    },
+    "app/www/assets/feature2.jpeg": {
+      "checksum": "fcd7d5632fa7497f299fb83935962676"
+    },
+    "app/www/assets/feature3.jpeg": {
+      "checksum": "fcd7d5632fa7497f299fb83935962676"
+    },
+    "app/www/assets/pageshots/00_loading_page.jpeg": {
+      "checksum": "9f532e58a4e800a1b226aa2aa16a8311"
+    },
+    "app/www/assets/pageshots/00_login.jpeg": {
+      "checksum": "604da7626939cc658c3fe17f38c44b4c"
+    },
+    "app/www/assets/pageshots/00_register.jpeg": {
+      "checksum": "69820188c44009d43332595a0f4d6bbd"
+    },
+    "app/www/assets/pageshots/01_landing_page.jpeg": {
+      "checksum": "eb01c86b8dca54cc5e2e0d309c384ef4"
+    },
+    "app/www/assets/pageshots/02_main_dashboard.jpeg": {
+      "checksum": "e8ba40b74c40eb20bf5b62346514d402"
+    },
+    "app/www/assets/pageshots/03_source_settings.jpeg": {
+      "checksum": "896005d4add155717274c9108cc1091e"
+    },
+    "app/www/assets/pageshots/04_data_fetcher_settings.jpeg": {
+      "checksum": "1ded5dcca602ce732809a17401e3c228"
+    },
+    "app/www/assets/pageshots/05_data_cleaning_dashboard.jpeg": {
+      "checksum": "4d2736fedaa2d2af792c05199f9d8072"
+    },
+    "app/www/custom.css": {
+      "checksum": "59da849db5f74578394f2eb08170a8f9"
+    },
+    "app/www/dhis2-icon.svg": {
+      "checksum": "6b2199523d381d4c3ecb1be4da35191d"
+    },
+    "app/www/ethiopia_regions.json": {
+      "checksum": "0c6a2c44d1d8029468d9fc378708adb2"
+    },
+    "app/www/ethiopia_regions_map_simple.json": {
+      "checksum": "0c6a2c44d1d8029468d9fc378708adb2"
+    },
+    "app/www/GeoLevel3_Zone_organisationUnits.json": {
+      "checksum": "497c18da20829ee8ef6a39146ded5d28"
+    },
+    "app/www/GeoLevel4_Woreda_organisationUnits.json": {
+      "checksum": "6f97b1cbce494ca04c72bb408081fcd6"
+    },
+    "app/www/images/user_picture.png": {
+      "checksum": "6d3e73828fc473dd69a685e9b6d017b4"
+    },
+    "app/www/moh_icon.svg": {
+      "checksum": "1d03f955737720b6e11746cb7aaab3d5"
+    },
+    "app/www/moh_logo_blue.svg": {
+      "checksum": "3c62dda3c8a68c66bf34ba7e2f4e6df7"
+    },
+    "app/www/moh_logo_white.png": {
+      "checksum": "b541d98093b2a1da8e7c56eaf3650336"
+    },
+    "app/www/spatial_geo/spatial_national.json": {
+      "checksum": "ceb29e53a7dbf8285c18ecc28dd1027f"
+    },
+    "app/www/styles.css": {
+      "checksum": "7a745307c40cef3cb428e911ece77e07"
+    },
+    "app/XXdata.sqlite": {
+      "checksum": "a3578e0e104cff73d53f4a82f61b3f08"
+    },
+    "BACKUP_Dockerfile.shiny": {
+      "checksum": "ede8eea51a011519cf781416c5fe93fe"
+    },
+    "BAK_Dockerfile.shiny": {
+      "checksum": "c9029a673b2064b36ff6e1db30ad49df"
+    },
+    "deploy_shiny_app.sh": {
+      "checksum": "1a13c408b81d41e6519b80bdec45bc1f"
+    },
+    "DHIS2HEAT_DEV.code-workspace": {
+      "checksum": "0114741b79efa34bf620e62ac56f30db"
+    },
+    "docker-compose.yml": {
+      "checksum": "f1accac746149e017bc8de40565843ef"
+    },
+    "Dockerfile.shiny": {
+      "checksum": "cb0a1d72c9e370a2d4dfea3126c9b097"
+    },
+    "index.html": {
+      "checksum": "08ac569d7bf63cdd646396c281b9cd7f"
+    },
+    "init.deploy.sh": {
+      "checksum": "0110922042d86ac2ff1632c28902b8fd"
+    },
+    "install_shiny_packages.sh": {
+      "checksum": "2f99298333c298284b057fade1d5aac1"
+    },
+    "LICENSE": {
+      "checksum": "34710192da097a8c42f847f4a1ccac55"
+    },
+    "monitor_shiny_app.sh": {
+      "checksum": "be2c6f8f54824723784e835cfc3cb343"
+    },
+    "nginx_app/configuration/certs/fullchain.pem": {
+      "checksum": "4ca855aa1408b1b843e350b3822212b8"
+    },
+    "nginx_app/configuration/certs/privkey.pem": {
+      "checksum": "71f3c8070e1048cca6fc3b086c32bdfe"
+    },
+    "nginx_app/configuration/nginx/nginx.conf": {
+      "checksum": "012962500e12a2971bc49534a4b17763"
+    },
+    "nginx_app/Dockerfile": {
+      "checksum": "b382a65fc18ff1bb153e7ce555be7a38"
+    },
+    "README.md": {
+      "checksum": "ab30ea86db2880db7708eb54c02e286c"
+    },
+    "shiny-server.conf": {
+      "checksum": "c6d8e9953b42d3f4df2deef40108f81e"
+    },
+    "start_shiny_app.sh": {
+      "checksum": "320321f311491758aca354ebd6211e1f"
+    }
+  },
+  "users": null
+}
