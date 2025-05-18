@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     systemctl \
     nano \
     htop \
+    cmake \
+    libabsl-dev \
     lsof \
     inotify-tools \
     libssl-dev \
