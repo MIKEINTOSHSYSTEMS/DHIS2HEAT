@@ -2595,6 +2595,16 @@ output$download_benchmark <- downloadHandler(
 
   source("dba.R")
   dba_module_ui("dba_module")
+
+source("manual.R")
+manualServer("manual_module", reactive(user$info$role))
+# Add this to your server function in server.R
+manualUI("manual_module")
+
+# Add this with your other source() calls at the top of server.R
+#source("manual.R", local = TRUE)$value
+#source("manual.R")
+
 }
 
 # Run the application

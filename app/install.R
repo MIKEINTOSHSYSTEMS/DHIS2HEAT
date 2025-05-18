@@ -44,7 +44,14 @@ required_packages <- c(
     "rnaturalearth",
     "rpivotTable",
     "RPostgreSQL", # For PostgreSQL database connection
-    "DBI" # General database interface
+    "DBI", # General database interface
+    "htmltools",
+    "markdown",
+    "rmarkdown",
+    "stringr",
+    "tinytex"
+
+
 )
 
 # Remove dplyr and ggplot2 since they're part of tidyverse
@@ -63,7 +70,8 @@ lapply(required_packages, install_missing)
 
 # Install GitHub packages
 cat("Installing GitHub packages...\n")
-remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork"))
+remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork", "LukasK13/SummeRnote"))
+#remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork"))
 
 # Print a message when installation is complete
 cat("All required packages are installed.\n")
@@ -76,5 +84,6 @@ cat("All required packages are installed.\n")
 #install.packages("package_name")
 # install.packages("DBI")
 # install.packages("RPostgreSQL")
+# devtools::install_github("LukasK13/SummeRnote")
 # Additional ToDos is create NAMESPACE using roxygen2 
 #for auto loading of packages and also renv.lock

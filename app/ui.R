@@ -34,6 +34,7 @@ library(DT) # for using %>% which works as a pipe in R code
 # source("exclean.R")
 # source("clean.R", local = TRUE)$value
 source("load_countries.R", local = TRUE)$value
+source("manual.R", local = TRUE)$value
 #source("spatial.R", local = TRUE)$value
 source("spatial_module.R", local = TRUE)$value
 source("exclean.R", local = TRUE)$value
@@ -275,7 +276,10 @@ dashboardPage(
                 menuSubItem("Role Management", tabName = "role_management"),
                 menuSubItem("Database Management", tabName = "db_management"),
               )
-            )
+            ),
+            hr(),
+          # Add this to your sidebarMenu() in ui.R
+            menuItem("User Manual", tabName = "user_manual", icon = icon("book"))
           )
         ),
   dashboardBody(
@@ -949,6 +953,10 @@ box(
                   # uiOutput("mDataExplorationUI")
                 )
               )
+            ),
+            tabItem(
+              tabName = "user_manual",
+              manualUI("manual_module")
             )
           ),
           hr(),

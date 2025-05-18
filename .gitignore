@@ -74,8 +74,16 @@ app/dhis2_data.R
 # Environment Variables
 .env
 
+*.zip
+
 #Removed test jsons
 app/json
+
+app/notes.txt
+
+TinyTeX/
+
+!app/data/manual_content.xlsx
 
 #removed meta
 #app/meta

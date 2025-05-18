@@ -17,6 +17,7 @@ library(jsonlite)
 # source("system.R") # Source the standalone database administration module
 source("load_countries.R")
 source("spatial_module.R")
+source("manual.R")
 #source("spatial.R")
 #source("./module/spatial_module.R")
 source("dba.R") # Source the database administration module
@@ -36,6 +37,8 @@ shinyApp(ui = ui, server = server)
 # shiny::runApp("app.R", port = 3838, host = "0.0.0.0")
 
 # shiny::runApp("./app/app.R", port = 3838, host = "0.0.0.0")
+
+# shiny::runApp("./app/manual.R", port = 3838, host = "0.0.0.0")
 
 # shiny::runApp("./app/converter.R", port = 3838, host = "0.0.0.0")
 

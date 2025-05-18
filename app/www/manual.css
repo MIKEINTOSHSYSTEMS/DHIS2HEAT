@@ -1,0 +1,94 @@
+.manual-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.manual-header {
+    background-color: #007dc9;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.edit-section {
+    border: 2px solid #007dc9;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.admin-tools {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    margin-bottom: 20px;
+}
+
+.manual-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.manual-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.manual-tag {
+    display: inline-block;
+    background-color: #e1f0fa;
+    color: #007dc9;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 5px;
+    font-size: 0.8em;
+}
+
+.toc-item {
+    padding: 5px 10px;
+    margin: 2px 0;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.toc-item:hover {
+    background-color: #f0f0f0;
+}
+
+.toc-container {
+    position: sticky;
+    top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.sortable-handle {
+    cursor: move;
+    color: #999;
+    margin-right: 10px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+}
+
+/* Style for TinyMCE editor */
+.tox-tinymce {
+    border-radius: 5px !important;
+    margin-bottom: 15px !important;
+}
