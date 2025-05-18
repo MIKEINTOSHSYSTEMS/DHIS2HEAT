@@ -46,6 +46,9 @@ required_packages <- c(
     "RPostgreSQL", # For PostgreSQL database connection
     "DBI", # General database interface
     "htmltools",
+    "pagedown",
+    "readxl",
+    "writexl",
     "markdown",
     "rmarkdown",
     "stringr",
