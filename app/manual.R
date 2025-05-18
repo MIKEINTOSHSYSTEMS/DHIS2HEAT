@@ -127,61 +127,97 @@ manualServer <- function(id, user_role) {
         function(input, output, session) {
             ns <- session$ns
 
+            # Debugging - print current working directory
+            print(paste("Current working directory:", getwd()))
+            print(list.files(recursive = TRUE))
+
             # Reactive value for manual content
             manual_data <- reactiveVal()
             filtered_data <- reactiveVal()
 
             # Improved load_manual_data function with robust error handling
-            load_manual_data <- function() {
-                tryCatch({
-                    if (file.exists("./data/manual_content.xlsx")) {
-                        df <- read_excel("./data/manual_content.xlsx") %>%
-                            mutate(
-                                id = as.numeric(id),
-                                order = as.numeric(order)
-                            ) %>%
-                            arrange(order)
+load_manual_data <- function() {
+    tryCatch(
+        {
+            data_dir <- "./data/"
+            data_file <- file.path(data_dir, "manual_content.xlsx")
 
+            # Create data directory if it doesn't exist
+            if (!dir.exists(data_dir)) {
+                dir.create(data_dir)
+                showNotification("Created data directory", type = "message")
+            }
 
-                            # Convert section to factor with levels ordered by their minimum order value
-                            section_order <- df %>%
-                                group_by(section) %>%
-                                summarise(min_order = min(order)) %>%
-                                arrange(min_order) %>%
-                                pull(section)
+            if (file.exists(data_file)) {
+                df <- read_excel(data_file) %>%
+                    mutate(
+                        id = as.numeric(id),
+                        order = as.numeric(order)
+                    ) %>%
+                    arrange(order)
 
-                            df <- df %>%
-                                mutate(section = factor(section, levels = section_order))
-                        # Convert section to factor with levels ordered by their minimum order value
-                        
-                        # Ensure all required columns exist
-                        required_cols <- c("id", "section", "title", "content", "tags", "category", "order")
-                        missing_cols <- setdiff(required_cols, colnames(df))
-                        
-                        if (length(missing_cols) > 0) {
-                            stop(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
-                        }
-                        
-                        manual_data(df)
-                        filtered_data(df)
-                    } else {
-                        # Create default data with all required columns
-                        df <- data.frame(
-                            id = 1:4,
-                            section = c("Introduction", "Data Management", "Visualization", "System Admin"),
-                            title = c("Welcome to HEAT+", "Data Handling Guide", "Creating Charts", "System Administration"),
-                            content = c("Initial content...", "Data content...", "Visualization content...", "System admin content..."),
-                            tags = c("overview", "data,guide", "charts", "system,admin"),
-                            category = c("General", "Data", "Visual", "System"),
-                            order = 1:4,
-                            stringsAsFactors = FALSE
-                        )
-                        write_xlsx(df, "./data/manual_content.xlsx")
-                        manual_data(df)
-                        filtered_data(df)
-                    }
-                }, error = function(e) {
-                    showNotification(paste("Error loading manual:", e$message), type = "error")
+                # Convert section to factor with ordered levels
+                section_order <- df %>%
+                    group_by(section) %>%
+                    summarise(min_order = min(order)) %>%
+                    arrange(min_order) %>%
+                    pull(section)
+
+                df <- df %>%
+                    mutate(section = factor(section, levels = section_order))
+
+                # Check for required columns
+                required_cols <- c("id", "section", "title", "content", "tags", "category", "order")
+                missing_cols <- setdiff(required_cols, colnames(df))
+
+                if (length(missing_cols) > 0) {
+                    stop(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
+                }
+
+                manual_data(df)
+                filtered_data(df)
+                showNotification("Manual data loaded successfully", type = "message")
+            } else {
+                # Create default data if file doesn't exist
+                df <- data.frame(
+                    id = 1:4,
+                    section = c("Introduction", "Data Management", "Visualization", "System Admin"),
+                    title = c("Welcome to HEAT+", "Data Handling Guide", "Creating Charts", "System Administration"),
+                    content = c("Initial content...", "Data content...", "Visualization content...", "System admin content..."),
+                    tags = c("overview", "data,guide", "charts", "system,admin"),
+                    category = c("General", "Data", "Visual", "System"),
+                    order = 1:4,
+                    stringsAsFactors = FALSE
+                )
+
+                # Ensure the data directory exists
+                if (!dir.exists(data_dir)) {
+                    dir.create(data_dir)
+                }
+
+                write_xlsx(df, data_file)
+                manual_data(df)
+                filtered_data(df)
+                showNotification("Created new manual data file", type = "message")
+            }
+        },
+        error = function(e) {
+            # Create empty dataframe with correct structure if error occurs
+            df <- data.frame(
+                id = numeric(),
+                section = character(),
+                title = character(),
+                content = character(),
+                tags = character(),
+                category = character(),
+                order = numeric(),
+                stringsAsFactors = FALSE
+            )
+            manual_data(df)
+            filtered_data(df)
+            showNotification(paste("Error loading manual:", e$message), type = "error")
+    
+
                     # Return empty data frame with correct structure if error occurs
                     df <- data.frame(
                         id = numeric(),
