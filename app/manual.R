@@ -34,8 +34,8 @@ manualUI <- function(id) {
             class = "manual-container",
             div(
                 class = "manual-header",
-                h2(icon("book"), "HEAT+ User Manual"),
-                p("Interactive guide for using the HEAT+ application")
+                h2(icon("book"), "User Manual"),
+                p("DHIS2 Data Fetcher for HEAT+")
             ),
 
             # Search and filter section
@@ -182,7 +182,7 @@ load_manual_data <- function() {
                 df <- data.frame(
                     id = 1:4,
                     section = c("Introduction", "Data Management", "Visualization", "System Admin"),
-                    title = c("Welcome to HEAT+", "Data Handling Guide", "Creating Charts", "System Administration"),
+                    title = c("Welcome to DHIS2 Data Fetcher for HEAT+", "Data Handling Guide", "Creating Charts", "System Administration"),
                     content = c("Initial content...", "Data content...", "Visualization content...", "System admin content..."),
                     tags = c("overview", "data,guide", "charts", "system,admin"),
                     category = c("General", "Data", "Visual", "System"),
@@ -574,8 +574,8 @@ output$export_pdf <- downloadHandler(
         # Create a simplified RMarkdown template
         template_content <- paste(
             "---",
-            'title: "HEAT+ User Manual"',
-            'author: "HEAT+ Team"',
+            'title: "DHIS2 Data Fetcher for HEAT+ User Manual"',
+            'author: "HEAT+Dev Team"',
             'date: "`r format(Sys.Date(), \'%B %d, %Y\')`"',
             "output:",
             "  pdf_document:",
@@ -975,7 +975,7 @@ manualApp <- function() {
     if (!file.exists("manual_template.Rmd")) {
         template_content <- paste(
             "---",
-            'title: "HEAT+ User Manual"',
+            'title: "DHIS2 Data Fetcher for HEAT+ User Manual"',
             "output:",
             "  pdf_document:",
             "    toc: true",
@@ -996,7 +996,7 @@ manualApp <- function() {
             "knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)",
             "```",
             "",
-            "# HEAT+ User Manual",
+            "# DHIS2 Data Fetcher for HEAT+ User Manual",
             "",
             "```{r generate-content, results='asis'}",
             "if (!is.null(params$manual_data)) {",

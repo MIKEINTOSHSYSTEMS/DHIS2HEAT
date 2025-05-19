@@ -1,5 +1,5 @@
 ---
-title: "HEAT+ User Manual"
+title: "DHIS2 Data Fetcher for HEAT+ User Manual"
 output: 
   pdf_document:
     toc: true
