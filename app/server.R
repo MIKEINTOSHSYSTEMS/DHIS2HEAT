@@ -29,7 +29,7 @@ library(arrow) # Add arrow library for Parquet support
 library(purrr)
 library(here)
 library(slickR)
-library(rpivotTable)  # For pivot table functionality
+library(rpivotTable) # For pivot table functionality
 library(RPostgreSQL)
 library(DBI)
 library(viridisLite)
@@ -37,14 +37,14 @@ library(sf)
 library(highcharter)
 
 # Load existing functions
-#source("dhis2_data.R")
+# source("dhis2_data.R")
 # Source the data fetching functions only when needed
-#source("dhis2_data.R", local = TRUE)
-#source("dba.R", local = TRUE)$value
+# source("dhis2_data.R", local = TRUE)
+# source("dba.R", local = TRUE)$value
 source("ethgeo.R") # not unless it is loading the geojson file
 source("dba.R")
 source("spatial_module.R")
-#source("spatial.R")
+# source("spatial.R")
 # source("auth.R")
 
 eth_geojson <- rjson::fromJSON(file = "./www/ethiopia_regions_map_simple.json")
@@ -66,57 +66,56 @@ options(future.globals.maxSize = 2 * 1024^3) # 2GB memory limit
 
 # Define server logic
 server <- function(input, output, session) {
-
   # Initialize reactive values
   data <- reactiveValues(
     combined = NULL,
     filtered = NULL
   )
 
-# Error Handling for JSON Parsing
-tryCatch(
-  {
-    indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
-    custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
-  },
-  error = function(e) {
-    showNotification(paste("Error loading indicator metadata:", e$message), type = "error")
-  }
-)
-
+  # Error Handling for JSON Parsing
+  tryCatch(
+    {
+      indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
       custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
-      indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
-      #indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
-      zones_metadata <- fromJSON("./meta/organisationUnitsLevel3.json")$organisationUnits
-      woredas_metadata <- fromJSON("./meta/organisationUnitsLevel4.json")$organisationUnits
-      org_units_metadata <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
-      #specific_org_units <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+    },
+    error = function(e) {
+      showNotification(paste("Error loading indicator metadata:", e$message), type = "error")
+    }
+  )
 
-# Define specific organisation units (regions) server-side
-specific_org_units <- c(
-  "yY9BLUUegel", "UFtGyqJMEZh", "yb9NKGA8uqt", "Fccw8uMlJHN",
-  "tDoLtk2ylu4", "G9hDiPNoB7d", "moBiwh9h5Ce", "b9nYedsL8te",
-  "XU2wpLlX4Vk", "xNUoZIrGKxQ", "PCKGSJoNHXi", "a2QIIR2UXcd",
-  "HIlnt7Qj8do", "Gmw0DJLXGtx"
-)
+  custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
+  indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
+  # indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
+  zones_metadata <- fromJSON("./meta/organisationUnitsLevel3.json")$organisationUnits
+  woredas_metadata <- fromJSON("./meta/organisationUnitsLevel4.json")$organisationUnits
+  org_units_metadata <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+  # specific_org_units <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
 
- # checks if the indicator paths JSON are okay
-if (!file.exists("./meta/indicators.json")) {
-  showNotification("indicators.json file not found at specified path", type = "error")
-}
+  # Define specific organisation units (regions) server-side
+  specific_org_units <- c(
+    "yY9BLUUegel", "UFtGyqJMEZh", "yb9NKGA8uqt", "Fccw8uMlJHN",
+    "tDoLtk2ylu4", "G9hDiPNoB7d", "moBiwh9h5Ce", "b9nYedsL8te",
+    "XU2wpLlX4Vk", "xNUoZIrGKxQ", "PCKGSJoNHXi", "a2QIIR2UXcd",
+    "HIlnt7Qj8do", "Gmw0DJLXGtx"
+  )
 
-if (!file.exists("./meta/custom_indicators.json")) {
-  showNotification("custom_indicators.json file not found at specified path", type = "error")
-}
+  # checks if the indicator paths JSON are okay
+  if (!file.exists("./meta/indicators.json")) {
+    showNotification("indicators.json file not found at specified path", type = "error")
+  }
+
+  if (!file.exists("./meta/custom_indicators.json")) {
+    showNotification("custom_indicators.json file not found at specified path", type = "error")
+  }
 
 
   # Check Indicators Exist
-if(is.null(indicators_metadata)) {
-  showNotification("Failed to load indicators metadata", type = "error")
-}
-if(is.null(custom_indicators_metadata)) {
-  showNotification("Failed to load custom indicators metadata", type = "error")
-}
+  if (is.null(indicators_metadata)) {
+    showNotification("Failed to load indicators metadata", type = "error")
+  }
+  if (is.null(custom_indicators_metadata)) {
+    showNotification("Failed to load custom indicators metadata", type = "error")
+  }
 
 
   # Content Slider
@@ -133,49 +132,55 @@ if(is.null(custom_indicators_metadata)) {
 
 
   # Try to load data from main.rds on startup
-observe({
+  observe({
     if (file.exists("fetched_data/main.rds")) {
-      tryCatch({
-        df <- readRDS("fetched_data/main.rds")
-        if (!is.null(df) && nrow(df) > 0) {
-          data$combined <- df
-          data_fetched(TRUE)
-          
-          # Update filters based on loaded data
-          updateSelectizeInput(session, "filter_indicators",
-            choices = unique(data$combined$indicator_name))
-          updateSelectizeInput(session, "filter_dimensions",
-            choices = unique(data$combined$dimension))
-          updateSelectizeInput(session, "filter_dates",
-            choices = unique(data$combined$date))
-          
-          showNotification("InEquality Data loaded from HEAT Server", type = "message")
-        } else {
-          showNotification("Loaded data file is empty", type = "warning")
+      tryCatch(
+        {
+          df <- readRDS("fetched_data/main.rds")
+          if (!is.null(df) && nrow(df) > 0) {
+            data$combined <- df
+            data_fetched(TRUE)
+
+            # Update filters based on loaded data
+            updateSelectizeInput(session, "filter_indicators",
+              choices = unique(data$combined$indicator_name)
+            )
+            updateSelectizeInput(session, "filter_dimensions",
+              choices = unique(data$combined$dimension)
+            )
+            updateSelectizeInput(session, "filter_dates",
+              choices = unique(data$combined$date)
+            )
+
+            showNotification("InEquality Data loaded from HEAT Server", type = "message")
+          } else {
+            showNotification("Loaded data file is empty", type = "warning")
+          }
+        },
+        error = function(e) {
+          showNotification(paste("Error loading data:", e$message), type = "error")
         }
-      }, error = function(e) {
-        showNotification(paste("Error loading data:", e$message), type = "error")
-      })
+      )
     } else {
       showNotification("No data file found. Please fetch data first", type = "warning")
     }
   })
 
 
-# Data Status Indicator:
-output$data_status <- renderUI({
-  if (is.null(data$combined)) {
-    tags$div(
-      class = "alert alert-warning",
-      "No data loaded. Please fetch data using the admin panel."
-    )
-  } else {
-    tags$div(
-      class = "alert alert-success",
-      paste("Data loaded with", nrow(data$combined), "rows.")
-    )
-  }
-})
+  # Data Status Indicator:
+  output$data_status <- renderUI({
+    if (is.null(data$combined)) {
+      tags$div(
+        class = "alert alert-warning",
+        "No data loaded. Please fetch data using the admin panel."
+      )
+    } else {
+      tags$div(
+        class = "alert alert-success",
+        paste("Data loaded with", nrow(data$combined), "rows.")
+      )
+    }
+  })
 
 
 
@@ -195,23 +200,23 @@ output$data_status <- renderUI({
     toggleClass(selector = ".main", class = "main-expanded")
   })
 
-#  output$distPlot <- renderPlotly({
-    # generate bins based on input$bins from ui.R
-#    plot_ly(x = ~ faithful[, 2], type = "histogram", marker = list(color = input$plot_color)) # Use selected color
-#  })
+  #  output$distPlot <- renderPlotly({
+  # generate bins based on input$bins from ui.R
+  #    plot_ly(x = ~ faithful[, 2], type = "histogram", marker = list(color = input$plot_color)) # Use selected color
+  #  })
 
-#  output$bluePlot <- renderPlot({
-    # generate bins based on input$bins from ui.R
-#    x <- faithful[, 2]
-#    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  #  output$bluePlot <- renderPlot({
+  # generate bins based on input$bins from ui.R
+  #    x <- faithful[, 2]
+  #    bins <- seq(min(x), max(x), length.out = input$bins + 1)
 
-    # draw the histogram with the specified number of bins
- #   hist(x, breaks = bins, col = "steelblue", border = "white")
- # })
+  # draw the histogram with the specified number of bins
+  #   hist(x, breaks = bins, col = "steelblue", border = "white")
+  # })
 
-#  output$data_preview <- renderDT({
-#    head(faithful, 10) # Adjust this to match your data
-#  })
+  #  output$data_preview <- renderDT({
+  #    head(faithful, 10) # Adjust this to match your data
+  #  })
 
 
 
@@ -794,7 +799,7 @@ output$data_status <- renderUI({
   fetched_data <- reactiveVal(NULL) # Add this line to store fetched data
 
   spatialServer("spatial_module")
-  #ethgeoServer("ethgeo_module") # main server function for ethgeo module
+  # ethgeoServer("ethgeo_module") # main server function for ethgeo module
   ethgeoServer("ethgeo_module", reactive(data$filtered))
   dba_module_server("dba_module")
   # Load data from main.rds if it exists
@@ -845,45 +850,45 @@ output$data_status <- renderUI({
     toggleClass(selector = "#settings_panel", class = "settings-collapsed")
   })
 
-observe({
-  # Load both standard and custom indicators
-  all_indicators <- c(
-    setNames(indicators_metadata$id, indicators_metadata$displayName),
-    setNames(custom_indicators_metadata$id, custom_indicators_metadata$displayName)
-  )
+  observe({
+    # Load both standard and custom indicators
+    all_indicators <- c(
+      setNames(indicators_metadata$id, indicators_metadata$displayName),
+      setNames(custom_indicators_metadata$id, custom_indicators_metadata$displayName)
+    )
 
-  updateSelectizeInput(session, "indicators",
-    choices = all_indicators,
-    server = TRUE
-  )
+    updateSelectizeInput(session, "indicators",
+      choices = all_indicators,
+      server = TRUE
+    )
 
-  # Also update the custom indicators dropdown
-  updateSelectizeInput(session, "custom_indicators",
-    choices = all_indicators,
-    server = TRUE
-  )
-})
+    # Also update the custom indicators dropdown
+    updateSelectizeInput(session, "custom_indicators",
+      choices = all_indicators,
+      server = TRUE
+    )
+  })
 
 
-# debugging to see what's being passed to the selectize input
-observe({
-  print("Indicator choices:")
-  print(head(setNames(indicators_metadata$id, indicators_metadata$displayName)))
+  # debugging to see what's being passed to the selectize input
+  observe({
+    print("Indicator choices:")
+    print(head(setNames(indicators_metadata$id, indicators_metadata$displayName)))
 
-  updateSelectizeInput(session, "indicators",
-    choices = setNames(indicators_metadata$id, indicators_metadata$displayName),
-    options = list(maxOptions = 1000)
-    #server = TRUE
-  )
-})
+    updateSelectizeInput(session, "indicators",
+      choices = setNames(indicators_metadata$id, indicators_metadata$displayName),
+      options = list(maxOptions = 1000)
+      # server = TRUE
+    )
+  })
 
-#  observe({
-    #source("dhis2_data.R", local = TRUE)    
-#    indicator_choices <- setNames(indicators_metadata$id[indicators_metadata$id %in% input$indicators], indicators_metadata$displayName[indicators_metadata$id %in% input$indicators])
-    #indicator_choices <- setNames(indicators_metadata$id, indicators_metadata$displayName)
- #   updateSelectizeInput(session, "custom_indicators", choices = indicator_choices, server = TRUE)
-    #updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
-#  })
+  #  observe({
+  # source("dhis2_data.R", local = TRUE)
+  #    indicator_choices <- setNames(indicators_metadata$id[indicators_metadata$id %in% input$indicators], indicators_metadata$displayName[indicators_metadata$id %in% input$indicators])
+  # indicator_choices <- setNames(indicators_metadata$id, indicators_metadata$displayName)
+  #   updateSelectizeInput(session, "custom_indicators", choices = indicator_choices, server = TRUE)
+  # updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
+  #  })
 
   output$custom_scales_ui <- renderUI({
     req(input$custom_indicators)
@@ -894,7 +899,6 @@ observe({
   })
 
   observeEvent(input$fetch_data, {
-
     # Source the data fetching functions only when needed
     source("dhis2_data.R", local = TRUE)
 
@@ -1069,168 +1073,168 @@ observe({
 
 
 
-# Add at the beginning of server.R (with other reactive values)
-drilldown_data <- reactiveValues(
-  org_hierarchy = NULL,
-  regions = NULL,
-  zones = NULL,
-  woredas = NULL
-)
-
-# Load organization hierarchy data - with error handling
-observe({
-  tryCatch(
-    {
-      org_units_json <- jsonlite::fromJSON("./meta/AIO_organisationUnits.json", simplifyVector = FALSE)
-      if (!is.null(org_units_json$organisationUnits)) {
-        drilldown_data$org_hierarchy <- org_units_json$organisationUnits
-
-        # Extract regions, zones, and woredas
-        regions <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
-          if (!is.null(x$parent$parent$displayName)) x$parent$parent$displayName
-        })))
-        zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
-          if (!is.null(x$parent$displayName)) x$parent$displayName
-        })))
-        woredas <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) x$displayName)))
-
-        drilldown_data$regions <- regions[!sapply(regions, is.null)]
-        drilldown_data$zones <- zones[!sapply(zones, is.null)]
-        drilldown_data$woredas <- woredas[!sapply(woredas, is.null)]
-
-        # Update region filter
-        updateSelectizeInput(session, "filter_regions", choices = drilldown_data$regions, server = TRUE)
-      }
-    },
-    error = function(e) {
-      showNotification(paste("Error loading organization units:", e$message), type = "error")
-    }
+  # Add at the beginning of server.R (with other reactive values)
+  drilldown_data <- reactiveValues(
+    org_hierarchy = NULL,
+    regions = NULL,
+    zones = NULL,
+    woredas = NULL
   )
-})
 
-# When regions are selected, update zones in the zone filter
-observeEvent(input$filter_regions, {
-  req(input$filter_regions)
-  zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
-    if (x$parent$parent$displayName %in% input$filter_regions) x$parent$displayName
-  })))
-  zones <- zones[!sapply(zones, is.null)]
-  updateSelectizeInput(session, "filter_zones_woreda", choices = zones, server = TRUE)
-})
+  # Load organization hierarchy data - with error handling
+  observe({
+    tryCatch(
+      {
+        org_units_json <- jsonlite::fromJSON("./meta/AIO_organisationUnits.json", simplifyVector = FALSE)
+        if (!is.null(org_units_json$organisationUnits)) {
+          drilldown_data$org_hierarchy <- org_units_json$organisationUnits
 
-# When zones are selected, update woredas in the subgroup filter
-observeEvent(input$filter_zones_woreda, {
-  req(input$filter_zones_woreda)
-  woredas <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
-    if (x$parent$displayName %in% input$filter_zones_woreda) x$displayName
-  })))
-  woredas <- woredas[!sapply(woredas, is.null)]
-  if ("Woreda" %in% input$filter_dimensions) {
-    updateSelectizeInput(session, "filter_subgroups", choices = woredas, server = TRUE)
-  }
-})
+          # Extract regions, zones, and woredas
+          regions <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+            if (!is.null(x$parent$parent$displayName)) x$parent$parent$displayName
+          })))
+          zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+            if (!is.null(x$parent$displayName)) x$parent$displayName
+          })))
+          woredas <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) x$displayName)))
 
-observeEvent(input$filter_dimensions, {
-  req(data$combined, input$filter_dimensions)
+          drilldown_data$regions <- regions[!sapply(regions, is.null)]
+          drilldown_data$zones <- zones[!sapply(zones, is.null)]
+          drilldown_data$woredas <- woredas[!sapply(woredas, is.null)]
 
-  # Get base subgroups based on selected dimensions
-  subgroups <- data$combined %>%
-    filter(dimension %in% input$filter_dimensions) %>%
-    pull(subgroup) %>%
-    unique()
-
-  # Apply parent filters if applicable
-  if (any(c("Zone", "Woreda") %in% input$filter_dimensions)) {
-    if ("Zone" %in% input$filter_dimensions && !is.null(input$filter_regions)) {
-      # Filter zones by selected regions
-      zones_in_regions <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
-        if (!is.null(x$parent$parent) && x$parent$parent$displayName %in% input$filter_regions) {
-          x$parent$displayName
-        } else {
-          NULL
+          # Update region filter
+          updateSelectizeInput(session, "filter_regions", choices = drilldown_data$regions, server = TRUE)
         }
-      })))
-      zones_in_regions <- zones_in_regions[!sapply(zones_in_regions, is.null)]
-      subgroups <- intersect(subgroups, zones_in_regions)
-    }
-
-    if ("Woreda" %in% input$filter_dimensions && !is.null(input$filter_zones_woreda)) {
-      # Filter woredas by selected zones
-      woredas_in_zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
-        if (!is.null(x$parent) && x$parent$displayName %in% input$filter_zones_woreda) {
-          x$displayName
-        } else {
-          NULL
-        }
-      })))
-      woredas_in_zones <- woredas_in_zones[!sapply(woredas_in_zones, is.null)]
-      subgroups <- intersect(subgroups, woredas_in_zones)
-    }
-  }
-
-  updateSelectizeInput(session, "filter_subgroups", choices = subgroups, server = TRUE)
-})
-
-
-####################
-
-# Modify the apply_filters observer to include drill-down filters
-observeEvent(input$apply_filters, {
-  req(data$combined)
-  
-  filtered_data <- data$combined
-  
-  # Apply basic filters
-  if (!is.null(input$filter_indicators) && length(input$filter_indicators) > 0) {
-    filtered_data <- filtered_data %>% filter(indicator_name %in% input$filter_indicators)
-  }
-  
-  if (!is.null(input$filter_dimensions) && length(input$filter_dimensions) > 0) {
-    filtered_data <- filtered_data %>% filter(dimension %in% input$filter_dimensions)
-  }
-  
-  if (!is.null(input$filter_subgroups) && length(input$filter_subgroups) > 0) {
-    filtered_data <- filtered_data %>% filter(subgroup %in% input$filter_subgroups)
-  }
-  
-  if (!is.null(input$filter_dates) && length(input$filter_dates) > 0) {
-    filtered_data <- filtered_data %>% filter(date %in% input$filter_dates)
-  }
-  
-  data$filtered <- filtered_data
-  
-  # Update the data preview table
-  output$data_preview <- renderDT({
-    datatable(data$filtered, options = list(
-      pageLength = 10,
-      lengthMenu = c(5, 10, 15, 20, 50, 100),
-      scrollX = TRUE,
-      autoWidth = TRUE,
-      searching = TRUE,
-      ordering = TRUE
-    ))
-  })
-  
-  # Update plots
-output$distPlot <- renderPlotly({
-  req(data$filtered)
-
-  plot_ly(
-    data = data$filtered, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
-    marker = list(color = input$plot_color, size = 5),
-    text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
-    hoverinfo = "text"
-  ) %>%
-    layout(
-      xaxis = list(
-        #tickformat = "%Y", # Format as year only (no month/day)
-        tickmode = "linear",
-        dtick = 1, # step size of 1 year
-        tickformat = ".0f" # no decimals
-      )
+      },
+      error = function(e) {
+        showNotification(paste("Error loading organization units:", e$message), type = "error")
+      }
     )
   })
-})
+
+  # When regions are selected, update zones in the zone filter
+  observeEvent(input$filter_regions, {
+    req(input$filter_regions)
+    zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+      if (x$parent$parent$displayName %in% input$filter_regions) x$parent$displayName
+    })))
+    zones <- zones[!sapply(zones, is.null)]
+    updateSelectizeInput(session, "filter_zones_woreda", choices = zones, server = TRUE)
+  })
+
+  # When zones are selected, update woredas in the subgroup filter
+  observeEvent(input$filter_zones_woreda, {
+    req(input$filter_zones_woreda)
+    woredas <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+      if (x$parent$displayName %in% input$filter_zones_woreda) x$displayName
+    })))
+    woredas <- woredas[!sapply(woredas, is.null)]
+    if ("Woreda" %in% input$filter_dimensions) {
+      updateSelectizeInput(session, "filter_subgroups", choices = woredas, server = TRUE)
+    }
+  })
+
+  observeEvent(input$filter_dimensions, {
+    req(data$combined, input$filter_dimensions)
+
+    # Get base subgroups based on selected dimensions
+    subgroups <- data$combined %>%
+      filter(dimension %in% input$filter_dimensions) %>%
+      pull(subgroup) %>%
+      unique()
+
+    # Apply parent filters if applicable
+    if (any(c("Zone", "Woreda") %in% input$filter_dimensions)) {
+      if ("Zone" %in% input$filter_dimensions && !is.null(input$filter_regions)) {
+        # Filter zones by selected regions
+        zones_in_regions <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+          if (!is.null(x$parent$parent) && x$parent$parent$displayName %in% input$filter_regions) {
+            x$parent$displayName
+          } else {
+            NULL
+          }
+        })))
+        zones_in_regions <- zones_in_regions[!sapply(zones_in_regions, is.null)]
+        subgroups <- intersect(subgroups, zones_in_regions)
+      }
+
+      if ("Woreda" %in% input$filter_dimensions && !is.null(input$filter_zones_woreda)) {
+        # Filter woredas by selected zones
+        woredas_in_zones <- unique(unlist(lapply(drilldown_data$org_hierarchy, function(x) {
+          if (!is.null(x$parent) && x$parent$displayName %in% input$filter_zones_woreda) {
+            x$displayName
+          } else {
+            NULL
+          }
+        })))
+        woredas_in_zones <- woredas_in_zones[!sapply(woredas_in_zones, is.null)]
+        subgroups <- intersect(subgroups, woredas_in_zones)
+      }
+    }
+
+    updateSelectizeInput(session, "filter_subgroups", choices = subgroups, server = TRUE)
+  })
+
+
+  ####################
+
+  # Modify the apply_filters observer to include drill-down filters
+  observeEvent(input$apply_filters, {
+    req(data$combined)
+
+    filtered_data <- data$combined
+
+    # Apply basic filters
+    if (!is.null(input$filter_indicators) && length(input$filter_indicators) > 0) {
+      filtered_data <- filtered_data %>% filter(indicator_name %in% input$filter_indicators)
+    }
+
+    if (!is.null(input$filter_dimensions) && length(input$filter_dimensions) > 0) {
+      filtered_data <- filtered_data %>% filter(dimension %in% input$filter_dimensions)
+    }
+
+    if (!is.null(input$filter_subgroups) && length(input$filter_subgroups) > 0) {
+      filtered_data <- filtered_data %>% filter(subgroup %in% input$filter_subgroups)
+    }
+
+    if (!is.null(input$filter_dates) && length(input$filter_dates) > 0) {
+      filtered_data <- filtered_data %>% filter(date %in% input$filter_dates)
+    }
+
+    data$filtered <- filtered_data
+
+    # Update the data preview table
+    output$data_preview <- renderDT({
+      datatable(data$filtered, options = list(
+        pageLength = 10,
+        lengthMenu = c(5, 10, 15, 20, 50, 100),
+        scrollX = TRUE,
+        autoWidth = TRUE,
+        searching = TRUE,
+        ordering = TRUE
+      ))
+    })
+
+    # Update plots
+    output$distPlot <- renderPlotly({
+      req(data$filtered)
+
+      plot_ly(
+        data = data$filtered, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
+        marker = list(color = input$plot_color, size = 5),
+        text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
+        hoverinfo = "text"
+      ) %>%
+        layout(
+          xaxis = list(
+            # tickformat = "%Y", # Format as year only (no month/day)
+            tickmode = "linear",
+            dtick = 1, # step size of 1 year
+            tickformat = ".0f" # no decimals
+          )
+        )
+    })
+  })
 
 
   # Update plots based on fetched data
@@ -1524,8 +1528,8 @@ output$distPlot <- renderPlotly({
   # Fetch metadata and populate select inputs
   observe({
     # Fetch Zones and Woredas metadata
-    #zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
-    #woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
+    # zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
+    # woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
 
 
     choices$indicators <- setNames(indicators_metadata$id, indicators_metadata$displayName)
@@ -1750,7 +1754,7 @@ output$distPlot <- renderPlotly({
 
   # Save source settings
   observeEvent(input$save_source_settings, {
-    #if (user_role() == "mikeintosh") {
+    # if (user_role() == "mikeintosh") {
     if (user$info$role == "admin") {
       source_settings <- list(
         setting = input$setting,
@@ -1884,699 +1888,699 @@ output$distPlot <- renderPlotly({
   })
 
 
-# Load country metadata
-source("load_countries.R")
+  # Load country metadata
+  source("load_countries.R")
 
-# Benchmarking reactive values
-benchmark_data <- reactiveValues(
-  parquet_data = NULL,
-  country_meta = NULL,
-  settings = NULL,
-  comparison_data = NULL,
-  reference_data = NULL,
-  available_indicators = NULL,
-  available_dimensions = NULL,
-  available_countries = NULL,
-  available_regions = NULL,
-  available_incomes = NULL
-)
+  # Benchmarking reactive values
+  benchmark_data <- reactiveValues(
+    parquet_data = NULL,
+    country_meta = NULL,
+    settings = NULL,
+    comparison_data = NULL,
+    reference_data = NULL,
+    available_indicators = NULL,
+    available_dimensions = NULL,
+    available_countries = NULL,
+    available_regions = NULL,
+    available_incomes = NULL
+  )
 
-# Load Parquet data when app starts
-observe({
-  parquet_path <- "./data/indicators_data/HEAT_who_indicators.parquet"
+  # Load Parquet data when app starts
+  observe({
+    parquet_path <- "./data/indicators_data/HEAT_who_indicators.parquet"
 
-  if (!file.exists(parquet_path)) {
-    showNotification("Parquet data file not found", type = "error")
-    return(NULL)
-  }
-
-  tryCatch(
-    {
-      # Read data
-      df <- read_parquet(parquet_path)
-
-      # Type conversion
-      df <- df %>%
-        mutate(across(c(
-          date, estimate, se, ci_lb, ci_ub, population,
-          setting_average, indicator_scale, subgroup_order
-        ), as.numeric))
-
-      # Store the data
-      benchmark_data$parquet_data <- df
-
-      # Extract metadata - using the safe rename approach
-      benchmark_data$country_meta <- df %>%
-        select(setting, iso3, whoreg6, wbincome2024) %>%
-        distinct() %>%
-        rename_with(~ case_when(
-          . == "whoreg6" ~ "whoreg6_name",
-          . == "wbincome2024" ~ "wbincome_name",
-          TRUE ~ .
-        ))
-
-      # Update available options
-      if (!is.null(df)) {
-        benchmark_data$available_indicators <- unique(df$indicator_name)
-        benchmark_data$available_dimensions <- unique(df$dimension)
-        benchmark_data$available_countries <- unique(df$setting)
-        benchmark_data$available_regions <- unique(df$whoreg6)
-        benchmark_data$available_incomes <- unique(df$wbincome2024)
-
-        updateSelectizeInput(session, "income_filter",
-          choices = benchmark_data$available_incomes,
-          server = TRUE
-        )
-        updateSelectizeInput(session, "who_region_filter",
-          choices = benchmark_data$available_regions,
-          server = TRUE
-        )
-        updateSelectizeInput(session, "country_select",
-          choices = benchmark_data$available_countries,
-          server = TRUE
-        )
-      }
-    },
-    error = function(e) {
-      showNotification(paste("Error:", e$message), type = "error")
+    if (!file.exists(parquet_path)) {
+      showNotification("Parquet data file not found", type = "error")
+      return(NULL)
     }
-  )
-})
 
-# Update country selection based on filters
-observe({
-  req(benchmark_data$country_meta)
+    tryCatch(
+      {
+        # Read data
+        df <- read_parquet(parquet_path)
 
-  filtered <- benchmark_data$country_meta
+        # Type conversion
+        df <- df %>%
+          mutate(across(c(
+            date, estimate, se, ci_lb, ci_ub, population,
+            setting_average, indicator_scale, subgroup_order
+          ), as.numeric))
 
-  if (!is.null(input$income_filter) && length(input$income_filter) > 0) {
-    filtered <- filtered %>%
-      filter(wbincome_name %in% input$income_filter)
-  }
+        # Store the data
+        benchmark_data$parquet_data <- df
 
-  if (!is.null(input$who_region_filter) && length(input$who_region_filter) > 0) {
-    filtered <- filtered %>%
-      filter(whoreg6_name %in% input$who_region_filter)
-  }
+        # Extract metadata - using the safe rename approach
+        benchmark_data$country_meta <- df %>%
+          select(setting, iso3, whoreg6, wbincome2024) %>%
+          distinct() %>%
+          rename_with(~ case_when(
+            . == "whoreg6" ~ "whoreg6_name",
+            . == "wbincome2024" ~ "wbincome_name",
+            TRUE ~ .
+          ))
 
-  updateSelectizeInput(session, "country_select",
-    choices = unique(filtered$setting),
-    server = TRUE
-  )
-})
+        # Update available options
+        if (!is.null(df)) {
+          benchmark_data$available_indicators <- unique(df$indicator_name)
+          benchmark_data$available_dimensions <- unique(df$dimension)
+          benchmark_data$available_countries <- unique(df$setting)
+          benchmark_data$available_regions <- unique(df$whoreg6)
+          benchmark_data$available_incomes <- unique(df$wbincome2024)
 
-# Update inputs based on benchmark setting
-observeEvent(input$benchmark_setting, {
-  if (input$benchmark_setting == "Country") {
-    # Update indicator choices from Parquet data
-    updateSelectizeInput(session, "benchmark_indicator_country",
-      choices = benchmark_data$available_indicators,
-      server = TRUE
-    )
-
-    # Update dimension choices from Parquet data
-    updateSelectizeInput(session, "benchmark_dimension_country",
-      choices = benchmark_data$available_dimensions,
-      server = TRUE
-    )
-  } else {
-    # Update indicator choices from DHIS2 data
-    updateSelectizeInput(session, "benchmark_indicator",
-      choices = unique(data$combined$indicator_name),
-      server = TRUE
-    )
-
-    # Update dimension choices for Ethiopia
-    current_choices <- switch(input$benchmark_setting,
-      "Region" = c("Region", "Facility Type", "Settlement"),
-      "Zone" = "Zone",
-      "Woreda" = "Woreda",
-      c("Region", "Zone", "Woreda", "Facility Type", "Settlement")
-    )
-
-    updateSelectizeInput(session, "benchmark_dimension",
-      choices = current_choices
-    )
-  }
-})
-
-# Update date inputs
-observe({
-  if (input$benchmark_setting == "Country" && !is.null(benchmark_data$parquet_data)) {
-    dates <- unique(benchmark_data$parquet_data$date)
-    updateSelectizeInput(session, "benchmark_specific_date",
-      choices = sort(dates, decreasing = TRUE)
-    )
-  } else {
-    req(data$combined)
-    dates <- unique(data$combined$date)
-    updateSelectizeInput(session, "benchmark_specific_date",
-      choices = sort(dates, decreasing = TRUE)
-    )
-  }
-})
-
-# Update subgroup choices
-observeEvent(list(input$benchmark_dimension, input$benchmark_dimension_country), {
-  if (input$benchmark_setting == "Country") {
-    req(benchmark_data$parquet_data, input$benchmark_dimension_country)
-
-    subgroups <- benchmark_data$parquet_data %>%
-      filter(dimension %in% input$benchmark_dimension_country) %>%
-      pull(subgroup) %>%
-      unique()
-
-    updateSelectizeInput(session, "benchmark_subgroup_country",
-      choices = subgroups,
-      server = TRUE
-    )
-  } else {
-    req(data$combined, input$benchmark_dimension)
-
-    subgroups <- data$combined %>%
-      filter(dimension == input$benchmark_dimension) %>%
-      pull(subgroup) %>%
-      unique()
-
-    updateSelectizeInput(session, "benchmark_subgroup",
-      choices = subgroups
-    )
-  }
-})
-
-# Main benchmarking logic - Fixed Version
-observeEvent(input$apply_benchmark, {
-  tryCatch(
-    {
-      if (input$benchmark_setting == "Country") {
-        req(
-          input$country_select, benchmark_data$parquet_data,
-          input$benchmark_indicator_country, input$benchmark_dimension_country
-        )
-
-        if (length(input$country_select) < 1) {
-          stop("Please select at least 1 country for comparison")
+          updateSelectizeInput(session, "income_filter",
+            choices = benchmark_data$available_incomes,
+            server = TRUE
+          )
+          updateSelectizeInput(session, "who_region_filter",
+            choices = benchmark_data$available_regions,
+            server = TRUE
+          )
+          updateSelectizeInput(session, "country_select",
+            choices = benchmark_data$available_countries,
+            server = TRUE
+          )
         }
+      },
+      error = function(e) {
+        showNotification(paste("Error:", e$message), type = "error")
+      }
+    )
+  })
 
-        # Get date range
-        if (input$benchmark_date_type == "Multiple Dates") {
-        #if (input$benchmark_date_type == "Single Date") {
-          req(input$benchmark_specific_date)
-          date_filter <- as.numeric(input$benchmark_specific_date)
+  # Update country selection based on filters
+  observe({
+    req(benchmark_data$country_meta)
+
+    filtered <- benchmark_data$country_meta
+
+    if (!is.null(input$income_filter) && length(input$income_filter) > 0) {
+      filtered <- filtered %>%
+        filter(wbincome_name %in% input$income_filter)
+    }
+
+    if (!is.null(input$who_region_filter) && length(input$who_region_filter) > 0) {
+      filtered <- filtered %>%
+        filter(whoreg6_name %in% input$who_region_filter)
+    }
+
+    updateSelectizeInput(session, "country_select",
+      choices = unique(filtered$setting),
+      server = TRUE
+    )
+  })
+
+  # Update inputs based on benchmark setting
+  observeEvent(input$benchmark_setting, {
+    if (input$benchmark_setting == "Country") {
+      # Update indicator choices from Parquet data
+      updateSelectizeInput(session, "benchmark_indicator_country",
+        choices = benchmark_data$available_indicators,
+        server = TRUE
+      )
+
+      # Update dimension choices from Parquet data
+      updateSelectizeInput(session, "benchmark_dimension_country",
+        choices = benchmark_data$available_dimensions,
+        server = TRUE
+      )
+    } else {
+      # Update indicator choices from DHIS2 data
+      updateSelectizeInput(session, "benchmark_indicator",
+        choices = unique(data$combined$indicator_name),
+        server = TRUE
+      )
+
+      # Update dimension choices for Ethiopia
+      current_choices <- switch(input$benchmark_setting,
+        "Region" = c("Region", "Facility Type", "Settlement"),
+        "Zone" = "Zone",
+        "Woreda" = "Woreda",
+        c("Region", "Zone", "Woreda", "Facility Type", "Settlement")
+      )
+
+      updateSelectizeInput(session, "benchmark_dimension",
+        choices = current_choices
+      )
+    }
+  })
+
+  # Update date inputs
+  observe({
+    if (input$benchmark_setting == "Country" && !is.null(benchmark_data$parquet_data)) {
+      dates <- unique(benchmark_data$parquet_data$date)
+      updateSelectizeInput(session, "benchmark_specific_date",
+        choices = sort(dates, decreasing = TRUE)
+      )
+    } else {
+      req(data$combined)
+      dates <- unique(data$combined$date)
+      updateSelectizeInput(session, "benchmark_specific_date",
+        choices = sort(dates, decreasing = TRUE)
+      )
+    }
+  })
+
+  # Update subgroup choices
+  observeEvent(list(input$benchmark_dimension, input$benchmark_dimension_country), {
+    if (input$benchmark_setting == "Country") {
+      req(benchmark_data$parquet_data, input$benchmark_dimension_country)
+
+      subgroups <- benchmark_data$parquet_data %>%
+        filter(dimension %in% input$benchmark_dimension_country) %>%
+        pull(subgroup) %>%
+        unique()
+
+      updateSelectizeInput(session, "benchmark_subgroup_country",
+        choices = subgroups,
+        server = TRUE
+      )
+    } else {
+      req(data$combined, input$benchmark_dimension)
+
+      subgroups <- data$combined %>%
+        filter(dimension == input$benchmark_dimension) %>%
+        pull(subgroup) %>%
+        unique()
+
+      updateSelectizeInput(session, "benchmark_subgroup",
+        choices = subgroups
+      )
+    }
+  })
+
+  # Main benchmarking logic - Fixed Version
+  observeEvent(input$apply_benchmark, {
+    tryCatch(
+      {
+        if (input$benchmark_setting == "Country") {
+          req(
+            input$country_select, benchmark_data$parquet_data,
+            input$benchmark_indicator_country, input$benchmark_dimension_country
+          )
+
+          if (length(input$country_select) < 1) {
+            stop("Please select at least 1 country for comparison")
+          }
+
+          # Get date range
+          if (input$benchmark_date_type == "Multiple Dates") {
+            # if (input$benchmark_date_type == "Single Date") {
+            req(input$benchmark_specific_date)
+            date_filter <- as.numeric(input$benchmark_specific_date)
+          } else {
+            req(input$start_year, input$end_year)
+            date_filter <- input$start_year:input$end_year
+          }
+
+          #          req(input$benchmark_specific_date) # Always require benchmark_specific_date
+          #          date_filter <- as.numeric(input$benchmark_specific_date)
+
+          # Filter data with proper error handling
+          comparison_data <- tryCatch(
+            {
+              benchmark_data$parquet_data %>%
+                filter(
+                  setting %in% input$country_select,
+                  indicator_name %in% input$benchmark_indicator_country,
+                  dimension %in% input$benchmark_dimension_country,
+                  date %in% date_filter
+                ) %>%
+                left_join(benchmark_data$country_meta, by = c("setting", "iso3")) %>%
+                group_by(setting, iso3, whoreg6_name, wbincome_name, indicator_name, dimension, subgroup) %>%
+                summarise(
+                  mean_estimate = ifelse(all(is.na(estimate)), NA, mean(estimate, na.rm = TRUE)),
+                  min_estimate = ifelse(all(is.na(estimate)), NA, min(estimate, na.rm = TRUE)),
+                  max_estimate = ifelse(all(is.na(estimate)), NA, max(estimate, na.rm = TRUE)),
+                  mean_ci_lb = ifelse(all(is.na(ci_lb)), NA, mean(ci_lb, na.rm = TRUE)),
+                  mean_ci_ub = ifelse(all(is.na(ci_ub)), NA, mean(ci_ub, na.rm = TRUE)),
+                  mean_population = ifelse(all(is.na(population)), NA, mean(as.numeric(population), na.rm = TRUE)),
+                  .groups = "drop"
+                )
+            },
+            error = function(e) {
+              showNotification(paste("Data processing error:", e$message), type = "error")
+              return(NULL)
+            }
+          )
+
+          if (is.null(comparison_data)) {
+            return()
+          }
+
+          benchmark_data$comparison_data <- comparison_data
+
+          # Set reference data if subgroup is selected
+          if (!is.null(input$benchmark_subgroup_country) &&
+            input$benchmark_subgroup_country != "") {
+            benchmark_data$reference_data <- tryCatch(
+              {
+                req(benchmark_data$comparison_data)
+                benchmark_data$comparison_data %>%
+                  filter(subgroup %in% input$benchmark_subgroup_country)
+              },
+              error = function(e) {
+                showNotification(paste("Reference data error:", e$message), type = "error")
+                return(NULL)
+              }
+            )
+          } else {
+            benchmark_data$reference_data <- NULL
+          }
         } else {
-          req(input$start_year, input$end_year)
-          date_filter <- input$start_year:input$end_year
-        }
+          # Existing Ethiopia regional benchmarking code
+          req(
+            data$combined, input$benchmark_indicator,
+            input$benchmark_dimension, input$benchmark_subgroup
+          )
 
-#          req(input$benchmark_specific_date) # Always require benchmark_specific_date
-#          date_filter <- as.numeric(input$benchmark_specific_date)
+          # Get date range
+          if (input$benchmark_date_type == "Multiple Dates") {
+            #        if (input$benchmark_date_type == "Single Date") {
+            req(input$benchmark_specific_date)
+            date_filter <- input$benchmark_specific_date
+          } else {
+            req(input$start_year, input$end_year)
+            date_filter <- input$start_year:input$end_year
+          }
 
-        # Filter data with proper error handling
-        comparison_data <- tryCatch(
-          {
-            benchmark_data$parquet_data %>%
-              filter(
-                setting %in% input$country_select,
-                indicator_name %in% input$benchmark_indicator_country,
-                dimension %in% input$benchmark_dimension_country,
-                date %in% date_filter
-              ) %>%
-              left_join(benchmark_data$country_meta, by = c("setting", "iso3")) %>%
-              group_by(setting, iso3, whoreg6_name, wbincome_name, indicator_name, dimension, subgroup) %>%
+          #          req(input$benchmark_specific_date)  # Always require benchmark_specific_date
+          #          date_filter <- input$benchmark_specific_date
+
+          # Filter data with error handling
+          comparison_data <- tryCatch(
+            {
+              data$combined %>%
+                filter(
+                  indicator_name == input$benchmark_indicator,
+                  dimension == input$benchmark_dimension,
+                  date %in% date_filter
+                )
+            },
+            error = function(e) {
+              showNotification(paste("Data filtering error:", e$message), type = "error")
+              return(NULL)
+            }
+          )
+
+          if (is.null(comparison_data)) {
+            return()
+          }
+
+          # Calculate averages if date range is selected
+          if (input$benchmark_date_type == "Date Range") {
+            comparison_data <- comparison_data %>%
+              group_by(subgroup, dimension) %>%
               summarise(
-                mean_estimate = ifelse(all(is.na(estimate)), NA, mean(estimate, na.rm = TRUE)),
-                min_estimate = ifelse(all(is.na(estimate)), NA, min(estimate, na.rm = TRUE)),
-                max_estimate = ifelse(all(is.na(estimate)), NA, max(estimate, na.rm = TRUE)),
-                mean_ci_lb = ifelse(all(is.na(ci_lb)), NA, mean(ci_lb, na.rm = TRUE)),
-                mean_ci_ub = ifelse(all(is.na(ci_ub)), NA, mean(ci_ub, na.rm = TRUE)),
-                mean_population = ifelse(all(is.na(population)), NA, mean(as.numeric(population), na.rm = TRUE)),
+                estimate = ifelse(all(is.na(estimate)), NA, mean(estimate, na.rm = TRUE)),
+                population = ifelse(all(is.na(population)), NA, mean(as.numeric(population), na.rm = TRUE)),
                 .groups = "drop"
               )
-          },
-          error = function(e) {
-            showNotification(paste("Data processing error:", e$message), type = "error")
-            return(NULL)
           }
-        )
 
-        if (is.null(comparison_data)) {
-          return()
-        }
+          benchmark_data$comparison_data <- comparison_data %>%
+            arrange(desc(estimate))
 
-        benchmark_data$comparison_data <- comparison_data
-
-        # Set reference data if subgroup is selected
-        if (!is.null(input$benchmark_subgroup_country) &&
-          input$benchmark_subgroup_country != "") {
+          # Get reference data
           benchmark_data$reference_data <- tryCatch(
             {
               req(benchmark_data$comparison_data)
               benchmark_data$comparison_data %>%
-                filter(subgroup %in% input$benchmark_subgroup_country)
+                filter(subgroup == input$benchmark_subgroup)
             },
             error = function(e) {
               showNotification(paste("Reference data error:", e$message), type = "error")
               return(NULL)
             }
           )
-        } else {
-          benchmark_data$reference_data <- NULL
-        }
-      } else {
-        # Existing Ethiopia regional benchmarking code
-        req(
-          data$combined, input$benchmark_indicator,
-          input$benchmark_dimension, input$benchmark_subgroup
-        )
 
-        # Get date range
-        if (input$benchmark_date_type == "Multiple Dates") {
-#        if (input$benchmark_date_type == "Single Date") {
-          req(input$benchmark_specific_date)
-          date_filter <- input$benchmark_specific_date
-        } else {
-          req(input$start_year, input$end_year)
-          date_filter <- input$start_year:input$end_year
-        }
+          # Calculate differences
+          if (!is.null(benchmark_data$reference_data) && nrow(benchmark_data$reference_data) > 0) {
+            ref_value <- mean(benchmark_data$reference_data$estimate)
 
-#          req(input$benchmark_specific_date)  # Always require benchmark_specific_date
-#          date_filter <- input$benchmark_specific_date
-
-        # Filter data with error handling
-        comparison_data <- tryCatch(
-          {
-            data$combined %>%
-              filter(
-                indicator_name == input$benchmark_indicator,
-                dimension == input$benchmark_dimension,
-                date %in% date_filter
+            benchmark_data$comparison_data <- benchmark_data$comparison_data %>%
+              mutate(
+                is_benchmark = subgroup == input$benchmark_subgroup,
+                difference = estimate - ref_value,
+                pct_difference = (difference / ref_value) * 100
               )
-          },
-          error = function(e) {
-            showNotification(paste("Data filtering error:", e$message), type = "error")
-            return(NULL)
           }
-        )
-
-        if (is.null(comparison_data)) {
-          return()
         }
+      },
+      error = function(e) {
+        showNotification(paste("Benchmarking error:", e$message), type = "error")
+      }
+    )
+  })
 
-        # Calculate averages if date range is selected
-        if (input$benchmark_date_type == "Date Range") {
-          comparison_data <- comparison_data %>%
-            group_by(subgroup, dimension) %>%
-            summarise(
-              estimate = ifelse(all(is.na(estimate)), NA, mean(estimate, na.rm = TRUE)),
-              population = ifelse(all(is.na(population)), NA, mean(as.numeric(population), na.rm = TRUE)),
-              .groups = "drop"
+  # Fixed Benchmark visualization
+  output$benchmark_plot <- renderPlotly({
+    req(benchmark_data$comparison_data)
+
+    if (input$benchmark_setting == "Country") {
+      req(benchmark_data$comparison_data)
+      plot_data <- benchmark_data$comparison_data
+
+      # Verify required columns exist
+      required_cols <- c("setting", "mean_estimate", "subgroup", "indicator_name", "dimension", "mean_population")
+      if (!all(required_cols %in% names(plot_data))) {
+        return(plotly_empty() %>% layout(title = "Required data columns not available"))
+      }
+
+      # Create different plot types
+      p <- switch(input$benchmark_chart_type,
+        "Bar" = {
+          plot_ly(plot_data,
+            x = ~setting, y = ~mean_estimate,
+            type = "bar",
+            color = ~subgroup,
+            text = ~ paste(
+              "Country:", setting,
+              "<br>Indicator:", indicator_name,
+              "<br>Dimension:", dimension,
+              "<br>Subgroup:", subgroup,
+              "<br>Estimate:", round(mean_estimate, 2),
+              "<br>Population:", round(mean_population)
+            ),
+            hoverinfo = "text"
+          ) %>%
+            layout(
+              barmode = input$benchmark_bar_mode,
+              xaxis = list(title = "", categoryorder = "total descending"),
+              yaxis = list(title = "Estimate"),
+              showlegend = TRUE
+            )
+        },
+        "Horizontal Bar" = {
+          plot_ly(plot_data,
+            y = ~setting, x = ~mean_estimate,
+            type = "bar",
+            orientation = "h",
+            color = ~subgroup,
+            text = ~ paste(
+              "Country:", setting,
+              "<br>Estimate:", round(mean_estimate, 2),
+              "<br>Subgroup:", subgroup
+            ),
+            hoverinfo = "text"
+          ) %>%
+            layout(
+              barmode = input$benchmark_bar_mode,
+              yaxis = list(title = "", categoryorder = "total ascending"),
+              xaxis = list(title = "Estimate"),
+              showlegend = TRUE
+            )
+        },
+        "Scatter" = {
+          plot_ly(plot_data,
+            x = ~setting, y = ~mean_estimate,
+            type = "scatter",
+            mode = "markers",
+            color = ~subgroup,
+            size = ~mean_population,
+            text = ~ paste(
+              "Country:", setting,
+              "<br>Subgroup:", subgroup,
+              "<br>Estimate:", round(mean_estimate, 2)
+            ),
+            hoverinfo = "text"
+          ) %>%
+            layout(
+              xaxis = list(title = ""),
+              yaxis = list(title = "Estimate"),
+              showlegend = TRUE
+            )
+        },
+        "Line" = {
+          plot_ly(plot_data,
+            x = ~setting, y = ~mean_estimate,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~subgroup,
+            text = ~ paste(
+              "Country:", setting,
+              "<br>Subgroup:", subgroup,
+              "<br>Estimate:", round(mean_estimate, 2)
+            ),
+            hoverinfo = "text"
+          ) %>%
+            layout(
+              xaxis = list(title = ""),
+              yaxis = list(title = "Estimate"),
+              showlegend = TRUE
             )
         }
+      )
 
-        benchmark_data$comparison_data <- comparison_data %>%
-          arrange(desc(estimate))
-
-        # Get reference data
-        benchmark_data$reference_data <- tryCatch(
-          {
-            req(benchmark_data$comparison_data)
-            benchmark_data$comparison_data %>%
-              filter(subgroup == input$benchmark_subgroup)
-          },
-          error = function(e) {
-            showNotification(paste("Reference data error:", e$message), type = "error")
-            return(NULL)
-          }
-        )
-
-        # Calculate differences
-        if (!is.null(benchmark_data$reference_data) && nrow(benchmark_data$reference_data) > 0) {
-          ref_value <- mean(benchmark_data$reference_data$estimate)
-
-          benchmark_data$comparison_data <- benchmark_data$comparison_data %>%
-            mutate(
-              is_benchmark = subgroup == input$benchmark_subgroup,
-              difference = estimate - ref_value,
-              pct_difference = (difference / ref_value) * 100
-            )
+      # Add reference line if reference data exists
+      if (!is.null(benchmark_data$reference_data) &&
+        nrow(benchmark_data$reference_data) > 0 &&
+        "mean_estimate" %in% names(benchmark_data$reference_data)) {
+        ref_value <- mean(benchmark_data$reference_data$mean_estimate, na.rm = TRUE)
+        if (!is.na(ref_value)) {
+          p <- p %>% add_lines(
+            x = ~ unique(setting),
+            y = ref_value,
+            line = list(color = "red", dash = "dot"),
+            name = "Reference",
+            showlegend = TRUE
+          )
         }
       }
+
+      return(p)
+    } else {
+      # Existing regional benchmarking plot code
+      req(benchmark_data$reference_data)
+      plot_data <- benchmark_data$comparison_data
+
+      # Verify required columns exist
+      required_cols <- c("subgroup", "estimate", "is_benchmark", "difference", "pct_difference", "population")
+      if (!all(required_cols %in% names(plot_data))) {
+        return(plotly_empty() %>% layout(title = "Required data columns not available"))
+      }
+
+      plot_ly(
+        data = plot_data,
+        x = ~ reorder(subgroup, estimate),
+        y = ~estimate,
+        type = "bar",
+        color = ~is_benchmark,
+        colors = c("#1f77b4", "#ff7f0e"),
+        text = ~ paste(
+          "Subgroup:", subgroup,
+          "<br>Estimate:", round(estimate, 2),
+          "<br>Difference:", round(difference, 2),
+          "<br>% Difference:", round(pct_difference, 2), "%",
+          "<br>Population:", round(population)
+        ),
+        hoverinfo = "text"
+      ) %>%
+        layout(
+          title = paste("Benchmark Comparison for", input$benchmark_indicator),
+          xaxis = list(title = ""),
+          yaxis = list(title = "Estimate"),
+          showlegend = FALSE,
+          shapes = if (nrow(benchmark_data$reference_data) > 0) {
+            list(
+              type = "line",
+              x0 = -0.5,
+              x1 = nrow(plot_data) - 0.5,
+              y0 = benchmark_data$reference_data$estimate[1],
+              y1 = benchmark_data$reference_data$estimate[1],
+              line = list(color = "red", dash = "dot")
+            )
+          },
+          annotations = if (nrow(benchmark_data$reference_data) > 0) {
+            list(
+              x = nrow(plot_data) - 1,
+              y = benchmark_data$reference_data$estimate[1],
+              text = paste("Benchmark:", input$benchmark_subgroup),
+              showarrow = FALSE,
+              xanchor = "right"
+            )
+          }
+        )
+    }
+  })
+
+  # Fixed Benchmark table output
+  output$benchmark_table <- renderDT({
+    req(benchmark_data$comparison_data)
+
+    if (input$benchmark_setting == "Country") {
+      # Verify columns exist before selecting
+      required_cols <- c(
+        "setting", "whoreg6_name", "wbincome_name", "indicator_name",
+        "dimension", "subgroup", "mean_estimate", "min_estimate",
+        "max_estimate", "mean_ci_lb", "mean_ci_ub", "mean_population"
+      )
+
+      if (!all(required_cols %in% names(benchmark_data$comparison_data))) {
+        return(datatable(data.frame(Error = "Required columns not available")))
+      }
+
+      table_data <- benchmark_data$comparison_data %>%
+        select(
+          Country = setting,
+          `WHO Region` = whoreg6_name,
+          `Income Group` = wbincome_name,
+          Indicator = indicator_name,
+          Dimension = dimension,
+          Subgroup = subgroup,
+          `Mean Estimate` = mean_estimate,
+          `Min Estimate` = min_estimate,
+          `Max Estimate` = max_estimate,
+          `CI Lower` = mean_ci_lb,
+          `CI Upper` = mean_ci_ub,
+          Population = mean_population
+        )
+    } else {
+      # Verify columns exist before selecting
+      required_cols <- c(
+        "subgroup", "estimate", "difference", "pct_difference",
+        "ci_lb", "ci_ub", "population"
+      )
+
+      if (!all(required_cols %in% names(benchmark_data$comparison_data))) {
+        return(datatable(data.frame(Error = "Required columns not available")))
+      }
+
+      table_data <- benchmark_data$comparison_data %>%
+        select(
+          Subgroup = subgroup,
+          Estimate = estimate,
+          Difference = difference,
+          `% Difference` = pct_difference,
+          `CI Lower` = ci_lb,
+          `CI Upper` = ci_ub,
+          Population = population
+        )
+    }
+
+    datatable(
+      table_data,
+      extensions = c("Buttons", "Responsive"),
+      options = list(
+        pageLength = 20,
+        scrollX = TRUE,
+        dom = "Bfrtip",
+        buttons = c("copy", "csv", "excel", "pdf", "print"),
+        responsive = TRUE
+      ),
+      rownames = FALSE
+    ) %>%
+      formatRound(columns = sapply(table_data, is.numeric), digits = 2)
+  })
+
+  # Pivot table output
+  output$pivot_table <- renderRpivotTable({
+    req(benchmark_data$comparison_data)
+
+    if (input$benchmark_setting == "Country") {
+      req(benchmark_data$comparison_data)
+      rpivotTable(benchmark_data$comparison_data,
+        rows = c("setting", "dimension"),
+        cols = c("indicator_name", "date"),
+        vals = "mean_estimate",
+        aggregatorName = "Average",
+        rendererName = "Table"
+      )
+    } else {
+      rpivotTable(benchmark_data$comparison_data,
+        rows = c("subgroup", "dimension"),
+        cols = c("indicator_name", "date"),
+        vals = "estimate",
+        aggregatorName = "Average",
+        rendererName = "Table"
+      )
+    }
+  })
+
+  # Summary statistics output
+  output$benchmark_summary <- renderPrint({
+    req(benchmark_data$comparison_data)
+
+    if (input$benchmark_setting == "Country") {
+      cat("Country Comparison Summary Statistics\n")
+      cat("=====================================\n\n")
+
+      if (!is.null(benchmark_data$comparison_data)) {
+        # Summary by country
+        if ("setting" %in% names(benchmark_data$comparison_data) &&
+          "mean_estimate" %in% names(benchmark_data$comparison_data)) {
+          cat("By Country:\n")
+          print(benchmark_data$comparison_data %>%
+            group_by(setting) %>%
+            summarise(
+              Mean = mean(mean_estimate, na.rm = TRUE),
+              Median = median(mean_estimate, na.rm = TRUE),
+              SD = sd(mean_estimate, na.rm = TRUE),
+              Min = min(mean_estimate, na.rm = TRUE),
+              Max = max(mean_estimate, na.rm = TRUE),
+              .groups = "drop"
+            ))
+        }
+
+        # Summary by dimension
+        if ("dimension" %in% names(benchmark_data$comparison_data)) {
+          cat("\nBy Dimension:\n")
+          print(benchmark_data$comparison_data %>%
+            group_by(dimension) %>%
+            summarise(
+              Mean = mean(mean_estimate, na.rm = TRUE),
+              Median = median(mean_estimate, na.rm = TRUE),
+              SD = sd(mean_estimate, na.rm = TRUE),
+              Min = min(mean_estimate, na.rm = TRUE),
+              Max = max(mean_estimate, na.rm = TRUE),
+              .groups = "drop"
+            ))
+        }
+
+        # Summary by indicator
+        if ("indicator_name" %in% names(benchmark_data$comparison_data)) {
+          cat("\nBy Indicator:\n")
+          print(benchmark_data$comparison_data %>%
+            group_by(indicator_name) %>%
+            summarise(
+              Mean = mean(mean_estimate, na.rm = TRUE),
+              Median = median(mean_estimate, na.rm = TRUE),
+              SD = sd(mean_estimate, na.rm = TRUE),
+              Min = min(mean_estimate, na.rm = TRUE),
+              Max = max(mean_estimate, na.rm = TRUE),
+              .groups = "drop"
+            ))
+        }
+      }
+    } else {
+      # Existing regional summary code
+      if ("estimate" %in% names(benchmark_data$comparison_data)) {
+        summary_data <- benchmark_data$comparison_data$estimate
+        cat("Regional Benchmark Summary:\n")
+        cat("===========================\n")
+        print(summary(summary_data))
+        cat("\nStandard Deviation:", sd(summary_data, na.rm = TRUE))
+        cat("\nMinimum:", min(summary_data, na.rm = TRUE))
+        cat("\nMaximum:", max(summary_data, na.rm = TRUE))
+        cat("\nNumber of Subgroups:", length(unique(benchmark_data$comparison_data$subgroup)))
+
+        if (!is.null(benchmark_data$reference_data) &&
+          "estimate" %in% names(benchmark_data$reference_data)) {
+          cat("\n\nBenchmark Reference (", input$benchmark_subgroup, "):\n", sep = "")
+          cat("Mean Estimate:", mean(benchmark_data$reference_data$estimate, na.rm = TRUE))
+        }
+      }
+    }
+  })
+
+  # Download handler
+  output$download_benchmark <- downloadHandler(
+    filename = function() {
+      paste("benchmark_data_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv", sep = "")
     },
-    error = function(e) {
-      showNotification(paste("Benchmarking error:", e$message), type = "error")
+    content = function(file) {
+      write.csv(benchmark_data$comparison_data, file, row.names = FALSE)
     }
   )
-})
-
-# Fixed Benchmark visualization
-output$benchmark_plot <- renderPlotly({
-  req(benchmark_data$comparison_data)
-
-  if (input$benchmark_setting == "Country") {
-    req(benchmark_data$comparison_data)
-    plot_data <- benchmark_data$comparison_data
-
-    # Verify required columns exist
-    required_cols <- c("setting", "mean_estimate", "subgroup", "indicator_name", "dimension", "mean_population")
-    if (!all(required_cols %in% names(plot_data))) {
-      return(plotly_empty() %>% layout(title = "Required data columns not available"))
-    }
-
-    # Create different plot types
-    p <- switch(input$benchmark_chart_type,
-      "Bar" = {
-        plot_ly(plot_data,
-          x = ~setting, y = ~mean_estimate,
-          type = "bar",
-          color = ~subgroup,
-          text = ~ paste(
-            "Country:", setting,
-            "<br>Indicator:", indicator_name,
-            "<br>Dimension:", dimension,
-            "<br>Subgroup:", subgroup,
-            "<br>Estimate:", round(mean_estimate, 2),
-            "<br>Population:", round(mean_population)
-          ),
-          hoverinfo = "text"
-        ) %>%
-          layout(
-            barmode = input$benchmark_bar_mode,
-            xaxis = list(title = "", categoryorder = "total descending"),
-            yaxis = list(title = "Estimate"),
-            showlegend = TRUE
-          )
-      },
-      "Horizontal Bar" = {
-        plot_ly(plot_data,
-          y = ~setting, x = ~mean_estimate,
-          type = "bar",
-          orientation = "h",
-          color = ~subgroup,
-          text = ~ paste(
-            "Country:", setting,
-            "<br>Estimate:", round(mean_estimate, 2),
-            "<br>Subgroup:", subgroup
-          ),
-          hoverinfo = "text"
-        ) %>%
-          layout(
-            barmode = input$benchmark_bar_mode,
-            yaxis = list(title = "", categoryorder = "total ascending"),
-            xaxis = list(title = "Estimate"),
-            showlegend = TRUE
-          )
-      },
-      "Scatter" = {
-        plot_ly(plot_data,
-          x = ~setting, y = ~mean_estimate,
-          type = "scatter",
-          mode = "markers",
-          color = ~subgroup,
-          size = ~mean_population,
-          text = ~ paste(
-            "Country:", setting,
-            "<br>Subgroup:", subgroup,
-            "<br>Estimate:", round(mean_estimate, 2)
-          ),
-          hoverinfo = "text"
-        ) %>%
-          layout(
-            xaxis = list(title = ""),
-            yaxis = list(title = "Estimate"),
-            showlegend = TRUE
-          )
-      },
-      "Line" = {
-        plot_ly(plot_data,
-          x = ~setting, y = ~mean_estimate,
-          type = "scatter",
-          mode = "lines+markers",
-          color = ~subgroup,
-          text = ~ paste(
-            "Country:", setting,
-            "<br>Subgroup:", subgroup,
-            "<br>Estimate:", round(mean_estimate, 2)
-          ),
-          hoverinfo = "text"
-        ) %>%
-          layout(
-            xaxis = list(title = ""),
-            yaxis = list(title = "Estimate"),
-            showlegend = TRUE
-          )
-      }
-    )
-
-    # Add reference line if reference data exists
-    if (!is.null(benchmark_data$reference_data) &&
-      nrow(benchmark_data$reference_data) > 0 &&
-      "mean_estimate" %in% names(benchmark_data$reference_data)) {
-      ref_value <- mean(benchmark_data$reference_data$mean_estimate, na.rm = TRUE)
-      if (!is.na(ref_value)) {
-        p <- p %>% add_lines(
-          x = ~ unique(setting),
-          y = ref_value,
-          line = list(color = "red", dash = "dot"),
-          name = "Reference",
-          showlegend = TRUE
-        )
-      }
-    }
-
-    return(p)
-  } else {
-    # Existing regional benchmarking plot code
-    req(benchmark_data$reference_data)
-    plot_data <- benchmark_data$comparison_data
-
-    # Verify required columns exist
-    required_cols <- c("subgroup", "estimate", "is_benchmark", "difference", "pct_difference", "population")
-    if (!all(required_cols %in% names(plot_data))) {
-      return(plotly_empty() %>% layout(title = "Required data columns not available"))
-    }
-
-    plot_ly(
-      data = plot_data,
-      x = ~ reorder(subgroup, estimate),
-      y = ~estimate,
-      type = "bar",
-      color = ~is_benchmark,
-      colors = c("#1f77b4", "#ff7f0e"),
-      text = ~ paste(
-        "Subgroup:", subgroup,
-        "<br>Estimate:", round(estimate, 2),
-        "<br>Difference:", round(difference, 2),
-        "<br>% Difference:", round(pct_difference, 2), "%",
-        "<br>Population:", round(population)
-      ),
-      hoverinfo = "text"
-    ) %>%
-      layout(
-        title = paste("Benchmark Comparison for", input$benchmark_indicator),
-        xaxis = list(title = ""),
-        yaxis = list(title = "Estimate"),
-        showlegend = FALSE,
-        shapes = if (nrow(benchmark_data$reference_data) > 0) {
-          list(
-            type = "line",
-            x0 = -0.5,
-            x1 = nrow(plot_data) - 0.5,
-            y0 = benchmark_data$reference_data$estimate[1],
-            y1 = benchmark_data$reference_data$estimate[1],
-            line = list(color = "red", dash = "dot")
-          )
-        },
-        annotations = if (nrow(benchmark_data$reference_data) > 0) {
-          list(
-            x = nrow(plot_data) - 1,
-            y = benchmark_data$reference_data$estimate[1],
-            text = paste("Benchmark:", input$benchmark_subgroup),
-            showarrow = FALSE,
-            xanchor = "right"
-          )
-        }
-      )
-  }
-})
-
-# Fixed Benchmark table output
-output$benchmark_table <- renderDT({
-  req(benchmark_data$comparison_data)
-
-  if (input$benchmark_setting == "Country") {
-    # Verify columns exist before selecting
-    required_cols <- c(
-      "setting", "whoreg6_name", "wbincome_name", "indicator_name",
-      "dimension", "subgroup", "mean_estimate", "min_estimate",
-      "max_estimate", "mean_ci_lb", "mean_ci_ub", "mean_population"
-    )
-
-    if (!all(required_cols %in% names(benchmark_data$comparison_data))) {
-      return(datatable(data.frame(Error = "Required columns not available")))
-    }
-
-    table_data <- benchmark_data$comparison_data %>%
-      select(
-        Country = setting,
-        `WHO Region` = whoreg6_name,
-        `Income Group` = wbincome_name,
-        Indicator = indicator_name,
-        Dimension = dimension,
-        Subgroup = subgroup,
-        `Mean Estimate` = mean_estimate,
-        `Min Estimate` = min_estimate,
-        `Max Estimate` = max_estimate,
-        `CI Lower` = mean_ci_lb,
-        `CI Upper` = mean_ci_ub,
-        Population = mean_population
-      )
-  } else {
-    # Verify columns exist before selecting
-    required_cols <- c(
-      "subgroup", "estimate", "difference", "pct_difference",
-      "ci_lb", "ci_ub", "population"
-    )
-
-    if (!all(required_cols %in% names(benchmark_data$comparison_data))) {
-      return(datatable(data.frame(Error = "Required columns not available")))
-    }
-
-    table_data <- benchmark_data$comparison_data %>%
-      select(
-        Subgroup = subgroup,
-        Estimate = estimate,
-        Difference = difference,
-        `% Difference` = pct_difference,
-        `CI Lower` = ci_lb,
-        `CI Upper` = ci_ub,
-        Population = population
-      )
-  }
-
-  datatable(
-    table_data,
-    extensions = c("Buttons", "Responsive"),
-    options = list(
-      pageLength = 20,
-      scrollX = TRUE,
-      dom = "Bfrtip",
-      buttons = c("copy", "csv", "excel", "pdf", "print"),
-      responsive = TRUE
-    ),
-    rownames = FALSE
-  ) %>%
-    formatRound(columns = sapply(table_data, is.numeric), digits = 2)
-})
-
-# Pivot table output
-output$pivot_table <- renderRpivotTable({
-  req(benchmark_data$comparison_data)
-
-  if (input$benchmark_setting == "Country") {
-    req(benchmark_data$comparison_data)
-    rpivotTable(benchmark_data$comparison_data,
-      rows = c("setting", "dimension"),
-      cols = "indicator_name",
-      vals = "mean_estimate",
-      aggregatorName = "Average",
-      rendererName = "Table"
-    )
-  } else {
-    rpivotTable(benchmark_data$comparison_data,
-      rows = c("subgroup", "dimension"),
-      cols = "indicator_name",
-      vals = "estimate",
-      aggregatorName = "Average",
-      rendererName = "Table"
-    )
-  }
-})
-
-# Summary statistics output
-output$benchmark_summary <- renderPrint({
-  req(benchmark_data$comparison_data)
-
-  if (input$benchmark_setting == "Country") {
-    cat("Country Comparison Summary Statistics\n")
-    cat("=====================================\n\n")
-
-    if (!is.null(benchmark_data$comparison_data)) {
-      # Summary by country
-      if ("setting" %in% names(benchmark_data$comparison_data) &&
-        "mean_estimate" %in% names(benchmark_data$comparison_data)) {
-        cat("By Country:\n")
-        print(benchmark_data$comparison_data %>%
-          group_by(setting) %>%
-          summarise(
-            Mean = mean(mean_estimate, na.rm = TRUE),
-            Median = median(mean_estimate, na.rm = TRUE),
-            SD = sd(mean_estimate, na.rm = TRUE),
-            Min = min(mean_estimate, na.rm = TRUE),
-            Max = max(mean_estimate, na.rm = TRUE),
-            .groups = "drop"
-          ))
-      }
-
-      # Summary by dimension
-      if ("dimension" %in% names(benchmark_data$comparison_data)) {
-        cat("\nBy Dimension:\n")
-        print(benchmark_data$comparison_data %>%
-          group_by(dimension) %>%
-          summarise(
-            Mean = mean(mean_estimate, na.rm = TRUE),
-            Median = median(mean_estimate, na.rm = TRUE),
-            SD = sd(mean_estimate, na.rm = TRUE),
-            Min = min(mean_estimate, na.rm = TRUE),
-            Max = max(mean_estimate, na.rm = TRUE),
-            .groups = "drop"
-          ))
-      }
-
-      # Summary by indicator
-      if ("indicator_name" %in% names(benchmark_data$comparison_data)) {
-        cat("\nBy Indicator:\n")
-        print(benchmark_data$comparison_data %>%
-          group_by(indicator_name) %>%
-          summarise(
-            Mean = mean(mean_estimate, na.rm = TRUE),
-            Median = median(mean_estimate, na.rm = TRUE),
-            SD = sd(mean_estimate, na.rm = TRUE),
-            Min = min(mean_estimate, na.rm = TRUE),
-            Max = max(mean_estimate, na.rm = TRUE),
-            .groups = "drop"
-          ))
-      }
-    }
-  } else {
-    # Existing regional summary code
-    if ("estimate" %in% names(benchmark_data$comparison_data)) {
-      summary_data <- benchmark_data$comparison_data$estimate
-      cat("Regional Benchmark Summary:\n")
-      cat("===========================\n")
-      print(summary(summary_data))
-      cat("\nStandard Deviation:", sd(summary_data, na.rm = TRUE))
-      cat("\nMinimum:", min(summary_data, na.rm = TRUE))
-      cat("\nMaximum:", max(summary_data, na.rm = TRUE))
-      cat("\nNumber of Subgroups:", length(unique(benchmark_data$comparison_data$subgroup)))
-
-      if (!is.null(benchmark_data$reference_data) &&
-        "estimate" %in% names(benchmark_data$reference_data)) {
-        cat("\n\nBenchmark Reference (", input$benchmark_subgroup, "):\n", sep = "")
-        cat("Mean Estimate:", mean(benchmark_data$reference_data$estimate, na.rm = TRUE))
-      }
-    }
-  }
-})
-
-# Download handler
-output$download_benchmark <- downloadHandler(
-  filename = function() {
-    paste("benchmark_data_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv", sep = "")
-  },
-  content = function(file) {
-    write.csv(benchmark_data$comparison_data, file, row.names = FALSE)
-  }
-)
 
   # output$ethgeoUI <- renderUI({
   #  source("ethgeo.R", local = TRUE)$value
@@ -2596,15 +2600,14 @@ output$download_benchmark <- downloadHandler(
   source("dba.R")
   dba_module_ui("dba_module")
 
-source("manual.R")
-manualServer("manual_module", reactive(user$info$role))
-# Add this to your server function in server.R
-manualUI("manual_module")
+  source("manual.R")
+  manualServer("manual_module", reactive(user$info$role))
+  # Add this to your server function in server.R
+  manualUI("manual_module")
 
-# Add this with your other source() calls at the top of server.R
-#source("manual.R", local = TRUE)$value
-#source("manual.R")
-
+  # Add this with your other source() calls at the top of server.R
+  # source("manual.R", local = TRUE)$value
+  # source("manual.R")
 }
 
 # Run the application

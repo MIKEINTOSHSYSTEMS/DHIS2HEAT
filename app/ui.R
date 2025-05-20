@@ -35,7 +35,7 @@ library(DT) # for using %>% which works as a pipe in R code
 # source("clean.R", local = TRUE)$value
 source("load_countries.R", local = TRUE)$value
 source("manual.R", local = TRUE)$value
-#source("spatial.R", local = TRUE)$value
+# source("spatial.R", local = TRUE)$value
 source("spatial_module.R", local = TRUE)$value
 source("exclean.R", local = TRUE)$value
 source("ethgeo.R", local = TRUE)$value
@@ -137,13 +137,13 @@ ui <- tagList(
         value = "home",
         fluidPage(
           class = "start-page",
-          #tags$a(
+          # tags$a(
           tags$
             img(src = "moh_logo_blue.svg", height = "100px"),
-            #href = "#",
-            # style = "color: #007BDDFF; font-weight: bold; font-size: 16px; padding: 15px;",
-            # " Ministry of Health - ETHIOPIA"
-          #),
+          # href = "#",
+          # style = "color: #007BDDFF; font-weight: bold; font-size: 16px; padding: 15px;",
+          # " Ministry of Health - ETHIOPIA"
+          # ),
           hr(),
           hr(),
           h1("Welcome To"),
@@ -186,7 +186,7 @@ ui <- tagList(
             p("Version 1.6.1 - Improved income group selection in spatial module and updated filtering logic."),
             p("Version 1.6.2 - Added spatial health indicators benchmarking tool with dynamic UI and map visualization."),
             p("Version 1.7.0 - Added benchmarking settings and enhanced spatial data management functionalities."),
-            p("Version 1.7.1 - Modern visualizations added with WHO Benchmarking Standards, advanced data management functionalities, and streamlined UI."),  
+            p("Version 1.7.1 - Modern visualizations added with WHO Benchmarking Standards, advanced data management functionalities, and streamlined UI."),
           ),
 
           # Additional Sections
@@ -205,67 +205,67 @@ ui <- tagList(
     # Main Application (conditional display)
     conditionalPanel(
       condition = "output.logged_in",
-dashboardPage(
-  dashboardHeader(
-    title = tags$div(
-      tags$img(src = "dhis2-icon.svg", height = "50px"),
-      HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
-    ),
-    tags$li(
-      class = "dropdown",
-      #tags$a(
-      tags$html(
-        img(src = "moh_logo_white.png", height = "47px", style = "padding-left: 7px",),
-        #href = "#",
-        #style = "vertical-align: middle; margin-right: 10px;",
-        style = "vertical-align: sub; margin-right: 10px;",
-        HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 16px;padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
+      dashboardPage(
+        dashboardHeader(
+          title = tags$div(
+            tags$img(src = "dhis2-icon.svg", height = "50px"),
+            HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
+          ),
+          tags$li(
+            class = "dropdown",
+            # tags$a(
+            tags$html(
+              img(src = "moh_logo_white.png", height = "47px", style = "padding-left: 7px", ),
+              # href = "#",
+              # style = "vertical-align: middle; margin-right: 10px;",
+              style = "vertical-align: sub; margin-right: 10px;",
+              HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 16px;padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
 
-        #style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
-        #" Ministry of Health - ETHIOPIA"
-      )
-    ),
-    titleWidth = "350px"  # Match sidebar width
-  ),
-  dashboardSidebar(
-    width = 350,
-    tags$html(
-    useShinyjs(),  # Activate shinyjs functionality      
-      class = "pdropdown user-menu",
-      uiOutput("user_profile")    
-    ),
- #   tags$html(
- #     #class = "dropdown user-menu",
- #     class = "pdropdown user-menu",
- #   tags$head(tags$style(HTML(css))),
- #   tags$script(HTML("
- #     $(document).ready(function() {
- #       // Toggle dropdown menu when user clicks on the profile picture or username
+              # style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
+              # " Ministry of Health - ETHIOPIA"
+            )
+          ),
+          titleWidth = "350px" # Match sidebar width
+        ),
+        dashboardSidebar(
+          width = 350,
+          tags$html(
+            useShinyjs(), # Activate shinyjs functionality
+            class = "pdropdown user-menu",
+            uiOutput("user_profile")
+          ),
+          #   tags$html(
+          #     #class = "dropdown user-menu",
+          #     class = "pdropdown user-menu",
+          #   tags$head(tags$style(HTML(css))),
+          #   tags$script(HTML("
+          #     $(document).ready(function() {
+          #       // Toggle dropdown menu when user clicks on the profile picture or username
 
-#      });
-#    ")),      
-#      uiOutput("user_profile")
-#    ),
-    hr(),
-    sidebarMenu(
+          #      });
+          #    ")),
+          #      uiOutput("user_profile")
+          #    ),
+          hr(),
+          sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
             menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
             menuItem("WHO Geographical", tabName = "geographical", icon = icon("map-location")),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
-            conditionalPanel(
-              condition = "output.is_admin",
-              menuSubItem("Source Setting", tabName = "source_setting", icon = icon("sliders-h")),
-              menuSubItem("Fetcher Setting", tabName = "fetcher_setting", icon = icon("download")),
+              conditionalPanel(
+                condition = "output.is_admin",
+                menuSubItem("Source Setting", tabName = "source_setting", icon = icon("sliders-h")),
+                menuSubItem("Fetcher Setting", tabName = "fetcher_setting", icon = icon("download")),
               )
             ),
             menuItem("Data Management",
               icon = icon("database"),
-            conditionalPanel(
-              condition = "output.is_admin",
-              menuSubItem("Data Cleaner", tabName = "dash_explore_clean", icon = icon("broom")), # ,
-              # menuSubItem("Explore & Clean", tabName = "explore_clean", icon = icon("broom"))
-            )
+              conditionalPanel(
+                condition = "output.is_admin",
+                menuSubItem("Data Cleaner", tabName = "dash_explore_clean", icon = icon("broom")), # ,
+                # menuSubItem("Explore & Clean", tabName = "explore_clean", icon = icon("broom"))
+              )
             ),
             hr(),
             menuItem("Admin Panel",
@@ -278,25 +278,25 @@ dashboardPage(
               )
             ),
             hr(),
-          # Add this to your sidebarMenu() in ui.R
+            # Add this to your sidebarMenu() in ui.R
             menuItem("User Manual", tabName = "user_manual", icon = icon("book"))
           )
         ),
-  dashboardBody(
-    tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
-      # Add modern fonts
-      tags$link(href = "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap", rel = "stylesheet"),
-      tags$style(HTML("
+        dashboardBody(
+          tags$head(
+            tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+            # Add modern fonts
+            tags$link(href = "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap", rel = "stylesheet"),
+            tags$style(HTML("
         body {
           font-family: 'Roboto', sans-serif;
         }
       "))
-    ),
-    useShinyjs(),
-    class = "dashboard-body", 
+          ),
+          useShinyjs(),
+          class = "dashboard-body",
           tags$head(tags$style(HTML(css))),
-tags$script(HTML("
+          tags$script(HTML("
   $(document).ready(function() {
     // Add scroll behavior to header
     $(window).scroll(function() {
@@ -306,7 +306,7 @@ tags$script(HTML("
         $('.main-header').removeClass('scrolled');
       }
     });
-    
+
     // Enhanced hover effects
     $('.main-header .dropdown a').hover(
       function() {
@@ -324,21 +324,21 @@ tags$script(HTML("
         });
       }
     );
-    
+
     // Pulse animation for active items
     setInterval(function() {
       $('.navbar-nav > li.active > a').css('animation', 'pulse 2s infinite');
     }, 3000);
-    
+
     // Smooth dropdown animations
     $('.dropdown').on('show.bs.dropdown', function() {
       $(this).find('.dropdown-menu').first().stop(true, true).slideDown(200);
     });
-    
+
     $('.dropdown').on('hide.bs.dropdown', function() {
       $(this).find('.dropdown-menu').first().stop(true, true).slideUp(200);
     });
-    
+
     // Mobile menu toggle enhancement
     $('.sidebar-toggle').click(function() {
       $(this).toggleClass('active');
@@ -536,46 +536,46 @@ tags$script(HTML("
             tabItem(
               tabName = "data_preview",
               fluidRow(
-                #actionButton("load_settings", "Load Settings", class = "btn-info"),
-                #actionButton("fetch_data", "Fetch Data", class = "btn-success"),
+                # actionButton("load_settings", "Load Settings", class = "btn-info"),
+                # actionButton("fetch_data", "Fetch Data", class = "btn-success"),
                 downloadButton("export_data", "Export All To Excel", class = "btn-warning"),
-                #downloadButton("export_parquet", "Export to Parquet", class = "btn-danger"),
+                # downloadButton("export_parquet", "Export to Parquet", class = "btn-danger"),
                 actionButton("help", "Help", class = "btn-info"),
                 hr(),
-box(
-  title = tagList(
-    "Filters",
-    p("To get started, select indicators and dimensions, then apply filters",
-      style = "font-size: 14px; color: #b7b7b7;"
-    )
-  ),
-  status = "primary",
-  solidHeader = TRUE,
-  width = 12,
-  fluidRow(
-    column(3, selectizeInput("filter_indicators", "Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-    column(3, selectizeInput("filter_dimensions", "Dimensions",
-      choices = c("Region", "Zone", "Woreda", "Facility Type", "Settlement"),
-      multiple = TRUE, options = list(maxOptions = 1000)
-    )),
-    column(
-      3,
-      conditionalPanel(
-        condition = "input.filter_dimensions.includes('Zone') || input.filter_dimensions.includes('Woreda')",
-        selectizeInput("filter_regions", "Regions", choices = NULL, multiple = TRUE)
-      ),
-      conditionalPanel(
-        condition = "input.filter_dimensions.includes('Woreda')",
-        selectizeInput("filter_zones_woreda", "Zones", choices = NULL, multiple = TRUE)
-      )
-    ),
-    column(3, selectizeInput("filter_subgroups", "Subgroups", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-    column(3, selectizeInput("filter_dates", "Dates", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+                box(
+                  title = tagList(
+                    "Filters",
+                    p("To get started, select indicators and dimensions, then apply filters",
+                      style = "font-size: 14px; color: #b7b7b7;"
+                    )
+                  ),
+                  status = "primary",
+                  solidHeader = TRUE,
+                  width = 12,
+                  fluidRow(
+                    column(3, selectizeInput("filter_indicators", "Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+                    column(3, selectizeInput("filter_dimensions", "Dimensions",
+                      choices = c("Region", "Zone", "Woreda", "Facility Type", "Settlement"),
+                      multiple = TRUE, options = list(maxOptions = 1000)
+                    )),
+                    column(
+                      3,
+                      conditionalPanel(
+                        condition = "input.filter_dimensions.includes('Zone') || input.filter_dimensions.includes('Woreda')",
+                        selectizeInput("filter_regions", "Regions", choices = NULL, multiple = TRUE)
+                      ),
+                      conditionalPanel(
+                        condition = "input.filter_dimensions.includes('Woreda')",
+                        selectizeInput("filter_zones_woreda", "Zones", choices = NULL, multiple = TRUE)
+                      )
+                    ),
+                    column(3, selectizeInput("filter_subgroups", "Subgroups", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+                    column(3, selectizeInput("filter_dates", "Dates", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
 
-    #    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;")),
-    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;"))
-  )
-),
+                    #    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;")),
+                    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;"))
+                  )
+                ),
                 column(
                   width = 6,
                   box(
@@ -758,80 +758,82 @@ box(
                     )
                   ),
                   fluidRow(
-                        # column(
-                        #   3,
-                        #   selectInput("benchmark_date_type", "Date Selection",
-                        #     choices = c("Single Date", "Date Range"),
-                        #     selected = "Single Date"
-                        #   )
-                        # ),
-                        # column(
-                        #   3,
-                        #   conditionalPanel(
-                        #     condition = "input.benchmark_date_type == 'Date Range'",
-                        #     numericInput("start_year", "Start Year",
-                        #       value = 2014, min = 2000, max = 2100
-                        #     ),
-                        #     numericInput("end_year", "End Year",
-                        #       value = as.integer(format(Sys.Date(), "%Y")),
-                        #       min = 2000, max = 2100
-                        #     )
-                        #   )
-                        # ),
-                        # column(
-                        #   3,
-                        #   conditionalPanel(
-                        #     condition = "input.benchmark_date_type == 'Single Date'",
-                        #     selectizeInput("benchmark_specific_date", "Select Date", 
-                        #     choices = NULL, multiple = TRUE)
-                        #   )
-                        # ),
-                          column(
-                            4,
-                            selectInput("benchmark_date_type", "Date Selection",
-                                        choices = c("Multiple Dates", "Date Range"),
-                                        selected = "Multiple Dates"),
-                            conditionalPanel(
-                              condition = "input.benchmark_date_type == 'Multiple Dates'",
-                              selectizeInput("benchmark_specific_date", "Select Date(s)", 
-                                            choices = NULL,
-                                            multiple = TRUE)
-                            ),
-                          conditionalPanel(
-                            condition = "input.benchmark_date_type == 'Date Range'",
-                            numericInput("start_year", "Start Year",
-                              value = 2014, min = 1990, max = 2100
-                            ),
-                            numericInput("end_year", "End Year",
-                              value = as.integer(format(Sys.Date(), "%Y")),
-                              min = 1990, max = 2100
-                             )
-                          )
-                          ),
-#                          conditionalPanel(
-#                            condition = "input.benchmark_date_type == 'Multiple Dates'",
-#                          selectizeInput("benchmark_specific_date", "Select Dates",
-#                            choices = NULL, multiple = TRUE
-#                          ))
-#                        ),
-                  # column(
-                  #   3,
-                  #   conditionalPanel(
-                  #     condition = "input.benchmark_chart_type == 'Bar' || input.benchmark_chart_type == 'Horizontal Bar'",
-                  #     selectInput("benchmark_bar_mode", "Bar Mode",
-                  #       choices = c("Grouped" = "group", "Stacked" = "stack"),
-                  #       selected = "group"
-                  #     )
-                  #   )
-                  # ),
-                  # column(
-                  #   3,
-                  #   numericInput("plot_height", "Plot Height (px)", value = 600, min = 300, max = 1200)
-                  # ),
-                  # column(
-                  #   3,
-                  #   numericInput("plot_width", "Plot Width (px)", value = 900, min = 300, max = 1200)
-                  # ),
+                    # column(
+                    #   3,
+                    #   selectInput("benchmark_date_type", "Date Selection",
+                    #     choices = c("Single Date", "Date Range"),
+                    #     selected = "Single Date"
+                    #   )
+                    # ),
+                    # column(
+                    #   3,
+                    #   conditionalPanel(
+                    #     condition = "input.benchmark_date_type == 'Date Range'",
+                    #     numericInput("start_year", "Start Year",
+                    #       value = 2014, min = 2000, max = 2100
+                    #     ),
+                    #     numericInput("end_year", "End Year",
+                    #       value = as.integer(format(Sys.Date(), "%Y")),
+                    #       min = 2000, max = 2100
+                    #     )
+                    #   )
+                    # ),
+                    # column(
+                    #   3,
+                    #   conditionalPanel(
+                    #     condition = "input.benchmark_date_type == 'Single Date'",
+                    #     selectizeInput("benchmark_specific_date", "Select Date",
+                    #     choices = NULL, multiple = TRUE)
+                    #   )
+                    # ),
+                    column(
+                      4,
+                      selectInput("benchmark_date_type", "Date Selection",
+                        choices = c("Multiple Dates", "Date Range"),
+                        selected = "Multiple Dates"
+                      ),
+                      conditionalPanel(
+                        condition = "input.benchmark_date_type == 'Multiple Dates'",
+                        selectizeInput("benchmark_specific_date", "Select Date(s)",
+                          choices = NULL,
+                          multiple = TRUE
+                        )
+                      ),
+                      conditionalPanel(
+                        condition = "input.benchmark_date_type == 'Date Range'",
+                        numericInput("start_year", "Start Year",
+                          value = 2014, min = 1990, max = 2100
+                        ),
+                        numericInput("end_year", "End Year",
+                          value = as.integer(format(Sys.Date(), "%Y")),
+                          min = 1990, max = 2100
+                        )
+                      )
+                    ),
+                    #                          conditionalPanel(
+                    #                            condition = "input.benchmark_date_type == 'Multiple Dates'",
+                    #                          selectizeInput("benchmark_specific_date", "Select Dates",
+                    #                            choices = NULL, multiple = TRUE
+                    #                          ))
+                    #                        ),
+                    # column(
+                    #   3,
+                    #   conditionalPanel(
+                    #     condition = "input.benchmark_chart_type == 'Bar' || input.benchmark_chart_type == 'Horizontal Bar'",
+                    #     selectInput("benchmark_bar_mode", "Bar Mode",
+                    #       choices = c("Grouped" = "group", "Stacked" = "stack"),
+                    #       selected = "group"
+                    #     )
+                    #   )
+                    # ),
+                    # column(
+                    #   3,
+                    #   numericInput("plot_height", "Plot Height (px)", value = 600, min = 300, max = 1200)
+                    # ),
+                    # column(
+                    #   3,
+                    #   numericInput("plot_width", "Plot Width (px)", value = 900, min = 300, max = 1200)
+                    # ),
                     column(
                       4,
                       actionButton("apply_benchmark", "Apply Benchmark", class = "btn-primary")
@@ -865,7 +867,7 @@ box(
                     tabPanel(
                       "Summary Statistics",
                       verbatimTextOutput("benchmark_summary")
-                    ),                                        
+                    ),
                     tabPanel(
                       "Map Visualization",
                       div(
