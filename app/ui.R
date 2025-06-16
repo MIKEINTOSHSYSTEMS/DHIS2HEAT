@@ -250,6 +250,7 @@ ui <- tagList(
           sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
             menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
+            menuItem("Summary Measures", tabName = "summary_measures", icon = icon("calculator")),
             menuItem("WHO Geographical", tabName = "geographical", icon = icon("map-location")),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
@@ -485,6 +486,17 @@ ui <- tagList(
                   selectizeInput("indicators", "Select Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000)),
                   textInput("indicator_abbr", "Indicator Abbreviations (comma-separated)", value = ""),
                   selectizeInput("favorable_indicators", "Favorable Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000)),
+                  hr(),
+                  conditionalPanel(
+                    condition = "input.custom_indicator_scales == true",
+                    hr(),
+                    h4("Ordered Dimension Settings"),
+                    selectizeInput("ordered_indicators", "Select Indicators for Ordered Dimensions",
+                      choices = NULL, multiple = TRUE
+                    ),
+                    uiOutput("ordered_dimensions_ui"),
+                    actionButton("save_ordered_settings", "Save Ordered Settings", class = "btn-info")
+                  ),
                   hr(),
                   checkboxInput("custom_indicator_scales", "Set Custom Indicator Scales", value = TRUE),
                   conditionalPanel(
@@ -885,6 +897,183 @@ ui <- tagList(
                   ),
                   downloadButton("download_benchmark", "Download Benchmark Data",
                     class = "btn-info"
+                  )
+                )
+              )
+            ),
+            tabItem(
+              tabName = "summary_measures",
+              fluidRow(
+                box(
+                  title = "Summary Measures Settings",
+                  status = "primary",
+                  solidHeader = TRUE,
+                  width = 12,
+                  fluidRow(
+                    column(4, selectInput("sm_indicator", "Select Indicator", choices = NULL)),
+                    column(4, selectInput("sm_dimension", "Select Dimension", choices = NULL)),
+                    column(4, selectInput("sm_date", "Select Date", choices = NULL))
+                  ),
+                  fluidRow(
+                    column(4, checkboxInput("sm_weighted", "Weighted Measures", value = TRUE)),
+                    column(4, selectInput("sm_reference", "Reference Subgroup", choices = NULL)),
+                    column(4, actionButton("sm_calculate", "Calculate Measures", class = "btn-primary"))
+                  )
+                ),
+                box(
+                  title = "Summary Measures Results",
+                  status = "success",
+                  solidHeader = TRUE,
+                  width = 12,
+                  tabsetPanel(
+                    tabPanel(
+                      "Simple Measures",
+                      fluidRow(
+                        column(
+                          6,
+                          h4("Difference (D)"),
+                          verbatimTextOutput("sm_difference"),
+                          plotlyOutput("sm_difference_plot")
+                        ),
+                        column(
+                          6,
+                          h4("Ratio (R)"),
+                          verbatimTextOutput("sm_ratio"),
+                          plotlyOutput("sm_ratio_plot")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Ordered Disproportionality",
+                      fluidRow(
+                        column(
+                          6,
+                          h4("Absolute Concentration Index (ACI)"),
+                          verbatimTextOutput("sm_aci"),
+                          plotlyOutput("sm_aci_plot")
+                        ),
+                        column(
+                          6,
+                          h4("Relative Concentration Index (RCI)"),
+                          verbatimTextOutput("sm_rci"),
+                          plotlyOutput("sm_rci_plot")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Regression-Based",
+                      fluidRow(
+                        column(
+                          6,
+                          h4("Slope Index of Inequality (SII)"),
+                          verbatimTextOutput("sm_sii"),
+                          plotlyOutput("sm_sii_plot")
+                        ),
+                        column(
+                          6,
+                          h4("Relative Index of Inequality (RII)"),
+                          verbatimTextOutput("sm_rii"),
+                          plotlyOutput("sm_rii_plot")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Variance Measures",
+                      fluidRow(
+                        column(
+                          4,
+                          h4("Between-Group Variance (BGV)"),
+                          verbatimTextOutput("sm_bgv")
+                        ),
+                        column(
+                          4,
+                          h4("Between-Group SD (BGSD)"),
+                          verbatimTextOutput("sm_bgsd")
+                        ),
+                        column(
+                          4,
+                          h4("Coefficient of Variation (COV)"),
+                          verbatimTextOutput("sm_cov")
+                        )
+                      ),
+                      plotlyOutput("sm_variance_plot")
+                    ),
+                    tabPanel(
+                      "Mean Difference",
+                      fluidRow(
+                        column(
+                          4,
+                          h4("From Mean (Unweighted)"),
+                          verbatimTextOutput("sm_mdmu")
+                        ),
+                        column(
+                          4,
+                          h4("From Mean (Weighted)"),
+                          verbatimTextOutput("sm_mdmw")
+                        ),
+                        column(
+                          4,
+                          h4("From Best (Unweighted)"),
+                          verbatimTextOutput("sm_mdbu")
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          4,
+                          h4("From Best (Weighted)"),
+                          verbatimTextOutput("sm_mdbw")
+                        ),
+                        column(
+                          4,
+                          h4("From Reference (Unweighted)"),
+                          verbatimTextOutput("sm_mdru")
+                        ),
+                        column(
+                          4,
+                          h4("From Reference (Weighted)"),
+                          verbatimTextOutput("sm_mdrw")
+                        )
+                      ),
+                      plotlyOutput("sm_meandiff_plot")
+                    ),
+                    tabPanel(
+                      "Disproportionality",
+                      fluidRow(
+                        column(
+                          6,
+                          h4("Theil Index (TI)"),
+                          verbatimTextOutput("sm_ti"),
+                          plotlyOutput("sm_ti_plot")
+                        ),
+                        column(
+                          6,
+                          h4("Mean Log Deviation (MLD)"),
+                          verbatimTextOutput("sm_mld"),
+                          plotlyOutput("sm_mld_plot")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Impact Measures",
+                      fluidRow(
+                        column(
+                          6,
+                          h4("Population Attributable Fraction (PAF)"),
+                          verbatimTextOutput("sm_paf"),
+                          plotlyOutput("sm_paf_plot")
+                        ),
+                        column(
+                          6,
+                          h4("Population Attributable Risk (PAR)"),
+                          verbatimTextOutput("sm_par"),
+                          plotlyOutput("sm_par_plot")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Data Table",
+                      DTOutput("sm_data_table")
+                    )
                   )
                 )
               )

@@ -1887,6 +1887,600 @@ server <- function(input, output, session) {
     datatable(data$combined, options = list(scrollX = TRUE))
   })
 
+# Summary Measures Calculations
+calculate_summary_measures <- function(data) {
+  req(data)
+
+  # Ensure data has required columns
+  required_cols <- c("estimate", "population", "dimension", "subgroup", "favourable_indicator")
+  if (!all(required_cols %in% names(data))) {
+    stop("Data missing required columns for summary measures calculation")
+  }
+
+  # Calculate setting average (weighted by population)
+  setting_avg <- weighted.mean(data$estimate, data$population, na.rm = TRUE)
+
+  # Determine reference subgroup
+  if (data$favourable_indicator[1] == 1) {
+    best_subgroup <- data$subgroup[which.max(data$estimate)]
+  } else {
+    best_subgroup <- data$subgroup[which.min(data$estimate)]
+  }
+
+  # Number of subgroups
+  n_subgroups <- length(unique(data$subgroup))
+
+  # Calculate relative ranks for ordered measures
+  if ("subgroup_order" %in% names(data) && all(!is.na(data$subgroup_order))) {
+    # For ordered dimensions
+    data <- data[order(data$subgroup_order), ]
+    data$relative_rank <- cumsum(data$population / sum(data$population)) -
+      (data$population / sum(data$population)) / 2
+  }
+
+  # Initialize results list
+  results <- list()
+
+  # Simple measures
+  results$difference <- max(data$estimate) - min(data$estimate)
+  results$ratio <- max(data$estimate) / min(data$estimate)
+
+  # Ordered disproportionality measures
+  if ("relative_rank" %in% names(data)) {
+    # Absolute Concentration Index (ACI)
+    results$aci <- sum(data$population * (2 * data$relative_rank - 1) * data$estimate) / sum(data$population)
+
+    # Relative Concentration Index (RCI)
+    results$rci <- results$aci / setting_avg * 100
+
+    # Slope Index of Inequality (SII) - simplified version
+    model <- lm(estimate ~ relative_rank, data = data, weights = population)
+    results$sii <- coef(model)[2]
+
+    # Relative Index of Inequality (RII)
+    pred_values <- predict(model, newdata = data.frame(relative_rank = c(0, 1)))
+    results$rii <- pred_values[2] / pred_values[1]
+  }
+
+  # Variance measures
+  results$bgv <- sum(data$population * (data$estimate - setting_avg)^2) / sum(data$population)
+  results$bgsd <- sqrt(results$bgv)
+  results$cov <- results$bgsd / setting_avg * 100
+
+  # Mean difference measures
+  results$mdmu <- mean(abs(data$estimate - setting_avg))
+  results$mdmw <- sum(data$population * abs(data$estimate - setting_avg)) / sum(data$population)
+
+  best_estimate <- if (data$favourable_indicator[1] == 1) max(data$estimate) else min(data$estimate)
+  results$mdbu <- mean(abs(data$estimate - best_estimate))
+  results$mdbw <- sum(data$population * abs(data$estimate - best_estimate)) / sum(data$population)
+
+  if ("reference_subgroup" %in% names(data) && any(data$reference_subgroup == 1)) {
+    ref_estimate <- data$estimate[data$reference_subgroup == 1][1]
+    results$mdru <- mean(abs(data$estimate - ref_estimate))
+    results$mdrw <- sum(data$population * abs(data$estimate - ref_estimate)) / sum(data$population)
+  }
+
+  # Index of disparity
+  results$idisu <- results$mdmu / setting_avg * 100
+  results$idisw <- results$mdmw / setting_avg * 100
+
+  # Disproportionality measures
+  shares <- data$estimate / setting_avg
+  results$ti <- sum(data$population * shares * log(shares)) / sum(data$population) * 1000
+  results$mld <- sum(data$population * (-log(shares))) / sum(data$population) * 1000
+
+  # Impact measures
+  results$par <- best_estimate - setting_avg
+  results$paf <- results$par / setting_avg * 100
+
+  return(results)
+}
+
+# Update summary measures inputs
+observe({
+  req(data$combined)
+
+  updateSelectInput(session, "sm_indicator",
+    choices = unique(data$combined$indicator_name)
+  )
+
+  updateSelectInput(session, "sm_dimension",
+    choices = unique(data$combined$dimension)
+  )
+
+  updateSelectInput(session, "sm_date",
+    choices = unique(data$combined$date)
+  )
+})
+
+# Update reference subgroup choices based on selected dimension
+observeEvent(input$sm_dimension, {
+  req(data$combined, input$sm_dimension)
+
+  subgroups <- unique(data$combined$subgroup[data$combined$dimension == input$sm_dimension])
+  updateSelectInput(session, "sm_reference", choices = subgroups)
+})
+
+# Reactive for filtered data based on summary measures selections
+sm_data <- reactive({
+  req(data$combined, input$sm_indicator, input$sm_dimension, input$sm_date)
+
+  filtered <- data$combined %>%
+    filter(
+      indicator_name == input$sm_indicator,
+      dimension == input$sm_dimension,
+      date == input$sm_date
+    )
+
+  # If ordered dimension, ensure ordering is correct
+  if ("subgroup_order" %in% names(filtered) && all(!is.na(filtered$subgroup_order))) {
+    filtered <- filtered[order(filtered$subgroup_order), ]
+  }
+
+  return(filtered)
+})
+
+# Calculate summary measures when button is clicked
+sm_results <- eventReactive(input$sm_calculate, {
+  req(sm_data())
+  calculate_summary_measures(sm_data())
+})
+
+# Render all the summary measures outputs
+output$sm_difference <- renderPrint({
+  req(sm_results())
+  cat("Difference (D):", round(sm_results()$difference, 4), "\n")
+  cat("Interpretation: Absolute difference between highest and lowest subgroups.")
+})
+
+output$sm_ratio <- renderPrint({
+  req(sm_results())
+  cat("Ratio (R):", round(sm_results()$ratio, 4), "\n")
+  cat("Interpretation: Relative ratio between highest and lowest subgroups.")
+})
+
+output$sm_aci <- renderPrint({
+  req(sm_results())
+  if (!is.null(sm_results()$aci)) {
+    cat("Absolute Concentration Index (ACI):", round(sm_results()$aci, 4), "\n")
+    cat("Interpretation: Measures absolute inequality across ordered subgroups.")
+  } else {
+    cat("ACI requires ordered dimension with subgroup ordering.")
+  }
+})
+
+
+# Ordered Disproportionality Measures
+output$sm_rci <- renderPrint({
+  req(sm_results())
+  if (!is.null(sm_results()$rci)) {
+    cat("Relative Concentration Index (RCI):", round(sm_results()$rci, 4), "\n")
+    cat("Interpretation: Measures relative inequality across ordered subgroups.")
+  } else {
+    cat("RCI requires ordered dimension with subgroup ordering.")
+  }
+})
+
+# Regression-Based Measures
+output$sm_sii <- renderPrint({
+  req(sm_results())
+  if (!is.null(sm_results()$sii)) {
+    cat("Slope Index of Inequality (SII):", round(sm_results()$sii, 4), "\n")
+    cat("Interpretation: Absolute difference between most and least advantaged, considering all subgroups.")
+  } else {
+    cat("SII requires ordered dimension with subgroup ordering.")
+  }
+})
+
+output$sm_rii <- renderPrint({
+  req(sm_results())
+  if (!is.null(sm_results()$rii)) {
+    cat("Relative Index of Inequality (RII):", round(sm_results()$rii, 4), "\n")
+    cat("Interpretation: Relative ratio between most and least advantaged, considering all subgroups.")
+  } else {
+    cat("RII requires ordered dimension with subgroup ordering.")
+  }
+})
+
+# Variance Measures
+output$sm_bgv <- renderPrint({
+  req(sm_results())
+  cat("Between-Group Variance (BGV):", round(sm_results()$bgv, 4), "\n")
+  cat("Interpretation: Weighted average of squared differences from setting average.")
+})
+
+output$sm_bgsd <- renderPrint({
+  req(sm_results())
+  cat("Between-Group Standard Deviation (BGSD):", round(sm_results()$bgsd, 4), "\n")
+  cat("Interpretation: Square root of BGV - in same units as indicator.")
+})
+
+output$sm_cov <- renderPrint({
+  req(sm_results())
+  cat("Coefficient of Variation (COV):", round(sm_results()$cov, 4), "\n")
+  cat("Interpretation: BGSD as percentage of setting average.")
+})
+
+# Mean Difference Measures
+output$sm_mdmu <- renderPrint({
+  req(sm_results())
+  cat("Mean Difference from Mean (Unweighted):", round(sm_results()$mdmu, 4), "\n")
+  cat("Interpretation: Average absolute difference from setting average.")
+})
+
+output$sm_mdmw <- renderPrint({
+  req(sm_results())
+  cat("Mean Difference from Mean (Weighted):", round(sm_results()$mdmw, 4), "\n")
+  cat("Interpretation: Population-weighted average absolute difference from setting average.")
+})
+
+output$sm_mdbu <- renderPrint({
+  req(sm_results())
+  cat("Mean Difference from Best (Unweighted):", round(sm_results()$mdbu, 4), "\n")
+  cat("Interpretation: Average absolute difference from best performing subgroup.")
+})
+
+output$sm_mdbw <- renderPrint({
+  req(sm_results())
+  cat("Mean Difference from Best (Weighted):", round(sm_results()$mdbw, 4), "\n")
+  cat("Interpretation: Population-weighted average absolute difference from best performing subgroup.")
+})
+
+output$sm_mdru <- renderPrint({
+  req(sm_results())
+  if (!is.null(sm_results()$mdru)) {
+    cat("Mean Difference from Reference (Unweighted):", round(sm_results()$mdru, 4), "\n")
+    cat("Interpretation: Average absolute difference from reference subgroup.")
+  } else {
+    cat("No reference subgroup specified.")
+  }
+})
+
+output$sm_mdrw <- renderPrint({
+  req(sm_results())
+  if (!is.null(sm_results()$mdrw)) {
+    cat("Mean Difference from Reference (Weighted):", round(sm_results()$mdrw, 4), "\n")
+    cat("Interpretation: Population-weighted average absolute difference from reference subgroup.")
+  } else {
+    cat("No reference subgroup specified.")
+  }
+})
+
+# Disproportionality Measures
+output$sm_ti <- renderPrint({
+  req(sm_results())
+  cat("Theil Index (TI):", round(sm_results()$ti, 4), "\n")
+  cat("Interpretation: Measures inequality using logarithms of shares (sensitive to top differences).")
+})
+
+output$sm_mld <- renderPrint({
+  req(sm_results())
+  cat("Mean Log Deviation (MLD):", round(sm_results()$mld, 4), "\n")
+  cat("Interpretation: Measures inequality using logarithms of shares (sensitive to bottom differences).")
+})
+
+# Impact Measures
+output$sm_paf <- renderPrint({
+  req(sm_results())
+  cat("Population Attributable Fraction (PAF):", round(sm_results()$paf, 4), "%\n")
+  cat("Interpretation: Potential relative improvement if all subgroups reached reference level.")
+})
+
+output$sm_par <- renderPrint({
+  req(sm_results())
+  cat("Population Attributable Risk (PAR):", round(sm_results()$par, 4), "\n")
+  cat("Interpretation: Potential absolute improvement if all subgroups reached reference level.")
+})
+
+
+# Continue with similar render functions for all other measures...
+# (I've shown a few examples, you'll need to implement all of them similarly)
+
+# Plots for visualization
+output$sm_difference_plot <- renderPlotly({
+  req(sm_data())
+  plot_ly(sm_data(), x = ~subgroup, y = ~estimate, type = "bar") %>%
+    layout(
+      title = "Subgroup Estimates",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Estimate")
+    )
+})
+
+output$sm_ratio_plot <- renderPlotly({
+  req(sm_data())
+  plot_data <- sm_data()
+  plot_data$ratio_to_min <- plot_data$estimate / min(plot_data$estimate)
+
+  plot_ly(plot_data, x = ~subgroup, y = ~ratio_to_min, type = "bar") %>%
+    layout(
+      title = "Ratio to Minimum Subgroup",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Ratio")
+    )
+})
+
+# Continue with similar plot functions for all other measures...
+
+
+# Ordered Disproportionality Plots
+output$sm_aci_plot <- renderPlotly({
+  req(sm_data(), sm_results())
+  if ("relative_rank" %in% names(sm_data())) {
+    plot_ly(sm_data(),
+      x = ~relative_rank, y = ~estimate,
+      type = "scatter", mode = "markers",
+      text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
+    ) %>%
+      add_lines(y = ~ fitted(lm(estimate ~ relative_rank, weights = population, data = sm_data()))) %>%
+      layout(
+        title = "Absolute Concentration",
+        xaxis = list(title = "Relative Rank"),
+        yaxis = list(title = "Estimate")
+      )
+  }
+})
+
+output$sm_rci_plot <- renderPlotly({
+  req(sm_data(), sm_results())
+  if ("relative_rank" %in% names(sm_data())) {
+    plot_data <- sm_data()
+    plot_data$relative_estimate <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
+
+    plot_ly(plot_data,
+      x = ~relative_rank, y = ~relative_estimate,
+      type = "scatter", mode = "markers",
+      text = ~ paste("Subgroup:", subgroup, "<br>Relative Estimate:", round(relative_estimate, 2))
+    ) %>%
+      add_lines(y = ~ fitted(lm(relative_estimate ~ relative_rank, weights = population, data = plot_data))) %>%
+      layout(
+        title = "Relative Concentration",
+        xaxis = list(title = "Relative Rank"),
+        yaxis = list(title = "Relative Estimate")
+      )
+  }
+})
+
+# Regression-Based Plots
+output$sm_sii_plot <- renderPlotly({
+  req(sm_data(), sm_results())
+  if ("relative_rank" %in% names(sm_data())) {
+    plot_ly(sm_data(),
+      x = ~relative_rank, y = ~estimate,
+      type = "scatter", mode = "markers",
+      text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
+    ) %>%
+      add_lines(y = ~ fitted(lm(estimate ~ relative_rank, weights = population, data = sm_data()))) %>%
+      layout(
+        title = "Slope Index of Inequality",
+        xaxis = list(title = "Relative Rank"),
+        yaxis = list(title = "Estimate")
+      )
+  }
+})
+
+output$sm_rii_plot <- renderPlotly({
+  req(sm_data(), sm_results())
+  if ("relative_rank" %in% names(sm_data())) {
+    plot_data <- sm_data()
+    plot_data$relative_estimate <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
+
+    plot_ly(plot_data,
+      x = ~relative_rank, y = ~relative_estimate,
+      type = "scatter", mode = "markers",
+      text = ~ paste("Subgroup:", subgroup, "<br>Relative Estimate:", round(relative_estimate, 2))
+    ) %>%
+      add_lines(y = ~ fitted(lm(relative_estimate ~ relative_rank, weights = population, data = plot_data))) %>%
+      layout(
+        title = "Relative Index of Inequality",
+        xaxis = list(title = "Relative Rank"),
+        yaxis = list(title = "Relative Estimate")
+      )
+  }
+})
+
+# Variance Plots
+output$sm_variance_plot <- renderPlotly({
+  req(sm_data())
+  plot_ly(sm_data(),
+    x = ~subgroup, y = ~estimate, type = "bar",
+    text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
+  ) %>%
+    add_lines(
+      y = ~ weighted.mean(estimate, population),
+      line = list(color = "red", dash = "dash"),
+      name = "Setting Average"
+    ) %>%
+    layout(
+      title = "Subgroup Estimates with Setting Average",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Estimate")
+    )
+})
+
+# Mean Difference Plots
+output$sm_meandiff_plot <- renderPlotly({
+  req(sm_data())
+  plot_data <- sm_data()
+  fav <- plot_data$favourable_indicator[1] == 1
+  ref_value <- if (fav) max(plot_data$estimate) else min(plot_data$estimate)
+
+  plot_ly(plot_data,
+    x = ~subgroup, y = ~estimate, type = "bar",
+    text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
+  ) %>%
+    add_lines(
+      y = ref_value,
+      line = list(color = "green", dash = "dash"),
+      name = if (fav) "Best Subgroup" else "Worst Subgroup"
+    ) %>%
+    add_lines(
+      y = ~ weighted.mean(estimate, population),
+      line = list(color = "red", dash = "dash"),
+      name = "Setting Average"
+    ) %>%
+    layout(
+      title = "Subgroup Estimates with Reference Lines",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Estimate")
+    )
+})
+
+# Disproportionality Plots
+output$sm_ti_plot <- renderPlotly({
+  req(sm_data())
+  plot_data <- sm_data()
+  plot_data$share <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
+
+  plot_ly(plot_data,
+    x = ~subgroup, y = ~share, type = "bar",
+    text = ~ paste("Subgroup:", subgroup, "<br>Share:", round(share, 2))
+  ) %>%
+    add_lines(
+      y = 1, line = list(color = "red", dash = "dash"),
+      name = "Equal Share"
+    ) %>%
+    layout(
+      title = "Subgroup Shares Relative to Setting Average",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Share")
+    )
+})
+
+output$sm_mld_plot <- renderPlotly({
+  req(sm_data())
+  plot_data <- sm_data()
+  plot_data$log_share <- log(plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population))
+
+  plot_ly(plot_data,
+    x = ~subgroup, y = ~log_share, type = "bar",
+    text = ~ paste("Subgroup:", subgroup, "<br>Log Share:", round(log_share, 2))
+  ) %>%
+    add_lines(
+      y = 0, line = list(color = "red", dash = "dash"),
+      name = "Equal Share"
+    ) %>%
+    layout(
+      title = "Logarithm of Subgroup Shares",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Log Share")
+    )
+})
+
+# Impact Measure Plots
+output$sm_paf_plot <- renderPlotly({
+  req(sm_data(), sm_results())
+  plot_data <- data.frame(
+    Metric = c("Current Average", "Potential Average"),
+    Value = c(
+      weighted.mean(sm_data()$estimate, sm_data()$population),
+      weighted.mean(sm_data()$estimate, sm_data()$population) + sm_results()$par
+    )
+  )
+
+  plot_ly(plot_data,
+    x = ~Metric, y = ~Value, type = "bar",
+    text = ~ paste(Metric, "<br>Value:", round(Value, 2))
+  ) %>%
+    layout(
+      title = "Potential Improvement from Eliminating Inequality",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Estimate")
+    )
+})
+
+output$sm_par_plot <- renderPlotly({
+  req(sm_data(), sm_results())
+  plot_data <- data.frame(
+    Metric = c("Current Average", "Potential Average"),
+    Value = c(
+      weighted.mean(sm_data()$estimate, sm_data()$population),
+      weighted.mean(sm_data()$estimate, sm_data()$population) * (1 + sm_results()$paf / 100)
+    )
+  )
+
+  plot_ly(plot_data,
+    x = ~Metric, y = ~Value, type = "bar",
+    text = ~ paste(Metric, "<br>Value:", round(Value, 2))
+  ) %>%
+    layout(
+      title = "Potential Improvement from Eliminating Inequality",
+      xaxis = list(title = ""),
+      yaxis = list(title = "Estimate")
+    )
+})
+
+
+
+
+# Data table output
+output$sm_data_table <- renderDT({
+  req(sm_data())
+  datatable(sm_data(), options = list(scrollX = TRUE))
+})
+
+# Ordered dimensions UI
+output$ordered_dimensions_ui <- renderUI({
+  req(input$ordered_indicators, data$combined)
+
+  lapply(input$ordered_indicators, function(ind) {
+    fluidRow(
+      column(6, h5(ind)),
+      column(3, selectInput(paste0("ordered_dim_", ind), "Ordered Dimension",
+        choices = unique(data$combined$dimension[data$combined$indicator_name == ind])
+      )),
+      column(3, uiOutput(paste0("reference_sub_ui_", ind)))
+    )
+  })
+})
+
+# Dynamic reference subgroup selection
+observe({
+  req(data$combined)
+  inds <- unique(data$combined$indicator_name)
+  lapply(inds, function(ind) {
+    output[[paste0("reference_sub_ui_", ind)]] <- renderUI({
+      dim_input <- paste0("ordered_dim_", ind)
+      req(input[[dim_input]])
+
+      subgroups <- unique(data$combined$subgroup[data$combined$indicator_name == ind &
+        data$combined$dimension == input[[dim_input]]])
+
+      selectInput(paste0("reference_sub_", ind), "Reference Subgroup",
+        choices = subgroups
+      )
+    })
+  })
+})
+
+# Update ordered indicators dropdown
+observe({
+  updateSelectizeInput(session, "ordered_indicators",
+    choices = unique(data$combined$indicator_name)
+  )
+})
+
+# Save ordered settings
+observeEvent(input$save_ordered_settings, {
+  req(input$ordered_indicators)
+
+  ordered_settings <- list()
+  for (ind in input$ordered_indicators) {
+    dim_input <- paste0("ordered_dim_", ind)
+    ref_input <- paste0("reference_sub_", ind)
+
+    ordered_settings[[ind]] <- list(
+      dimension = input[[dim_input]],
+      reference = input[[ref_input]]
+    )
+  }
+
+  saveRDS(ordered_settings, "saved_setting/ordered_settings.rds")
+  showNotification("Ordered dimension settings saved successfully.", type = "message")
+})
+
+
 
   # Load country metadata
   source("load_countries.R")
@@ -2581,6 +3175,8 @@ server <- function(input, output, session) {
       write.csv(benchmark_data$comparison_data, file, row.names = FALSE)
     }
   )
+
+
 
   # output$ethgeoUI <- renderUI({
   #  source("ethgeo.R", local = TRUE)$value
