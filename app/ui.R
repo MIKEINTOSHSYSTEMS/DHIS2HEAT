@@ -933,13 +933,14 @@ ui <- tagList(
                           6,
                           h4("Difference (D)"),
                           verbatimTextOutput("sm_difference"),
-                          plotlyOutput("sm_difference_plot")
+                          highchartOutput("sm_difference_plot", height = "300px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc")
                         ),
                         column(
                           6,
                           h4("Ratio (R)"),
                           verbatimTextOutput("sm_ratio"),
-                          plotlyOutput("sm_ratio_plot")
+                          highchartOutput("sm_ratio_plot", height = "300px")
                         )
                       )
                     ),
@@ -950,13 +951,13 @@ ui <- tagList(
                           6,
                           h4("Absolute Concentration Index (ACI)"),
                           verbatimTextOutput("sm_aci"),
-                          plotlyOutput("sm_aci_plot")
+                          highchartOutput("sm_aci_plot", height = "300px")
                         ),
                         column(
                           6,
                           h4("Relative Concentration Index (RCI)"),
                           verbatimTextOutput("sm_rci"),
-                          plotlyOutput("sm_rci_plot")
+                          highchartOutput("sm_rci_plot", height = "300px")
                         )
                       )
                     ),
@@ -967,13 +968,13 @@ ui <- tagList(
                           6,
                           h4("Slope Index of Inequality (SII)"),
                           verbatimTextOutput("sm_sii"),
-                          plotlyOutput("sm_sii_plot")
+                          highchartOutput("sm_sii_plot", height = "300px")
                         ),
                         column(
                           6,
                           h4("Relative Index of Inequality (RII)"),
                           verbatimTextOutput("sm_rii"),
-                          plotlyOutput("sm_rii_plot")
+                          highchartOutput("sm_rii_plot", height = "300px")
                         )
                       )
                     ),
@@ -996,7 +997,7 @@ ui <- tagList(
                           verbatimTextOutput("sm_cov")
                         )
                       ),
-                      plotlyOutput("sm_variance_plot")
+                      highchartOutput("sm_variance_plot", height = "300px")
                     ),
                     tabPanel(
                       "Mean Difference",
@@ -1034,7 +1035,7 @@ ui <- tagList(
                           verbatimTextOutput("sm_mdrw")
                         )
                       ),
-                      plotlyOutput("sm_meandiff_plot")
+                      highchartOutput("sm_meandiff_plot", height = "300px")
                     ),
                     tabPanel(
                       "Disproportionality",
@@ -1043,13 +1044,13 @@ ui <- tagList(
                           6,
                           h4("Theil Index (TI)"),
                           verbatimTextOutput("sm_ti"),
-                          plotlyOutput("sm_ti_plot")
+                          highchartOutput("sm_ti_plot", height = "300px")
                         ),
                         column(
                           6,
                           h4("Mean Log Deviation (MLD)"),
                           verbatimTextOutput("sm_mld"),
-                          plotlyOutput("sm_mld_plot")
+                          highchartOutput("sm_mld_plot", height = "300px")
                         )
                       )
                     ),
@@ -1060,13 +1061,13 @@ ui <- tagList(
                           6,
                           h4("Population Attributable Fraction (PAF)"),
                           verbatimTextOutput("sm_paf"),
-                          plotlyOutput("sm_paf_plot")
+                          highchartOutput("sm_paf_plot", height = "300px")
                         ),
                         column(
                           6,
                           h4("Population Attributable Risk (PAR)"),
                           verbatimTextOutput("sm_par"),
-                          plotlyOutput("sm_par_plot")
+                          highchartOutput("sm_par_plot", height = "300px")
                         )
                       )
                     ),

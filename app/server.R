@@ -2176,201 +2176,378 @@ output$sm_par <- renderPrint({
 
 # Continue with similar render functions for all other measures...
 # (I've shown a few examples, you'll need to implement all of them similarly)
+# Highcharter plots for summary measures
+# Add this to your server.R
+hc_theme_custom <- hc_theme_merge(
+  hc_theme_smpl(),
+  hc_theme(
+    chart = list(
+      backgroundColor = "transparent",
+      style = list(
+        fontFamily = "Roboto, sans-serif"
+      )
+    ),
+    title = list(
+      style = list(
+        color = "#333333",
+        fontWeight = "bold"
+      )
+    ),
+    colors = c("#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9")
+  )
+)
 
-# Plots for visualization
-output$sm_difference_plot <- renderPlotly({
+# Plots for visualization - Highcharter version
+output$sm_difference_plot <- renderHighchart({
   req(sm_data())
-  plot_ly(sm_data(), x = ~subgroup, y = ~estimate, type = "bar") %>%
-    layout(
-      title = "Subgroup Estimates",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Estimate")
-    )
+
+  hchart(sm_data(), "column", hcaes(x = subgroup, y = estimate)) %>%
+    hc_title(text = "Subgroup Estimates") %>%
+    hc_xAxis(title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Estimate:</b> {point.y:.2f}") %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl()) # hc_add_theme(hc_theme_custom)  # replace with custom theme use
 })
 
-output$sm_ratio_plot <- renderPlotly({
+output$sm_ratio_plot <- renderHighchart({
   req(sm_data())
+
   plot_data <- sm_data()
   plot_data$ratio_to_min <- plot_data$estimate / min(plot_data$estimate)
 
-  plot_ly(plot_data, x = ~subgroup, y = ~ratio_to_min, type = "bar") %>%
-    layout(
-      title = "Ratio to Minimum Subgroup",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Ratio")
-    )
+  hchart(plot_data, "column", hcaes(x = subgroup, y = ratio_to_min)) %>%
+    hc_title(text = "Ratio to Minimum Subgroup") %>%
+    hc_xAxis(title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Ratio")) %>%
+    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Ratio:</b> {point.y:.2f}") %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
 })
 
-# Continue with similar plot functions for all other measures...
-
-
 # Ordered Disproportionality Plots
-output$sm_aci_plot <- renderPlotly({
+output$sm_aci_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if ("relative_rank" %in% names(sm_data())) {
-    plot_ly(sm_data(),
-      x = ~relative_rank, y = ~estimate,
-      type = "scatter", mode = "markers",
-      text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
-    ) %>%
-      add_lines(y = ~ fitted(lm(estimate ~ relative_rank, weights = population, data = sm_data()))) %>%
-      layout(
-        title = "Absolute Concentration",
-        xaxis = list(title = "Relative Rank"),
-        yaxis = list(title = "Estimate")
-      )
+    model <- lm(estimate ~ relative_rank, weights = population, data = sm_data())
+    trend_data <- data.frame(
+      relative_rank = sm_data()$relative_rank,
+      trend = fitted(model)
+    )
+
+    hc <- highchart() %>%
+      hc_chart(type = "scatter") %>%
+      hc_title(text = "Absolute Concentration") %>%
+      hc_xAxis(title = list(text = "Relative Rank")) %>%
+      hc_yAxis(title = list(text = "Estimate")) %>%
+      hc_add_series(
+        data = sm_data(),
+        type = "scatter",
+        hcaes(x = relative_rank, y = estimate, name = subgroup),
+        name = "Data",
+        marker = list(radius = 4)
+      ) %>%
+      hc_add_series(
+        data = trend_data,
+        type = "line",
+        hcaes(x = relative_rank, y = trend),
+        name = "Trend",
+        color = "#FF0000"
+      ) %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Estimate:</b> {point.y:.2f}") %>%
+      hc_exporting(enabled = TRUE) %>%
+      hc_add_theme(hc_theme_smpl())
+
+    hc
   }
 })
 
-output$sm_rci_plot <- renderPlotly({
+output$sm_rci_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if ("relative_rank" %in% names(sm_data())) {
     plot_data <- sm_data()
     plot_data$relative_estimate <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
 
-    plot_ly(plot_data,
-      x = ~relative_rank, y = ~relative_estimate,
-      type = "scatter", mode = "markers",
-      text = ~ paste("Subgroup:", subgroup, "<br>Relative Estimate:", round(relative_estimate, 2))
-    ) %>%
-      add_lines(y = ~ fitted(lm(relative_estimate ~ relative_rank, weights = population, data = plot_data))) %>%
-      layout(
-        title = "Relative Concentration",
-        xaxis = list(title = "Relative Rank"),
-        yaxis = list(title = "Relative Estimate")
-      )
+    model <- lm(relative_estimate ~ relative_rank, weights = population, data = plot_data)
+    trend_data <- data.frame(
+      relative_rank = plot_data$relative_rank,
+      trend = fitted(model)
+    )
+
+    hc <- highchart() %>%
+      hc_chart(type = "scatter") %>%
+      hc_title(text = "Relative Concentration") %>%
+      hc_xAxis(title = list(text = "Relative Rank")) %>%
+      hc_yAxis(title = list(text = "Relative Estimate")) %>%
+      hc_add_series(
+        data = plot_data,
+        type = "scatter",
+        hcaes(x = relative_rank, y = relative_estimate, name = subgroup),
+        name = "Data",
+        marker = list(radius = 4)
+      ) %>%
+      hc_add_series(
+        data = trend_data,
+        type = "line",
+        hcaes(x = relative_rank, y = trend),
+        name = "Trend",
+        color = "#FF0000"
+      ) %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
+      hc_exporting(enabled = TRUE) %>%
+      hc_add_theme(hc_theme_smpl())
+
+    hc
   }
 })
 
 # Regression-Based Plots
-output$sm_sii_plot <- renderPlotly({
+output$sm_sii_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if ("relative_rank" %in% names(sm_data())) {
-    plot_ly(sm_data(),
-      x = ~relative_rank, y = ~estimate,
-      type = "scatter", mode = "markers",
-      text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
-    ) %>%
-      add_lines(y = ~ fitted(lm(estimate ~ relative_rank, weights = population, data = sm_data()))) %>%
-      layout(
-        title = "Slope Index of Inequality",
-        xaxis = list(title = "Relative Rank"),
-        yaxis = list(title = "Estimate")
-      )
+    model <- lm(estimate ~ relative_rank, weights = population, data = sm_data())
+    trend_data <- data.frame(
+      relative_rank = sm_data()$relative_rank,
+      trend = fitted(model)
+    )
+
+    hc <- highchart() %>%
+      hc_chart(type = "scatter") %>%
+      hc_title(text = "Slope Index of Inequality") %>%
+      hc_xAxis(title = list(text = "Relative Rank")) %>%
+      hc_yAxis(title = list(text = "Estimate")) %>%
+      hc_add_series(
+        data = sm_data(),
+        type = "scatter",
+        hcaes(x = relative_rank, y = estimate, name = subgroup),
+        name = "Data",
+        marker = list(radius = 4)
+      ) %>%
+      hc_add_series(
+        data = trend_data,
+        type = "line",
+        hcaes(x = relative_rank, y = trend),
+        name = "SII Trend",
+        color = "#FF0000"
+      ) %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Estimate:</b> {point.y:.2f}") %>%
+      hc_exporting(enabled = TRUE) %>%
+      hc_add_theme(hc_theme_smpl())
+
+    hc
   }
 })
 
-output$sm_rii_plot <- renderPlotly({
+output$sm_rii_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if ("relative_rank" %in% names(sm_data())) {
     plot_data <- sm_data()
     plot_data$relative_estimate <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
 
-    plot_ly(plot_data,
-      x = ~relative_rank, y = ~relative_estimate,
-      type = "scatter", mode = "markers",
-      text = ~ paste("Subgroup:", subgroup, "<br>Relative Estimate:", round(relative_estimate, 2))
-    ) %>%
-      add_lines(y = ~ fitted(lm(relative_estimate ~ relative_rank, weights = population, data = plot_data))) %>%
-      layout(
-        title = "Relative Index of Inequality",
-        xaxis = list(title = "Relative Rank"),
-        yaxis = list(title = "Relative Estimate")
-      )
+    model <- lm(relative_estimate ~ relative_rank, weights = population, data = plot_data)
+    trend_data <- data.frame(
+      relative_rank = plot_data$relative_rank,
+      trend = fitted(model)
+    )
+
+    hc <- highchart() %>%
+      hc_chart(type = "scatter") %>%
+      hc_title(text = "Relative Index of Inequality") %>%
+      hc_xAxis(title = list(text = "Relative Rank")) %>%
+      hc_yAxis(title = list(text = "Relative Estimate")) %>%
+      hc_add_series(
+        data = plot_data,
+        type = "scatter",
+        hcaes(x = relative_rank, y = relative_estimate, name = subgroup),
+        name = "Data",
+        marker = list(radius = 4)
+      ) %>%
+      hc_add_series(
+        data = trend_data,
+        type = "line",
+        hcaes(x = relative_rank, y = trend),
+        name = "RII Trend",
+        color = "#FF0000"
+      ) %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
+      hc_exporting(enabled = TRUE) %>%
+      hc_add_theme(hc_theme_smpl())
+
+    hc
   }
 })
 
 # Variance Plots
-output$sm_variance_plot <- renderPlotly({
+output$sm_variance_plot <- renderHighchart({
   req(sm_data())
-  plot_ly(sm_data(),
-    x = ~subgroup, y = ~estimate, type = "bar",
-    text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
-  ) %>%
-    add_lines(
-      y = ~ weighted.mean(estimate, population),
-      line = list(color = "red", dash = "dash"),
-      name = "Setting Average"
+
+  avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
+
+  hc <- highchart() %>%
+    hc_chart(type = "column") %>%
+    hc_title(text = "Subgroup Estimates with Setting Average") %>%
+    hc_xAxis(categories = sm_data()$subgroup, title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_add_series(
+      data = sm_data()$estimate,
+      name = "Estimate",
+      showInLegend = FALSE
     ) %>%
-    layout(
-      title = "Subgroup Estimates with Setting Average",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Estimate")
-    )
+    hc_add_series(
+      data = rep(avg, length(sm_data()$subgroup)),
+      type = "line",
+      name = "Setting Average",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      formatter = JS("function() {
+        if (this.series.name === 'Estimate') {
+          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+        } else {
+          return '<b>Setting Average:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }
+      }")
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+
+  hc
 })
 
 # Mean Difference Plots
-output$sm_meandiff_plot <- renderPlotly({
+output$sm_meandiff_plot <- renderHighchart({
   req(sm_data())
-  plot_data <- sm_data()
-  fav <- plot_data$favourable_indicator[1] == 1
-  ref_value <- if (fav) max(plot_data$estimate) else min(plot_data$estimate)
 
-  plot_ly(plot_data,
-    x = ~subgroup, y = ~estimate, type = "bar",
-    text = ~ paste("Subgroup:", subgroup, "<br>Estimate:", estimate)
-  ) %>%
-    add_lines(
-      y = ref_value,
-      line = list(color = "green", dash = "dash"),
-      name = if (fav) "Best Subgroup" else "Worst Subgroup"
+  fav <- sm_data()$favourable_indicator[1] == 1
+  ref_value <- if (fav) max(sm_data()$estimate) else min(sm_data()$estimate)
+  avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
+
+  hc <- highchart() %>%
+    hc_chart(type = "column") %>%
+    hc_title(text = "Subgroup Estimates with Reference Lines") %>%
+    hc_xAxis(categories = sm_data()$subgroup, title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_add_series(
+      data = sm_data()$estimate,
+      name = "Estimate",
+      showInLegend = FALSE
     ) %>%
-    add_lines(
-      y = ~ weighted.mean(estimate, population),
-      line = list(color = "red", dash = "dash"),
-      name = "Setting Average"
+    hc_add_series(
+      data = rep(ref_value, length(sm_data()$subgroup)),
+      type = "line",
+      name = if (fav) "Best Subgroup" else "Worst Subgroup",
+      color = "#00FF00",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
     ) %>%
-    layout(
-      title = "Subgroup Estimates with Reference Lines",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Estimate")
-    )
+    hc_add_series(
+      data = rep(avg, length(sm_data()$subgroup)),
+      type = "line",
+      name = "Setting Average",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      formatter = JS("function() {
+        if (this.series.name === 'Estimate') {
+          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+        } else {
+          return '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, 2);
+        }
+      }")
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+
+  hc
 })
 
 # Disproportionality Plots
-output$sm_ti_plot <- renderPlotly({
+output$sm_ti_plot <- renderHighchart({
   req(sm_data())
+
   plot_data <- sm_data()
   plot_data$share <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
 
-  plot_ly(plot_data,
-    x = ~subgroup, y = ~share, type = "bar",
-    text = ~ paste("Subgroup:", subgroup, "<br>Share:", round(share, 2))
-  ) %>%
-    add_lines(
-      y = 1, line = list(color = "red", dash = "dash"),
-      name = "Equal Share"
+  hc <- highchart() %>%
+    hc_chart(type = "column") %>%
+    hc_title(text = "Subgroup Shares Relative to Setting Average") %>%
+    hc_xAxis(categories = plot_data$subgroup, title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Share")) %>%
+    hc_add_series(
+      data = plot_data$share,
+      name = "Share",
+      showInLegend = FALSE
     ) %>%
-    layout(
-      title = "Subgroup Shares Relative to Setting Average",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Share")
-    )
+    hc_add_series(
+      data = rep(1, length(plot_data$subgroup)),
+      type = "line",
+      name = "Equal Share",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      formatter = JS("function() {
+        if (this.series.name === 'Share') {
+          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+        } else {
+          return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }
+      }")
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+
+  hc
 })
 
-output$sm_mld_plot <- renderPlotly({
+output$sm_mld_plot <- renderHighchart({
   req(sm_data())
+
   plot_data <- sm_data()
   plot_data$log_share <- log(plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population))
 
-  plot_ly(plot_data,
-    x = ~subgroup, y = ~log_share, type = "bar",
-    text = ~ paste("Subgroup:", subgroup, "<br>Log Share:", round(log_share, 2))
-  ) %>%
-    add_lines(
-      y = 0, line = list(color = "red", dash = "dash"),
-      name = "Equal Share"
+  hc <- highchart() %>%
+    hc_chart(type = "column") %>%
+    hc_title(text = "Logarithm of Subgroup Shares") %>%
+    hc_xAxis(categories = plot_data$subgroup, title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Log Share")) %>%
+    hc_add_series(
+      data = plot_data$log_share,
+      name = "Log Share",
+      showInLegend = FALSE
     ) %>%
-    layout(
-      title = "Logarithm of Subgroup Shares",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Log Share")
-    )
+    hc_add_series(
+      data = rep(0, length(plot_data$subgroup)),
+      type = "line",
+      name = "Equal Share",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      formatter = JS("function() {
+        if (this.series.name === 'Log Share') {
+          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Log Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+        } else {
+          return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }
+      }")
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+
+  hc
 })
 
 # Impact Measure Plots
-output$sm_paf_plot <- renderPlotly({
+output$sm_paf_plot <- renderHighchart({
   req(sm_data(), sm_results())
+
   plot_data <- data.frame(
     Metric = c("Current Average", "Potential Average"),
     Value = c(
@@ -2379,19 +2556,18 @@ output$sm_paf_plot <- renderPlotly({
     )
   )
 
-  plot_ly(plot_data,
-    x = ~Metric, y = ~Value, type = "bar",
-    text = ~ paste(Metric, "<br>Value:", round(Value, 2))
-  ) %>%
-    layout(
-      title = "Potential Improvement from Eliminating Inequality",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Estimate")
-    )
+  hchart(plot_data, "column", hcaes(x = Metric, y = Value)) %>%
+    hc_title(text = "Potential Improvement from Eliminating Inequality") %>%
+    hc_xAxis(title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_tooltip(pointFormat = "<b>{point.Metric}</b><br><b>Value:</b> {point.y:.2f}") %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
 })
 
-output$sm_par_plot <- renderPlotly({
+output$sm_par_plot <- renderHighchart({
   req(sm_data(), sm_results())
+
   plot_data <- data.frame(
     Metric = c("Current Average", "Potential Average"),
     Value = c(
@@ -2400,15 +2576,13 @@ output$sm_par_plot <- renderPlotly({
     )
   )
 
-  plot_ly(plot_data,
-    x = ~Metric, y = ~Value, type = "bar",
-    text = ~ paste(Metric, "<br>Value:", round(Value, 2))
-  ) %>%
-    layout(
-      title = "Potential Improvement from Eliminating Inequality",
-      xaxis = list(title = ""),
-      yaxis = list(title = "Estimate")
-    )
+  hchart(plot_data, "column", hcaes(x = Metric, y = Value)) %>%
+    hc_title(text = "Potential Improvement from Eliminating Inequality") %>%
+    hc_xAxis(title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_tooltip(pointFormat = "<b>{point.Metric}</b><br><b>Value:</b> {point.y:.2f}") %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
 })
 
 
