@@ -34,7 +34,7 @@ required_packages <- c(
     "sodium", # Cryptography and hashing
     "DBI", # General database interface
     "openxlsx",
-    "slickR", # For slick slider UI elements in Shiny
+    #"slickR", # For slick slider UI elements in Shiny | Currently removed from cran
     "remotes", # Add remotes if needed for installing from remote repositories
     "httr", # Add httr if needed for HTTP requests
     "leaflet",
@@ -73,7 +73,7 @@ lapply(required_packages, install_missing)
 
 # Install GitHub packages
 cat("Installing GitHub packages...\n")
-remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork", "LukasK13/SummeRnote"))
+remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork", "LukasK13/SummeRnote", "yonicd/slickR"))
 #remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork"))
 
 # Print a message when installation is complete
