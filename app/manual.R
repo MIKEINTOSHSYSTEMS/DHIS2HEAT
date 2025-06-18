@@ -605,7 +605,7 @@ output$export_pdf <- downloadHandler(
             "geometry: margin=1in",
             "header-includes:",
             "  - \\usepackage{booktabs}",
-            "  - \\usepackage{longtable}",
+            "  - \\usepackage{xltabular}",
             "  - \\usepackage[table]{xcolor}",
             "  - \\usepackage{parskip}",
             "  - \\usepackage{enumitem}",
