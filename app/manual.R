@@ -433,54 +433,73 @@ output$export_pdf <- downloadHandler(
         # Ensure TinyTeX is properly installed with all packages
         tryCatch(
             {
+                # 1. Ensure TinyTeX is installed
                 if (!tinytex::is_tinytex()) {
                     showNotification("Installing TinyTeX (this may take several minutes)...",
                         duration = NULL, id = "install_tex"
                     )
                     tinytex::install_tinytex()
                     removeNotification(id = "install_tex")
+
+                    # Crucial: Check again if TinyTeX is actually callable after installation.
+                    # This handles cases where PATH might not be updated immediately.
+                    if (!tinytex::is_tinytex()) {
+                        stop("TinyTeX installation completed, but 'tlmgr' is not callable. Please restart R and try again.")
+                    }
                 }
 
-                # Install required LaTeX packages with specific repository
-                showNotification("Checking LaTeX packages...", id = "pdf_progress")
+                # 2. Install the 'collection-latexextra' bundle for most common LaTeX packages
+                showNotification("Checking and installing core LaTeX packages (collection-latexextra)...", id = "pdf_progress")
 
-                # Set a reliable repository
+                # Set a reliable repository (good practice for consistent downloads)
                 tinytex::tlmgr_repo("https://mirror.ctan.org/systems/texlive/tlnet")
 
-                required_pkgs <- c(
-                    "geometry", "hyperref", "ulem", "amsmath", "lineno", "fancyhdr",
-                    "titling", "sectsty", "titlesec", "booktabs", "longtable", "multirow",
-                    "wrapfig", "float", "colortbl", "pdflscape", "threeparttable",
-                    "xcolor", "graphicx", "setspace", "footmisc", "caption", "parskip"
+                # Attempt to install 'collection-latexextra'
+                tryCatch(
+                    {
+                        if (!"collection-latexextra" %in% tinytex::tl_pkgs()) {
+                            cat("Installing 'collection-latexextra' bundle...\n")
+                            tinytex::tlmgr_install("collection-latexextra")
+                            showNotification("Core LaTeX bundle installed successfully.", duration = 3, type = "message")
+                        } else {
+                            cat("'collection-latexextra' bundle already installed.\n")
+                            showNotification("Core LaTeX bundle already installed.", duration = 2, type = "message")
+                        }
+                    },
+                    error = function(e) {
+                        message("Failed to install 'collection-latexextra' bundle: ", e$message)
+                        showNotification(
+                            paste("Failed to install core LaTeX bundle. PDF generation might fail. Error:", e$message),
+                            type = "error", duration = 8
+                        )
+                        # Re-throw the error as this bundle is generally essential
+                        stop(paste("Critical LaTeX bundle 'collection-latexextra' could not be installed:", e$message))
+                    }
                 )
 
-                # Install packages one by one with error handling
-                for (pkg in required_pkgs) {
-                    tryCatch(
-                        {
-                            if (!pkg %in% tinytex::tl_pkgs()) {
-                                tinytex::tlmgr_install(pkg)
-                            }
-                        },
-                        error = function(e) {
-                            message("Failed to install package: ", pkg, " - ", e$message)
-                        }
-                    )
-                }
-            },
-            error = function(e) {
+                # 3. Final cleanup notification
                 removeNotification(id = "pdf_progress")
+                showNotification("LaTeX environment setup complete.", type = "message", duration = 3)
+
+            }, # End of the main tryCatch block's 'expr' argument
+            error = function(e) {
+                # This catches errors from any part of the main tryCatch block
+                removeNotification(id = "install_tex") # Clear any lingering 'installing tinytex' notification
+                removeNotification(id = "pdf_progress") # Clear any lingering 'checking packages' notification
                 showNotification(
                     paste(
                         "LaTeX setup failed:", e$message,
-                        "\nPlease try manual installation: tinytex::install_tinytex()"
+                        "\nPlease ensure 'tinytex' R package is installed and try manual installation: tinytex::install_tinytex()"
                     ),
                     type = "error",
                     duration = 10
                 )
-                return()
+                # Important: Stop execution or return from the calling function if LaTeX setup is critical.
+                # Here, we re-throw the error so the higher-level logic (e.g., in a Shiny module)
+                # can decide how to handle the complete failure.
+                stop(e$message)
             }
-        )
+        ) # End of main tryCatch
 
         # Create temporary directory
         temp_dir <- tempdir()

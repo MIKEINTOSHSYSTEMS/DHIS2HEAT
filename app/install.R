@@ -76,6 +76,23 @@ cat("Installing GitHub packages...\n")
 remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork", "LukasK13/SummeRnote", "yonicd/slickR"))
 #remotes::install_github(c("rstudio/gridlayout", "tidyverse/ggplot2", "thomasp85/patchwork"))
 
+# Start installation of TinyTeX
+# Install TinyTeX if not already installed
+if (!tinytex::is_tinytex()) {
+  cat("Installing TinyTeX...\n")
+  tinytex::install_tinytex()
+  if (tinytex::is_tinytex()) {
+    cat("TinyTeX installed successfully.\n")
+    # Install LaTeX packages using tinytex
+    tinytex::tlmgr_install("collection-latexextra") # Or specific packages like "longtable"
+  } else {
+    cat("TinyTeX installation failed. Please check for errors.\n")
+  }
+} else {
+  cat("TinyTeX is already installed.\n")
+}
+# End installation of TinyTeX
+
 # Print a message when installation is complete
 cat("All required packages are installed.\n")
 
@@ -90,3 +107,17 @@ cat("All required packages are installed.\n")
 # devtools::install_github("LukasK13/SummeRnote")
 # Additional ToDos is create NAMESPACE using roxygen2 
 #for auto loading of packages and also renv.lock
+
+# Install TinyTeX for LaTeX support in R Markdown and other documents
+# This is necessary for rendering PDF documents and reports
+
+# Install TinyTeX if not already installed
+#tinytex::install_tinytex()
+# Check if TinyTeX is installed
+#tinytex::is_tinytex()
+# Should return TRUE otherwise install TinyTeX
+
+# Install LaTeX packages using tinytex
+#tinytex::tlmgr_install("collection-latexextra")
+
+# Has a count of 2024 file attribs that Will installed
