@@ -506,13 +506,45 @@ ui <- tagList(
                   ),
                   hr(),
                   checkboxInput("select_all_org_units", "Select All Organisation Units", value = FALSE),
-                  selectizeInput("org_units", "Select Organisation Units", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000)),
+                  selectizeInput(
+                    "org_units", 
+                    "Select Organisation Units", 
+                    choices = NULL, 
+                    multiple = TRUE, 
+                    options = list(
+                      placeholder = 'Select organisation units',
+                      maxOptions = 1000,
+                      plugins = list('remove_button')
+                    )
+                  ),
                   hr(),
                   checkboxInput("select_all_zones", "Select All Zones", value = FALSE),
-                  selectizeInput("zones", "Select Zones", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000)),
+                  selectizeInput(
+                    "zones", 
+                    "Select Zones", 
+                    choices = NULL, 
+                    multiple = TRUE, 
+                    options = list(
+                      placeholder = 'Select zones',
+                      maxOptions = 1000,
+                      plugins = list('remove_button')
+                    )
+                    # Remove server = TRUE from here
+                  ),
                   hr(),
                   checkboxInput("select_all_woredas", "Select All Woredas", value = FALSE),
-                  selectizeInput("woredas", "Select Woredas", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000)),
+                  selectizeInput(
+                    "woredas", 
+                    "Select Woredas", 
+                    choices = NULL, 
+                    multiple = TRUE, 
+                    options = list(
+                      placeholder = 'Select woredas',
+                      maxOptions = 1000,
+                      plugins = list('remove_button')
+                    )
+                    # Remove server = TRUE from here
+                  ),
                   hr(),
                   # In the fetcher_setting tab box, after Woredas section
                   hr(),

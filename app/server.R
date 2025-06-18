@@ -83,13 +83,49 @@ server <- function(input, output, session) {
     }
   )
 
+  org_units_full_metadata <- rjson::fromJSON(file = "./meta/all_organisationUnits.json")$organisationUnits
+# Load organisation units metadata same as the above
+  # Function to load organisation units metadata
+  load_org_units <- function() {
+    org_units_json <- rjson::fromJSON(file = "./meta/all_organisationUnits.json")
+    return(org_units_json$organisationUnits)
+  }
+
+  org_units_full_metadata <- load_org_units()
+
   custom_indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
   indicators_metadata <- fromJSON("./meta/custom_indicators.json")$indicators
   # indicators_metadata <- fromJSON("./meta/indicators.json")$indicators
-  zones_metadata <- fromJSON("./meta/organisationUnitsLevel3.json")$organisationUnits
-  woredas_metadata <- fromJSON("./meta/organisationUnitsLevel4.json")$organisationUnits
-  org_units_metadata <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+  #zones_metadata <- fromJSON("./meta/organisationUnitsLevel3.json")$organisationUnits
+  #woredas_metadata <- fromJSON("./meta/organisationUnitsLevel4.json")$organisationUnits
+  #org_units_metadata <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
   # specific_org_units <- fromJSON("./meta/organisationUnitsLevel2.json")$organisationUnits
+
+  # Extract metadata by level
+  regions_metadata <- Filter(function(x) x$level == 2, org_units_full_metadata)
+  zones_metadata <- Filter(function(x) x$level == 3, org_units_full_metadata)
+  woredas_metadata <- Filter(function(x) x$level == 4, org_units_full_metadata)
+
+  # Helper function to get children by parent ID and level
+  get_children <- function(parent_id, level) {
+    children <- list()
+    for (unit in org_units_full_metadata) {
+      if (!is.null(unit$parent) && unit$parent$id == parent_id && unit$level == level) {
+        children <- c(children, list(unit))
+      }
+    }
+    return(children)
+  }
+
+  # Define specific organisation units (regions) server-side
+  specific_org_units <- sapply(regions_metadata, function(x) x$id)
+
+    # Get display name by ID
+    get_display_name <- function(id) {
+      unit <- Find(function(x) x$id == id, org_units_full_metadata)
+      if (!is.null(unit)) unit$name else id
+    }
+
 
   # Define specific organisation units (regions) server-side
   specific_org_units <- c(
@@ -98,6 +134,10 @@ server <- function(input, output, session) {
     "XU2wpLlX4Vk", "xNUoZIrGKxQ", "PCKGSJoNHXi", "a2QIIR2UXcd",
     "HIlnt7Qj8do", "Gmw0DJLXGtx"
   )
+
+    # Use region IDs from metadata
+    region_ids <- sapply(regions_metadata, function(x) x$id)
+    specific_org_units <- region_ids
 
   # checks if the indicator paths JSON are okay
   if (!file.exists("./meta/indicators.json")) {
@@ -1532,15 +1572,42 @@ server <- function(input, output, session) {
     # woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
 
 
-    choices$indicators <- setNames(indicators_metadata$id, indicators_metadata$displayName)
-    choices$org_units <- setNames(specific_org_units, org_units_metadata$displayName[org_units_metadata$id %in% specific_org_units])
-    choices$zones <- setNames(zones_metadata$id, zones_metadata$displayName)
-    choices$woredas <- setNames(woredas_metadata$id, woredas_metadata$displayName)
+    #choices$indicators <- setNames(indicators_metadata$id, indicators_metadata$displayName)
+    #choices$org_units <- setNames(specific_org_units, org_units_metadata$displayName[org_units_metadata$id %in% specific_org_units])
+    #choices$zones <- setNames(zones_metadata$id, zones_metadata$displayName)
+    #choices$woredas <- setNames(woredas_metadata$id, woredas_metadata$displayName)
 
-    updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
-    updateSelectizeInput(session, "org_units", choices = choices$org_units, server = TRUE)
-    updateSelectizeInput(session, "zones", choices = choices$zones, server = TRUE)
-    updateSelectizeInput(session, "woredas", choices = choices$woredas, server = TRUE)
+    #updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
+    #updateSelectizeInput(session, "org_units", choices = choices$org_units, server = TRUE)
+    #updateSelectizeInput(session, "zones", choices = choices$zones, server = TRUE)
+    #updateSelectizeInput(session, "woredas", choices = choices$woredas, server = TRUE)
+
+
+
+      choices$indicators <- setNames(indicators_metadata$id, indicators_metadata$displayName)
+      choices$org_units <- setNames(
+        specific_org_units,
+        sapply(regions_metadata, function(x) {
+          if (x$id %in% specific_org_units) x$name
+        }) %>% unlist()
+      )
+      choices$zones <- setNames(
+        sapply(zones_metadata, function(x) x$id),
+        sapply(zones_metadata, function(x) x$name)
+      )
+      choices$woredas <- setNames(
+        sapply(woredas_metadata, function(x) x$id),
+        sapply(woredas_metadata, function(x) x$name)
+      )
+
+      # Then update the inputs
+      updateSelectizeInput(session, "indicators", choices = choices$indicators, server = TRUE)
+      updateSelectizeInput(session, "org_units", choices = choices$org_units, server = TRUE)
+      updateSelectizeInput(session, "zones", choices = choices$zones, server = TRUE)
+      updateSelectizeInput(session, "woredas", choices = choices$woredas, server = TRUE)
+
+
+
   })
 
   # Update Favorable Indicators based on selected indicators
@@ -1561,42 +1628,137 @@ server <- function(input, output, session) {
     }
   })
 
-  observeEvent(input$select_all_org_units, {
-    if (input$select_all_org_units) {
-      updateSelectizeInput(session, "org_units", selected = names(choices$org_units))
-    } else {
-      updateSelectizeInput(session, "org_units", selected = NULL)
-    }
-  })
+# Add org_units to your reactiveValues choices
+choices <- reactiveValues(
+  org_units = NULL,
+  zones = NULL,
+  woredas = NULL
+)
 
+# Update select all org_units using local JSON
+observeEvent(input$select_all_org_units,
+  {
+    if (input$select_all_org_units) {
+      # Assuming regions are level 2 (adjust level as needed)
+      regions_metadata <- Filter(function(x) x$level == 2, org_units_full_metadata)
+      choices$org_units <- setNames(
+        sapply(regions_metadata, function(x) x$id),
+        sapply(regions_metadata, function(x) x$name)
+      )
+    } else {
+      choices$org_units <- NULL
+    }
+  },
+  ignoreInit = TRUE
+)
+
+# Update org_units select input based on choices
+observe({
+  updateSelectizeInput(
+    session,
+    "org_units",
+    choices = choices$org_units,
+    selected = if (input$select_all_org_units) choices$org_units else NULL,
+    server = TRUE
+  )
+})
+
+# NEW select all zones and woredas method START
+
+# Initialize choices in a reactiveValues object
+choices <- reactiveValues(
+  zones = NULL,
+  woredas = NULL
+)
+
+# Update select all zones using local JSON
+observeEvent(input$select_all_zones,
+  {
+    if (input$select_all_zones) {
+      zones_metadata <- Filter(function(x) x$level == 3, org_units_full_metadata)
+      choices$zones <- setNames(
+        sapply(zones_metadata, function(x) x$id),
+        sapply(zones_metadata, function(x) x$name)
+      )
+    } else {
+      choices$zones <- NULL
+    }
+  },
+  ignoreInit = TRUE
+)
+
+# Update select all woredas using local JSON
+observeEvent(input$select_all_woredas,
+  {
+    if (input$select_all_woredas) {
+      woredas_metadata <- Filter(function(x) x$level == 4, org_units_full_metadata)
+      choices$woredas <- setNames(
+        sapply(woredas_metadata, function(x) x$id),
+        sapply(woredas_metadata, function(x) x$name)
+      )
+    } else {
+      choices$woredas <- NULL
+    }
+  },
+  ignoreInit = TRUE
+)
+
+# Update zone select input based on choices
+observe({
+  updateSelectizeInput(
+    session,
+    "zones",
+    choices = choices$zones,
+    selected = if (input$select_all_zones) choices$zones else NULL,
+    server = TRUE # Keep server=TRUE here
+  )
+})
+
+# Update woreda select input based on choices
+observe({
+  updateSelectizeInput(
+    session,
+    "woredas",
+    choices = choices$woredas,
+    selected = if (input$select_all_woredas) choices$woredas else NULL,
+    server = TRUE # Keep server=TRUE here
+  )
+})
+
+# NEW select all zones and woredas method END
+
+
+################ ^ OLDER METHOD ^ ##########################
+# OLDER select all zones method START
   # Working For select all zones
-  observeEvent(input$select_all_zones,
-    {
-      if (input$select_all_zones) {
+#  observeEvent(input$select_all_zones,
+#    {
+#      if (input$select_all_zones) {
         # Set credentials from inputs
-        Sys.setenv(
-          DHIS2_BASE_URL = input$base_url,
-          DHIS2_USERNAME = input$username,
-          DHIS2_PASSWORD = input$password
-        )
+#        Sys.setenv(
+#          DHIS2_BASE_URL = input$base_url,
+#          DHIS2_USERNAME = input$username,
+#          DHIS2_PASSWORD = input$password
+#        )
 
         # Fetch zones from API
-        zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
-        zone_choices <- setNames(zones_metadata$id, zones_metadata$displayName)
+#        zones_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=3&paging=false")$organisationUnits
+#        zone_choices <- setNames(zones_metadata$id, zones_metadata$displayName)
 
         # Update select input
-        updateSelectizeInput(
-          session,
-          "zones",
-          choices = zone_choices,
-          selected = zone_choices
-        )
-      } else {
-        updateSelectizeInput(session, "zones", selected = NULL)
-      }
-    },
-    ignoreInit = TRUE
-  )
+#        updateSelectizeInput(
+#          session,
+#          "zones",
+#          choices = zone_choices,
+#          selected = zone_choices
+#        )
+#      } else {
+#        updateSelectizeInput(session, "zones", selected = NULL)
+#      }
+#    },
+#    ignoreInit = TRUE
+#  )
+# OLDER select all zones method END
 
   # Not working for select all zones
   #    observeEvent(input$select_all_zones, {
@@ -1607,36 +1769,42 @@ server <- function(input, output, session) {
   #        }
   #    })
 
-
+################# ^ OLDER METHOD ^ ##########################
+# OLDER select all woredas method START
   # Working For select all woredas
-  observeEvent(input$select_all_woredas,
-    {
-      if (input$select_all_woredas) {
+#  observeEvent(input$select_all_woredas,
+#    {
+#      if (input$select_all_woredas) {
         # Set credentials from inputs
-        Sys.setenv(
-          DHIS2_BASE_URL = input$base_url,
-          DHIS2_USERNAME = input$username,
-          DHIS2_PASSWORD = input$password
-        )
+#        Sys.setenv(
+#          DHIS2_BASE_URL = input$base_url,
+#          DHIS2_USERNAME = input$username,
+#          DHIS2_PASSWORD = input$password
+#        )
 
         # Fetch woredas from API
-        woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
-        woreda_choices <- setNames(woredas_metadata$id, woredas_metadata$displayName)
+#        woredas_metadata <- get_dhis2_data("/api/organisationUnits?fields=id,displayName&level=4&paging=true&pageSize=600")$organisationUnits
+#        woreda_choices <- setNames(woredas_metadata$id, woredas_metadata$displayName)
 
         # Update select input
-        updateSelectizeInput(
-          session,
-          "woredas",
-          choices = woreda_choices,
-          selected = woreda_choices
-        )
-      } else {
-        updateSelectizeInput(session, "woredas", selected = NULL)
-      }
-    },
-    ignoreInit = TRUE
-  )
+#        updateSelectizeInput(
+#          session,
+#          "woredas",
+#          choices = woreda_choices,
+#          selected = woreda_choices
+#        )
+#      } else {
+#        updateSelectizeInput(session, "woredas", selected = NULL)
+#      }
+#    },
+#    ignoreInit = TRUE
+#  )
+# OLDER select all woredas method END
 
+
+################ ^ OLDER METHOD ^ ##########################
+
+#####################IGNORE#########################
   # Not working for select all woredas
   #   observeEvent(input$select_all_woredas, {
   #       if (input$select_all_woredas) {
@@ -1645,6 +1813,75 @@ server <- function(input, output, session) {
   #           updateSelectizeInput(session, "woredas", selected = NULL)
   #       }
   #   })
+#################IGNORE#########################
+####################################################
+
+# NEW Method for dynamic filtering of zones and woredas based on selected regions
+
+# When regions are selected, update zones
+  # Dynamic filtering for organisation units
+  observeEvent(input$org_units, {
+    req(input$org_units)
+    selected_regions <- input$org_units
+
+    # Get all zones in selected regions
+    all_zones <- list()
+    for (region_id in selected_regions) {
+      region_zones <- get_children(region_id, 3)
+      all_zones <- c(all_zones, region_zones)
+    }
+
+    # Create choices
+    zone_choices <- setNames(
+      sapply(all_zones, function(x) x$id),
+      sapply(all_zones, function(x) x$name)
+    )
+
+    updateSelectizeInput(session, "zones",
+      choices = zone_choices,
+      server = TRUE
+    )
+  })
+
+  observeEvent(input$zones, {
+    req(input$zones)
+    selected_zones <- input$zones
+
+    # Get all woredas in selected zones
+    all_woredas <- list()
+    for (zone_id in selected_zones) {
+      zone_woredas <- get_children(zone_id, 4)
+      all_woredas <- c(all_woredas, zone_woredas)
+    }
+
+    # Create choices
+    woreda_choices <- setNames(
+      sapply(all_woredas, function(x) x$id),
+      sapply(all_woredas, function(x) x$name)
+    )
+
+    updateSelectizeInput(session, "woredas",
+      choices = woreda_choices,
+      server = TRUE
+    )
+  })
+
+  # Update initial choices for organisation units
+  observe({
+    # For regions
+    region_choices <- setNames(
+      sapply(regions_metadata, function(x) x$id),
+      sapply(regions_metadata, function(x) x$name)
+    )
+    updateSelectizeInput(session, "org_units", choices = region_choices, server = TRUE)
+
+    # For zones (initially empty until regions are selected)
+    updateSelectizeInput(session, "zones", choices = NULL, server = TRUE)
+
+    # For woredas (initially empty until zones are selected)
+    updateSelectizeInput(session, "woredas", choices = NULL, server = TRUE)
+  })
+
 
   # Add to existing select all observers
   observeEvent(input$select_all_facilities, {
