@@ -229,11 +229,13 @@ ui <- tagList(
         ),
         dashboardSidebar(
           width = 350,
-          tags$html(
-            useShinyjs(), # Activate shinyjs functionality
-            class = "pdropdown user-menu",
-            uiOutput("user_profile")
-          ),
+#          hr(),
+#          tags$html(
+#            useShinyjs(), # Activate shinyjs functionality
+#            class = "pdropdown user-menu",
+#            uiOutput("user_profile")
+#          ),
+############################
           #   tags$html(
           #     #class = "dropdown user-menu",
           #     class = "pdropdown user-menu",
@@ -249,9 +251,14 @@ ui <- tagList(
           hr(),
           sidebarMenu(
             menuItem("Data Preview", tabName = "data_preview", icon = icon("eye")),
-            menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
             menuItem("Summary Measures", tabName = "summary_measures", icon = icon("calculator")),
-            menuItem("WHO Geographical", tabName = "geographical", icon = icon("map-location")),
+            menuItem("Benchmarking", tabName = "benchmarking", icon = icon("chart-line")),
+            menuItem("WHO GeoBenchmarking", tabName = "geographical", icon = icon("map-location")),
+            hr(),
+            menuItem("User Manual", tabName = "user_manual", icon = icon("book")),
+            hr(),
+            h2("System Administration", style = "vertical-align: middle; margin-right: 7px; font-size: 14px; color: #4c7dbc; font-weight: bold; "),
+            hr(),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),
               conditionalPanel(
@@ -268,7 +275,7 @@ ui <- tagList(
                 # menuSubItem("Explore & Clean", tabName = "explore_clean", icon = icon("broom"))
               )
             ),
-            hr(),
+#            hr(),
             menuItem("Admin Panel",
               tabName = "admin_panel", icon = icon("users"),
               conditionalPanel(
@@ -277,10 +284,15 @@ ui <- tagList(
                 menuSubItem("Role Management", tabName = "role_management"),
                 menuSubItem("Database Management", tabName = "db_management"),
               )
-            ),
-            hr(),
-            # Add this to your sidebarMenu() in ui.R
-            menuItem("User Manual", tabName = "user_manual", icon = icon("book"))
+            )
+#            hr(),
+#            menuItem("User Manual", tabName = "user_manual", icon = icon("book"))
+          ),
+          hr(),
+          tags$html(
+            useShinyjs(), # Activate shinyjs functionality
+            class = "pdropdown user-menu",
+            uiOutput("user_profile")
           )
         ),
         dashboardBody(

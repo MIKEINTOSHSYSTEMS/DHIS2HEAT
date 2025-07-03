@@ -878,3 +878,72 @@ height: 100% !important;
 .dataTables_wrapper {
     overflow-x: auto;
 }
+
+/* start user menudropdown styles 
+.pdropdown {
+    position: relative;
+    display: block;
+}
+
+.user-menu {
+    padding: 10px 15px;
+    position: relative;
+    z-index: 1001; }
+ end user menu dropdown styles */
+
+
+/*
+
+                          .pdropdown-menu {
+                              display: none;
+                              position: absolute;
+                              background-color: #f9f9f9;
+                              min-width: 200px;
+                              box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                              z-index: 1000;
+                              right: 0;
+                              border-radius: 4px;
+                              padding: 10px 0;
+                          }
+            
+                          .pdropdown-menu.show {
+                              display: block;
+                          }
+            
+                          .user-info {
+                              cursor: pointer;
+                              display: flex;
+                              align-items: center;
+                              padding: 10px;
+                              transition: background-color 0.3s;
+                          }
+            
+                          .user-info:hover {
+                              background-color: #f5f5f5;
+                          }
+            
+                          .headerText {
+                              padding: 8px 16px;
+                              font-weight: bold;
+                              border-bottom: 1px solid #eee;
+                          }
+            
+                          .divider {
+                              height: 1px;
+                              background-color: #eee;
+                              margin: 5px 0;
+                          }
+            
+                          .notificationItem {
+                              padding: 8px 16px;
+                              display: block;
+                              color: #333;
+                              text-decoration: none;
+                              transition: background-color 0.2s;
+                          }
+            
+                          .notificationItem:hover {
+                              background-color: #f0f0f0;
+                              color: #000;
+                          }
+*/

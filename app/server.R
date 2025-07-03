@@ -278,8 +278,9 @@ server <- function(input, output, session) {
           )
         ),
         div(
-          class = "pdropdown-menu",
-          div(class = "headerText", paste("Logged in as:", user$info$username)),
+          #class = "pdropdown-menu",
+          class = "user-info",
+          #div(class = "headerText", paste("Logged in as:", user$info$username)),
           notificationItem(
             text = actionLink("view_profile", "View Profile"),
             icon = icon("user")
