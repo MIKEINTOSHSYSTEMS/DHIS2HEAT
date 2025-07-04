@@ -1416,28 +1416,113 @@ server <- function(input, output, session) {
   })
 
   # Render dynamic plot based on selected view and chart type
-  output$dynamicPlotOutput <- renderPlotly({
-    req(data$filtered)
-    print(names(data$filtered)) # Debug: Print column names
-    plot_data <- data$filtered
-    plot_type <- input$chart_type
+output$dynamicPlotOutput <- renderPlotly({
+  req(data$filtered)
+  print(names(data$filtered)) # Debug: Print column names
+  plot_data <- data$filtered
+  plot_type <- input$chart_type
 
-    # Common plot parameters
-    marker_params <- list(
-      size = input$marker_size,
-      color = input$plot_color
+  # Common plot parameters
+  marker_params <- list(
+    size = input$marker_size,
+    color = input$plot_color
+  )
+
+  # Add this conditional line parameter handling
+  line_params <- if (input$plot_mode %in% c("lines", "lines+markers")) {
+    list(
+      color = input$line_color,
+      width = 2
+    )
+  } else {
+    NULL
+  }
+
+  # Handle different chart types
+  if (plot_type == "Geo Heatmap") {
+    # Geo Heatmap specific code
+    req(eth_geojson)
+
+    # Prepare geographic data
+    geo_data <- data$filtered %>%
+      group_by(subgroup) %>%
+      summarise(estimate = mean(estimate, na.rm = TRUE))
+
+    # Create choropleth map
+    p <- plot_ly(
+      type = "choroplethmapbox",
+      geojson = eth_geojson,
+      featureidkey = "properties.shapeName",
+      locations = geo_data$subgroup,
+      z = geo_data$estimate,
+      colorscale = "Viridis",
+      marker = list(opacity = 0.7)
+    ) %>%
+      layout(
+        mapbox = list(
+          style = "light",
+          zoom = 4.5,
+          center = list(lon = 39.6, lat = 8.6), # Ethiopia coordinates
+          accesstoken = mapboxToken
+        ),
+        margin = list(t = 0, b = 0, l = 0, r = 0)
+      )
+    return(p)
+  } else if (plot_type == "Heatmap") {
+    # Regular Heatmap (not geographic)
+    req(input$view_by)
+
+    # Convert view_by to proper column name
+    view_col <- switch(input$view_by,
+      "Subgroup" = "subgroup",
+      "Dimension" = "dimension",
+      "Date" = "date"
     )
 
-    # Add this conditional line parameter handling
-    line_params <- if (input$plot_mode %in% c("lines", "lines+markers")) {
-      list(
-        color = input$line_color,
-        width = 2
-      )
-    } else {
-      NULL
-    }
+    # Prepare data for heatmap
+    heat_data <- plot_data %>%
+      group_by(!!sym(view_col), indicator_name) %>%
+      summarise(mean_estimate = mean(estimate, na.rm = TRUE))
 
+    p <- plot_ly(
+      x = heat_data[[view_col]],
+      y = heat_data$indicator_name,
+      z = heat_data$mean_estimate,
+      type = "heatmap",
+      colorscale = "Viridis"
+    ) %>%
+      layout(
+        xaxis = list(title = input$view_by),
+        yaxis = list(title = "Indicator"),
+        margin = list(l = 100)
+      )
+    return(p)
+  } else if (plot_type == "Pie") {
+    # Pie chart specific code
+    req(input$view_by)
+
+    # Convert view_by to proper column name
+    view_col <- switch(input$view_by,
+      "Subgroup" = "subgroup",
+      "Dimension" = "dimension",
+      "Date" = "date"
+    )
+
+    pie_data <- plot_data %>%
+      group_by(!!sym(view_col)) %>%
+      summarise(total = sum(estimate, na.rm = TRUE))
+
+    p <- plot_ly(
+      labels = pie_data[[view_col]],
+      values = pie_data$total,
+      type = "pie",
+      textinfo = "label+percent",
+      hoverinfo = "label+value+percent"
+    ) %>%
+      layout(showlegend = TRUE)
+    return(p)
+  } else {
+    # Default handling for Scatter and Bar charts
     if (input$view_by == "Date") {
       if (plot_type == "Scatter") {
         p <- plot_ly(
@@ -1466,7 +1551,6 @@ server <- function(input, output, session) {
       }
     } else if (input$view_by == "Dimension") {
       color_var <- ~dimension
-      # Similar structure for Subgroup view
       if (plot_type == "Scatter") {
         p <- plot_ly(
           data = plot_data, x = ~dimension, y = ~estimate,
@@ -1494,7 +1578,6 @@ server <- function(input, output, session) {
       }
     } else {
       color_var <- ~subgroup
-      # Similar structure for Subgroup view
       if (plot_type == "Scatter") {
         p <- plot_ly(
           data = plot_data, x = ~subgroup, y = ~estimate,
@@ -1521,49 +1604,11 @@ server <- function(input, output, session) {
         )
       }
     }
-    # Add GeoJSON loading and map token
-    # eth_geojson <- rjson::fromJSON(file = "saved_setting/geo/ethiopia_regions_map_simple.json") This is working
 
-    # eth_geojson <- rjson::fromJSON(file = "saved_setting/geo/ethiopia_regions_map_simple.json")
-    # eth_geojson <- jsonlite::fromJSON(file = ("saved_setting/geo/ethiopia_regions_map_simple.json"), warn = F)
-    # eth_geojson <- fromJSON(tet = "saved_setting/geo/ethiopia_regions_map_simple.json")
-    # eth_geojson <- fromJSON(text = "saved_setting/geo/ethiopia_regions_map_simple.json")
-
-
-    if (input$chart_type == "Geo Heatmap") {
-      # Debug: Print column names and first few rows of data$filtered
-      print(names(data$filtered))
-      print(head(data$filtered))
-      # Prepare geographic data
-      geo_data <- data$filtered %>%
-        group_by(subgroup) %>%
-        summarise(estimate = mean(estimate, na.rm = TRUE))
-
-      # Create choropleth map
-      p <- plot_ly(
-        type = "choroplethmapbox",
-        geojson = eth_geojson,
-        featureidkey = "properties.shapeName",
-        locations = geo_data$subgroup,
-        z = geo_data$estimate,
-        colorscale = "Viridis",
-        marker = list(opacity = 0.7)
-      ) %>%
-        layout(
-          mapbox = list(
-            style = "light",
-            zoom = 4.5,
-            center = list(lon = 39.6, lat = 8.6), # Ethiopia coordinates
-            accesstoken = mapboxToken
-          ),
-          margin = list(t = 0, b = 0, l = 0, r = 0)
-        )
-
-      return(p)
-    }
-
-    p %>% layout(showlegend = TRUE) # TRUE to show legend FALSE to hide legend
-  })
+    # Add layout for non-special chart types
+    p %>% layout(showlegend = TRUE)
+  }
+})
 
 
   # Fetch metadata and populate select inputs
