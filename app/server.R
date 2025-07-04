@@ -270,7 +270,7 @@ server <- function(input, output, session) {
       tagList(
         div(
           class = "user-info",
-          img(src = "images/user_picture.png", id = "user_profile_img"), # Correct image path
+          img(src = "images/user_picture.png", width="14%", id = "user_profile_img"), # Correct image path
           div(
             class = "user-info-text",
             h4(user$info$username), # Dynamic username

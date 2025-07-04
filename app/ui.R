@@ -122,10 +122,10 @@ ui <- tagList(
   navbarPage(
     # title = div(img(src = "dhis2-icon.svg", height = "30px"),
     #            "DHIS2 Data Fetcher"),
-    title = tags$div(
-      tags$img(src = "dhis2-icon.svg", height = "50px"),
-      HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
-    ),
+#    title = tags$div(
+#      tags$img(src = "dhis2-icon.svg", height = "50px"),
+#      HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
+#    ),
     id = "main_nav",
     windowTitle = "DHIS2 Data Fecher & Visualizations for HEAT+",
     # theme = shinytheme("flatly"),
@@ -209,7 +209,7 @@ ui <- tagList(
         dashboardHeader(
           title = tags$div(
             tags$img(src = "dhis2-icon.svg", height = "50px"),
-            HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
+            HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Pluses(+)</span>")
           ),
           tags$li(
             class = "dropdown",
@@ -219,7 +219,7 @@ ui <- tagList(
               # href = "#",
               # style = "vertical-align: middle; margin-right: 10px;",
               style = "vertical-align: sub; margin-right: 10px;",
-              HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 16px;padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
+              HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 14px;padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
 
               # style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
               # " Ministry of Health - ETHIOPIA"
@@ -257,7 +257,7 @@ ui <- tagList(
             hr(),
             menuItem("User Manual", tabName = "user_manual", icon = icon("book")),
             hr(),
-            h2("System Administration", style = "vertical-align: middle; margin-right: 7px; font-size: 14px; color: #4c7dbc; font-weight: bold; "),
+            h2("System Administration", style = "vertical-align: middle; margin-left: 40px; font-size: 14px; color: #17d0ff; font-weight: bold; "),
             hr(),
             menuItem("Settings",
               tabName = "settings", icon = icon("cogs"),

@@ -1,35 +1,58 @@
 library(shiny)
-library(shinyjs)
+library(shinydashboard)
 library(shinyWidgets)
-library(shinycssloaders)
+library(shinydashboardPlus)
+library(shinyjs)
+library(shinyBS)
+library(shinyalert)
+library(plyr)
+library(dplyr)
+library(ggplot2)
 library(plotly)
+library(scales)
+library(colorspace)
+library(pastecs)
+library(shinycssloaders)
 library(gridlayout)
 library(bslib)
-library(plyr) # empty() function is from this package
-library(dplyr) # select functions are covered in the require
-library(DT) # for using %>% which works as a pipe in R code
+library(colourpicker)
+library(httr)
+library(openxlsx)
+library(tidyr)
+library(arrow)
 library(rjson)
 library(jsonlite)
+library(slickR)
+library(rpivotTable)
+library(purrr)
+library(viridisLite)
+library(sf)
+library(highcharter)
+library(DT)
+
+# Source all modules
+source("load_countries.R", local = TRUE)
+source("manual.R", local = TRUE)
+source("spatial_module.R", local = TRUE)
+source("exclean.R", local = TRUE)
+source("ethgeo.R", local = TRUE)
+source("dba.R", local = TRUE)
+
+# Load UI and server
+source("ui.R", local = TRUE)
+source("server.R", local = TRUE)
+
 
 # setwd("/srv/shiny-server/UI")
 
 # Source the UI and server components
 # source("system.R") # Source the standalone database administration module
-source("load_countries.R")
-source("spatial_module.R")
-source("manual.R")
 #source("spatial.R")
 #source("./module/spatial_module.R")
-source("dba.R") # Source the database administration module
-source("exclean.R")
 # source("clean.R")
-source("ethgeo.R")
-source("ui.R")
-source("server.R")
 # source("auth.R")
 
-
-
+# Run the application
 shinyApp(ui = ui, server = server)
 
 # Run the application with configurable port
