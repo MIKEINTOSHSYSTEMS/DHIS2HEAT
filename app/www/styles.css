@@ -30,12 +30,12 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: #0077be;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    background: #279d47;
 }
 
 /* ====================== */
@@ -631,7 +631,7 @@ table.dataTable td {
 /* ====================== */
 .modal-dialog {
     max-width: 350px;
-    width: 250px;
+    width: 100%;
     margin: 30px auto;
 }
 
