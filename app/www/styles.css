@@ -71,9 +71,9 @@ a:hover {
     left: 0;
     right: 0;
     z-index: 1030;
-    height: 60px;
+    height: 83px;
     min-height: 60px;
-    background: linear-gradient(135deg, #005b9f 0%, #007dc9 100%) !important;
+    background: linear-gradient(135deg, #005b9f 0%, #007dc99a 100%) !important;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -185,6 +185,11 @@ border-color: transparent !important;
     transform: rotate(90deg);
 }
 
+.navbar-custom-menu>.navbar-nav {
+    float: right;
+    padding-left: 30px;
+}
+
 /* ====================== */
 /* SIDEBAR */
 /* ====================== */
@@ -246,6 +251,9 @@ border-color: transparent !important;
 
 .sidebar-menu .treeview-menu li a {
     padding-left: 30px !important;
+    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .sidebar-menu .treeview-menu li.active a {
@@ -272,6 +280,7 @@ border-color: transparent !important;
     display: flex;
     align-items: center;
     cursor: pointer;
+    padding-left: 30px;
 }
 
 .user-img {
@@ -969,6 +978,13 @@ table.dataTable td {
 /* ====================== */
 /* UTILITY CLASSES */
 /* ====================== */
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 1px solid #eeeeee0a;
+}
+
 .well {
     background-color: #f8f9fa;
     border-radius: 4px;
@@ -1015,7 +1031,7 @@ table.dataTable td {
 /* ====================== */
 @media (max-width: 768px) {
     .main-header {
-        height: 77px;
+        height: 100px;
     }
 
     .main-header .logo {

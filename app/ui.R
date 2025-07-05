@@ -209,7 +209,7 @@ ui <- tagList(
         dashboardHeader(
           title = tags$div(
             tags$img(src = "dhis2-icon.svg", height = "50px"),
-            HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Pluses(+)</span>")
+            HTML("<span style='color: #d7d7d7;'>DHIS2 Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>")
           ),
           tags$li(
             class = "dropdown",
@@ -669,8 +669,8 @@ ui <- tagList(
                         selectInput("plot_mode", "Plot Mode",
                           choices = c(
                             "Markers" = "markers",
-                            "Lines+Markers" = "lines+markers",
-                            "Lines" = "lines"
+                            "Lines+Markers" = "lines+markers"
+                            #"Lines" = "lines"
                           )
                         ),
                         colourInput("line_color", "Line Color", value = "#075E57")

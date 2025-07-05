@@ -1286,7 +1286,7 @@ server <- function(input, output, session) {
       req(data$combined)
       plot_ly(
         data = data$combined, x = ~date, y = ~estimate, type = "scatter", mode = "markers",
-        marker = list(color = input$plot_color, size = 3), # Use selected color
+        marker = list(color = input$plot_color, size = 7), # Use selected color
         text = ~ paste("Indicator:", indicator_name, "<br>Dimension:", dimension, "<br>Subgroup:", subgroup, "<br>Date:", date, "<br>Estimate:", estimate),
         hoverinfo = "text"
       )
@@ -3278,7 +3278,7 @@ observeEvent(input$save_ordered_settings, {
         }
       },
       error = function(e) {
-        showNotification(paste("Benchmarking error:", e$message), type = "error")
+        showNotification(paste("Benchmarking error: Please make sure to select all parameters", e$message), type = "error")
       }
     )
   })
