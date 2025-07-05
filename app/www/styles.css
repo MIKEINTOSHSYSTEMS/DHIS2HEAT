@@ -76,7 +76,6 @@ a:hover {
     background: linear-gradient(135deg, #005b9f 0%, #007dc99a 100%) !important;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     display: flex;
@@ -199,7 +198,7 @@ border-color: transparent !important;
     width: 350px;
     background-color: #2c3e50 !important;
     color: white !important;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     height: 100vh;
     position: fixed;
@@ -226,7 +225,8 @@ border-color: transparent !important;
 
 .sidebar-menu li a {
     padding: 12px 15px;
-    margin: 4px 0;
+    border-radius: 4px;
+    margin: 5px 10px;
     color: #ecf0f1 !important;
     border-left: 3px solid transparent;
     transition: all 0.3s ease;
@@ -338,15 +338,15 @@ border-color: transparent !important;
 /* BOXES & CARDS */
 /* ====================== */
 .box {
-    border-radius: 8px !important;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
-    border: none !important;
-    margin-bottom: 20px;
-    transition: transform 0.2s ease;
+    border-radius: 10px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
 }
 
 .box:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
 }
 
 .box-header {
@@ -376,12 +376,10 @@ border-color: transparent !important;
 /* BUTTONS */
 /* ====================== */
 .btn {
-    border-radius: 6px !important;
-    font-weight: 500 !important;
-    padding: 8px 16px !important;
-    transition: all 0.2s ease !important;
-    border: none !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 30px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
 }
 
 .btn-primary {
@@ -463,17 +461,15 @@ border-color: transparent !important;
 /* FORMS & INPUTS */
 /* ====================== */
 .form-control {
-    border-radius: 1px !important;
-    border: 0px solid #ddd !important;
-    box-shadow: none !important;
+    border-radius: 0.3px !important;
+    border: 0.5px solid #ddd !important;
     padding: 8px 12px !important;
-    height: auto !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.2s ease; 
 }
 
 .form-control:focus {
     border-color: #007dc9 !important;
-    box-shadow: 0 0 0 0.2rem rgba(0, 125, 201, 0.25) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 125, 201, 0.25) !important; 
 }
 
 .selectize-input {
@@ -499,19 +495,57 @@ border-color: transparent !important;
 }
 
 /* Checkboxes & Radios */
+
+/* ====================== */
+/* CHECKBOX FIXES */
+/* ====================== */
 .checkbox label,
-.radio label {
-    padding-left: 25px !important;
-    position: relative;
+.checkbox-inline label,
+.radio label,
+.radio-inline label {
+    display: flex;
+    align-items: center;
     cursor: pointer;
+    margin-bottom: 5px;
 }
 
-.checkbox input[type='checkbox'],
-.radio input[type='radio'] {
-    opacity: 0;
+.checkbox input[type="checkbox"],
+.radio input[type="radio"] {
+    position: relative;
+    margin-top: 0;
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    opacity: 1;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Custom checkbox appearance */
+.checkbox input[type="checkbox"]::before {
+    content: "";
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #007dc9;
+    border-radius: 3px;
+    background-color: white;
+}
+
+.checkbox input[type="checkbox"]:checked::before {
+    background-color: #007dc9;
+}
+
+.checkbox input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    top: -1px;
+    left: 4px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .checkbox .checkbox-material:before,
@@ -589,8 +623,9 @@ border-color: transparent !important;
     background-color: #f8f9fa !important;
 }
 
+/* Tab content adjustments */
 .tab-content {
-    padding: 1px 0 !important;
+    padding: 15px 0 !important; 
 }
 
 .row {
@@ -671,9 +706,12 @@ table.dataTable td {
 /* START PAGE & HOME */
 /* ====================== */
 .start-page {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 30px 20px;
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     background-color: #ecf7ff;
     border-radius: 10px;
@@ -733,6 +771,29 @@ table.dataTable td {
     margin-top: 20px;
 }
 
+/* ====================== */
+/* RESPONSIVE FIXES */
+/* ====================== */
+@media (max-width: 768px) {
+    .dashboard-sidebar {
+        width: 100% !important;
+        position: relative !important;
+    }
+
+    .dashboard-body {
+        padding-left: 0 !important;
+    }
+
+    .start-page {
+        padding: 1rem;
+    }
+
+    .box {
+        margin-bottom: 15px;
+    }
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .start-page {
@@ -774,7 +835,7 @@ table.dataTable td {
 }
 
 /* ====================== */
-/* PRELOADER */
+/* HOME PAGE & PRELOADER */
 /* ====================== */
 #preloader {
     position: fixed;
@@ -789,6 +850,15 @@ table.dataTable td {
     align-items: center;
     z-index: 9999;
     transition: opacity 0.5s ease;
+}
+
+.home-tab {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; 
 }
 
 .progress-container {
@@ -810,6 +880,12 @@ table.dataTable td {
     transition: width 0.3s ease;
     position: relative;
     overflow: hidden;
+}
+
+/* Progress bar enhancements */
+.progress-bar {
+    border-radius: 10px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); 
 }
 
 .progress-bar::after {
@@ -841,7 +917,7 @@ table.dataTable td {
 }
 
 .loading-pulse {
-    animation: pulse 1.5s infinite;
+    animation: pulse 1.5s infinite; 
 }
 
 /* ====================== */
@@ -878,18 +954,19 @@ table.dataTable td {
     }
 }
 
+/* Animation enhancements */
 @keyframes pulse {
     0% {
-        opacity: 0.8;
+        transform: scale(1);
     }
 
     50% {
-        opacity: 1;
+        transform: scale(1.05);
     }
 
     100% {
-        opacity: 0.8;
-    }
+        transform: scale(1);
+    } 
 }
 
 @keyframes shimmer {
@@ -1009,6 +1086,15 @@ hr {
 /* ====================== */
 /* FOOTER */
 /* ====================== */
+
+/* Footer styling */
+.footer {
+    padding: 20px 0;
+    margin-top: 30px;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.05); 
+}
+
 .footer {
     text-align: center;
     padding: 20px;

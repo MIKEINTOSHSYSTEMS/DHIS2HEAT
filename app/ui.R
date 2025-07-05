@@ -58,7 +58,20 @@ specific_org_units <- c(
 # Define UI
 ui <- tagList(
   tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+    tags$link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"),
+    tags$style(HTML("
+      body { 
+        font-family: 'Roboto', sans-serif;
+        overflow-x: hidden;
+      }
+      .start-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    "))
   ),
   div(
     id = "preloader",
@@ -131,10 +144,12 @@ ui <- tagList(
     # theme = shinytheme("flatly"),
 
     # Conditionally display "Home" tab for non-logged-in users
+    # Home Tab
     conditionalPanel(
       condition = "output.logged_in == false",
       tabPanel("Home",
         value = "home",
+        class = "home-tab",
         fluidPage(
           class = "start-page",
           # tags$a(
@@ -219,7 +234,7 @@ ui <- tagList(
               # href = "#",
               # style = "vertical-align: middle; margin-right: 10px;",
               style = "vertical-align: sub; margin-right: 10px;",
-              HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 14px;padding: 15px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
+              HTML("<span style='vertical-align: sub;color: white;font-weight: bold;font-size: 12px;padding: 13px;'>Ministry of Health - ETHIOPIA | Health Equity Assessment Toolkit (HEAT)</span>"),
 
               # style = "color: white; font-weight: bold; font-size: 16px; padding: 15px;",
               # " Ministry of Health - ETHIOPIA"
@@ -663,7 +678,7 @@ ui <- tagList(
                     width = 12,
                     fluidRow(
                       column(4, colourInput("plot_color", "Marker Color", value = "#75FF09")),
-                      column(4, numericInput("marker_size", "Marker Size", value = 3, min = 1, max = 10)),
+                      column(4, numericInput("marker_size", "Marker Size", value = 7, min = 1, max = 10)),
                       column(4, conditionalPanel(
                         condition = "input.chart_type == 'Scatter'",
                         selectInput("plot_mode", "Plot Mode",
