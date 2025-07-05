@@ -12,94 +12,132 @@ dba_module_ui <- function(id) {
     ns <- NS(id)
     fluidPage(
         useShinyjs(),
-        # includeCSS("./www/custom.css"),
         includeCSS("./www/styles.css"),
-        # theme = shinytheme("cerulean"),
         titlePanel("Database Administration"),
-        sidebarLayout(
-            sidebarPanel(
-                class = "full-width-sidebar", # css custom class for no conflict
-                passwordInput(ns("password"), "Enter Password:"),
-                actionBttn(ns("backup"), "Create Backup", style = "material-flat", color = "primary"),
-                br(),
-                DTOutput(ns("backup_files")),
-                actionBttn(ns("restore"), "Restore Selected Backup", style = "material-flat", color = "success"),
-                actionBttn(ns("delete"), "Delete Selected Backups", style = "material-flat", color = "danger"),
-                verbatimTextOutput(ns("status")),
-                hr(),
-                h3("Database Management"),
-                pickerInput(ns("table_select"), "Select Table:", choices = NULL, options = list(`live-search` = TRUE)),
-                actionBttn(ns("refresh_tables"), "Refresh Tables", style = "material-flat", color = "primary"),
-                actionBttn(ns("add_table"), "Add Table", style = "material-flat", color = "primary"),
-                actionBttn(ns("delete_table"), "Delete Table", style = "material-flat", color = "danger"),
-                DTOutput(ns("table_content")),
-                actionBttn(ns("add_row"), "Add Row", style = "material-flat", color = "primary"),
-                actionBttn(ns("delete_row"), "Delete Selected Rows", style = "material-flat", color = "danger"),
-                actionBttn(ns("edit_row"), "Edit Selected Row", style = "material-flat", color = "warning"),
-                verbatimTextOutput(ns("db_status"))
-            ),
-            mainPanel(
-                # Placeholder for additional UI elements if needed
+        fluidRow( # Changed to fluidRow for full width
+            column(
+                width = 12, # Full width column
+                div(
+                    class = "panel panel-primary",
+                    div(
+                        class = "panel-heading",
+                        h4("Backup Management", class = "panel-title")
+                    ),
+                    div(
+                        class = "panel-body",
+                        passwordInput(ns("password"), "Enter Admin Password:"),
+                        actionBttn(ns("backup"), "Create Backup", style = "material-flat", color = "primary"),
+                        br(),
+                        DTOutput(ns("backup_files")),
+                        fluidRow(
+                            column(4, actionBttn(ns("download_backup"), "Download Selected", style = "material-flat", color = "success")),
+                            column(4, actionBttn(ns("restore"), "Restore Selected", style = "material-flat", color = "warning")),
+                            column(4, actionBttn(ns("delete"), "Delete Selected", style = "material-flat", color = "danger"))
+                        ),
+                        verbatimTextOutput(ns("status"))
+                    )
+                ),
+                div(
+                    class = "panel panel-primary",
+                    div(
+                        class = "panel-heading",
+                        h4("Database Management", class = "panel-title")
+                    ),
+                    div(
+                        class = "panel-body",
+                        pickerInput(ns("table_select"), "Select Table:", choices = NULL, options = list(`live-search` = TRUE)),
+                        fluidRow(
+                            column(6, actionBttn(ns("refresh_tables"), "Refresh Tables", style = "material-flat", color = "primary")),
+                            column(6, actionBttn(ns("delete_table"), "Delete Table", style = "material-flat", color = "danger"))
+                        ),
+                        DTOutput(ns("table_content")),
+                        fluidRow(
+                            column(4, actionBttn(ns("add_row"), "Add Row", style = "material-flat", color = "primary")),
+                            column(4, actionBttn(ns("edit_row"), "Edit Row", style = "material-flat", color = "warning")),
+                            column(4, actionBttn(ns("delete_row"), "Delete Row", style = "material-flat", color = "danger"))
+                        ),
+                        verbatimTextOutput(ns("db_status"))
+                    )
+                )
             )
         )
     )
 }
+
 
 # Define server logic for the module
 dba_module_server <- function(id) {
     moduleServer(id, function(input, output, session) {
         backup_dir <- "dbackup"
         dir.create(backup_dir, showWarnings = FALSE)
-
-        # Add reactive value to trigger backup list updates
-        backup_trigger <- reactiveVal(0)
-
-        observeEvent(input$backup, {
-            if (input$password == "dhis2heat") {
-                backup_file <- paste0(backup_dir, "/data_backup_", format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".sqlite")
-                file.copy("./db/data.sqlite", backup_file)
-                output$status <- renderText("Backup created successfully.")
-                updateBackupFiles()
-                # Increment the backup trigger to force refresh
-                backup_trigger(backup_trigger() + 1)
-            } else {
-                output$status <- renderText("Incorrect password.")
-            }
-        })
-
-        observeEvent(input$restore, {
-            if (input$password == "dhis2heat") {
-                selected_backup <- input$backup_files_rows_selected
-                if (length(selected_backup) == 1) {
-                    backup_file <- backup_files()[selected_backup, "Files"]
-                    file.copy(file.path(backup_dir, backup_file), "./db/data.sqlite", overwrite = TRUE)
-                    output$status <- renderText("Backup restored successfully.")
-                } else {
-                    output$status <- renderText("Please select a single backup to restore.")
-                }
-            } else {
-                output$status <- renderText("Incorrect password.")
-            }
-        })
-
-        observeEvent(input$delete, {
-            if (input$password == "dhis2heat") {
-                selected_backups <- input$backup_files_rows_selected
-                if (length(selected_backups) > 0) {
-                    backup_files_to_delete <- backup_files()[selected_backups, "Files"]
-                    file.remove(file.path(backup_dir, backup_files_to_delete))
-                    output$status <- renderText("Selected backups deleted successfully.")
-                    updateBackupFiles()
-
-                    # Force refresh of backup files list
-                    backup_trigger(backup_trigger() + 1)
-                } else {
-                    output$status <- renderText("Please select backups to delete.")
-                }
-            } else {
-                output$status <- renderText("Incorrect password.")
-            }
-        })
+    
+    # Reactive value to trigger updates
+    backup_trigger <- reactiveVal(0)
+    
+    # Password validation
+    valid_password <- reactive({
+      input$password == "dhis2heat" # Replace with your admin password
+    })
+    
+    observe({
+      shinyjs::toggleState("backup", valid_password())
+      shinyjs::toggleState("download_backup", valid_password() && length(input$backup_files_rows_selected) == 1)
+      shinyjs::toggleState("restore", valid_password() && length(input$backup_files_rows_selected) == 1)
+      shinyjs::toggleState("delete", valid_password() && length(input$backup_files_rows_selected) > 0)
+    })
+    
+    # Backup functions
+    backup_files <- reactive({
+      backup_trigger()
+      files <- list.files(backup_dir, pattern = "\\.sqlite$", full.names = FALSE)
+      data.frame(
+        Files = files,
+        Size = file.size(file.path(backup_dir, files)),
+        Date = file.info(file.path(backup_dir, files))$mtime
+      )
+    })
+    
+    output$backup_files <- renderDT({
+      datatable(backup_files(), selection = "multiple", options = list(pageLength = 5))
+    })
+    
+    # Backup handlers
+    observeEvent(input$backup, {
+      if (valid_password()) {
+        backup_file <- paste0(backup_dir, "/data_backup_", format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".sqlite")
+        file.copy("./db/data.sqlite", backup_file)
+        backup_trigger(backup_trigger() + 1)
+        showNotification("Backup created successfully!", type = "message")
+      }
+    })
+    
+    output$download_backup <- downloadHandler(
+      filename = function() {
+        backup_files()[input$backup_files_rows_selected, "Files"]
+      },
+      content = function(file) {
+        backup_file <- file.path(backup_dir, backup_files()[input$backup_files_rows_selected, "Files"])
+        file.copy(backup_file, file)
+      }
+    )
+    
+    observeEvent(input$restore, {
+      if (valid_password() && length(input$backup_files_rows_selected) == 1) {
+        backup_file <- file.path(backup_dir, backup_files()[input$backup_files_rows_selected, "Files"])
+        file.copy(backup_file, "./db/data.sqlite", overwrite = TRUE)
+        backup_trigger(backup_trigger() + 1)
+        showNotification("Database restored successfully! Please restart the application.", type = "message")
+      }
+    })
+    
+    observeEvent(input$delete, {
+      if (valid_password() && length(input$backup_files_rows_selected) > 0) {
+        files_to_delete <- file.path(backup_dir, backup_files()[input$backup_files_rows_selected, "Files"])
+        file.remove(files_to_delete)
+        backup_trigger(backup_trigger() + 1)
+        showNotification("Selected backups deleted!", type = "message")
+      }
+    })
 
         backup_files <- reactive({
             # Depend on backup trigger

@@ -420,25 +420,25 @@ ui <- tagList(
                   solidHeader = TRUE,
                   width = 12,
                   fluidRow(
-                    column(
-                      4,
-                      h4("Add New Permission"),
+                    column(4,
+                      h4("Permissions Management"),
                       textInput("new_permission", "New Permission Name"),
-                      actionButton("add_permission", "Add Permission", class = "btn-success")
+                      actionButton("add_permission", "Add Permission", class = "btn-success"),
+                      br(), br(),
+                      DTOutput("permissions_list")
                     ),
-                    column(
-                      4,
-                      h4("Create New Role"),
-                      textInput("new_role_name", "Role Name"),
-                      actionButton("add_role", "Create Role", class = "btn-primary")
-                    ),
-                    column(
-                      4,
-                      h4("Manage Existing Roles"),
+                    column(4,
+                      h4("Role Management"),
+                      textInput("new_role_name", "New Role Name"),
+                      actionButton("add_role", "Create Role", class = "btn-primary"),
+                      br(), br(),
                       selectInput("role_select", "Select Role", choices = NULL),
-                      uiOutput("permissions_ui"),
-                      actionButton("save_permissions", "Save Permissions", class = "btn-warning"),
                       actionButton("delete_role", "Delete Role", class = "btn-danger")
+                    ),
+                    column(4,
+                      h4("Role Permissions"),
+                      uiOutput("permissions_ui"),
+                      actionButton("save_permissions", "Save Permissions", class = "btn-warning")
                     )
                   )
                 )
@@ -450,16 +450,21 @@ ui <- tagList(
 
             tabItem(
               tabName = "db_management",
-              hr(),
-              dba_module_ui("dba_module"),
-              hr(),
               fluidRow(
                 box(
-                  title = "Database Administration and Management",
+                  title = "Database Administration",
                   status = "primary",
                   solidHeader = TRUE,
                   width = 12,
-                  p("CAUTION: Please becareful when updating and editing the database. You need Higher Level Credentials to Edit Update, Delete and Take a Backup or Restore the database. Please contact your super admin for credentials"),
+                  conditionalPanel(
+                    condition = "output.is_admin",
+                    dba_module_ui("dba_module")
+                  ),
+                  conditionalPanel(
+                    condition = "!output.is_admin",
+                    h3("Access Denied"),
+                    p("You don't have permission to access this section")
+                  )
                 )
               )
             ),

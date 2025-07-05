@@ -374,15 +374,15 @@ server <- function(input, output, session) {
     if (nrow(existing) > 0) {
       shinyalert("Registration Failed", "Username already exists", "error")
     } else {
-      hashed_pw <- hash_password(input$reg_password)
+      hashed_pw <- sodium::password_store(input$reg_password)
       dbExecute(
         conn,
-        "INSERT INTO users (username, password, email, full_name)
-         VALUES (?, ?, ?, ?)",
+        "INSERT INTO users (username, password, email, full_name, role)
+        VALUES (?, ?, ?, ?, ?)",
         list(
-          input$reg_username, hashed_pw,
-          input$reg_email, input$reg_fullname
-        )
+          input$reg_username, hashed_pw, input$reg_email,
+          input$reg_fullname, "user"
+        ) # Default role
       )
       shinyalert("Success", "Registration successful! Please login", "success")
       removeModal()
@@ -404,14 +404,15 @@ server <- function(input, output, session) {
 
 
   # Reactive expression to fetch user data
+# User table data with roles
   user_table_data <- reactive({
     user_update_trigger() # Correctly reference the reactiveVal # Add a trigger to refresh the data
     conn <- dbConnect(SQLite(), "./db/data.sqlite")
     users <- dbGetQuery(
       conn,
       "SELECT id, username, email, full_name, role, is_active,
-    strftime('%Y-%m-%d %H:%M', created_at) as created_at,
-    strftime('%Y-%m-%d %H:%M', last_login) as last_login FROM users"
+      strftime('%Y-%m-%d %H:%M', created_at) as created_at,
+      strftime('%Y-%m-%d %H:%M', last_login) as last_login FROM users"
     )
     dbDisconnect(conn)
     users
@@ -448,28 +449,86 @@ server <- function(input, output, session) {
     )
   })
 
-  # Edit user modal
+  observeEvent(input$add_user, {
+  showModal(modalDialog(
+    title = "Add New User",
+    textInput("new_username", "Username*"),
+    passwordInput("new_password", "Password*"),
+    textInput("new_email", "Email"),
+    textInput("new_fullname", "Full Name"),
+    selectInput("new_role", "Role", choices = c("admin", "user", "analyst")),
+    checkboxInput("new_active", "Active", value = TRUE),
+    footer = tagList(
+      modalButton("Cancel"),
+      actionButton("create_user", "Create User", class = "btn-primary")
+    )
+  ))
+})
+
+# Add this observer for the "Create User" button
+observeEvent(input$create_user, {
+  req(input$new_username, input$new_password)
+  
+  # Check if username exists
+  conn <- dbConnect(SQLite(), "./db/data.sqlite")
+  existing <- dbGetQuery(
+    conn,
+    "SELECT id FROM users WHERE username = ?", 
+    list(input$new_username)
+  )
+  dbDisconnect(conn)
+  
+  if (nrow(existing) > 0) {
+    shinyalert("Error", "Username already exists", "error")
+    return()
+  }
+  
+  # Hash password
+  hashed_pw <- sodium::password_store(input$new_password)
+  
+  # Insert new user
+  conn <- dbConnect(SQLite(), "./db/data.sqlite")
+  dbExecute(
+    conn,
+    "INSERT INTO users (username, password, email, full_name, role, is_active, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, datetime('now'))",
+    list(
+      input$new_username,
+      hashed_pw,
+      input$new_email,
+      input$new_fullname,
+      input$new_role,
+      as.integer(input$new_active)
+    )
+  )
+  dbDisconnect(conn)
+  
+  removeModal()
+  shinyalert("Success", "User created successfully", "success")
+  
+  # Update the user table
+  user_update_trigger(user_update_trigger() + 1)
+})
+
+  # Edit user modal with password field
   observeEvent(input$edit_user, {
     selected_row <- input$user_table_rows_selected
-    if (is.null(selected_row)) {
-      shinyalert("Error", "Please select a user to edit", "error")
+    if (length(selected_row) == 0) {
       return()
     }
 
-    conn <- dbConnect(SQLite(), "./db/data.sqlite")
-    user_data <- dbGetQuery(
-      conn,
-      "SELECT * FROM users WHERE id = ?",
-      list(user_table_data()[selected_row, "id"])
-    )
-    dbDisconnect(conn)
+    user_data <- user_table_data()[selected_row, ]
 
     showModal(modalDialog(
       title = "Edit User",
       textInput("edit_username", "Username", value = user_data$username),
       textInput("edit_email", "Email", value = user_data$email),
       textInput("edit_fullname", "Full Name", value = user_data$full_name),
-      selectInput("edit_role", "Role", choices = c("admin", "user"), selected = user_data$role),
+      passwordInput("edit_password", "New Password (leave blank to keep current)"),
+      selectInput("edit_role", "Role",
+        choices = c("admin", "user", "analyst"),
+        selected = user_data$role
+      ),
       checkboxInput("edit_active", "Active", value = as.logical(user_data$is_active)),
       footer = tagList(
         modalButton("Cancel"),
@@ -478,28 +537,37 @@ server <- function(input, output, session) {
     ))
   })
 
-  # Save user changes
+  # Save user changes with password handling
   observeEvent(input$save_user, {
     selected_row <- input$user_table_rows_selected
-    if (is.null(selected_row)) {
-      shinyalert("Error", "Please select a user to save", "error")
+    if (length(selected_row) == 0) {
       return()
     }
 
-    conn <- dbConnect(SQLite(), "./db/data.sqlite")
-    dbExecute(
-      conn,
-      "UPDATE users SET username = ?, email = ?, full_name = ?, role = ?, is_active = ? WHERE id = ?",
-      list(
-        input$edit_username, input$edit_email, input$edit_fullname,
-        input$edit_role, as.integer(input$edit_active),
-        user_table_data()[selected_row, "id"]
-      )
+    user_id <- user_table_data()[selected_row, "id"]
+    password_update <- ""
+
+    # Handle password change if provided
+    if (nchar(input$edit_password) > 0) {
+      hashed_pw <- sodium::password_store(input$edit_password)
+      password_update <- paste0("password = '", hashed_pw, "', ")
+    }
+
+    # Update user in database
+    query <- sprintf(
+      "UPDATE users SET username = '%s', email = '%s', full_name = '%s', %s role = '%s', is_active = %d WHERE id = %d",
+      input$edit_username,
+      input$edit_email,
+      input$edit_fullname,
+      password_update,
+      input$edit_role,
+      as.integer(input$edit_active),
+      user_id
     )
-    dbDisconnect(conn)
+
+    dbExecute(conn, query)
     removeModal()
-    shinyalert("Success", "User updated successfully", "success")
-    user_update_trigger(user_update_trigger() + 1) # Trigger update
+    showNotification("User updated successfully!", type = "message")
   })
 
   # Delete user
