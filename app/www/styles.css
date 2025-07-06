@@ -671,9 +671,9 @@ table.dataTable td {
 }
 
 .modal-content {
-    padding: 20px;
+    padding: 40px;
     border-radius: 8px;
-    width: 150%;
+    width: 100%;
 }
 
 .auth-modal .modal-content {

@@ -2339,16 +2339,29 @@ observe({
   updateSelectInput(session, "sm_dimension",
     choices = unique(data$combined$dimension)
   )
+  })
 
-  updateSelectInput(session, "sm_date",
-    choices = unique(data$combined$date)
-  )
+  # Initially set sm_date and sm_reference to NULL
+  updateSelectInput(session, "sm_date", choices = character(0), selected = NULL)
+  updateSelectInput(session, "sm_reference", choices = character(0), selected = NULL)
+
+
+# Update sm_date choices based on selected sm_indicator (with descending order)
+observeEvent(input$sm_indicator, {
+  req(data$combined, input$sm_indicator)
+
+  # Update the date choices when an indicator is selected, in descending order
+  indicator_dates <- unique(data$combined$date[data$combined$indicator_name == input$sm_indicator])
+  sorted_dates <- sort(indicator_dates, decreasing = TRUE)  # Sorting in descending order
+  
+  updateSelectInput(session, "sm_date", choices = sorted_dates)
 })
 
-# Update reference subgroup choices based on selected dimension
+# Update reference subgroup choices based on selected sm_dimension
 observeEvent(input$sm_dimension, {
   req(data$combined, input$sm_dimension)
 
+  # Update the reference subgroups based on the selected dimension
   subgroups <- unique(data$combined$subgroup[data$combined$dimension == input$sm_dimension])
   updateSelectInput(session, "sm_reference", choices = subgroups)
 })
@@ -2556,7 +2569,7 @@ output$sm_difference_plot <- renderHighchart({
     hc_title(text = "Subgroup Estimates") %>%
     hc_xAxis(title = list(text = "")) %>%
     hc_yAxis(title = list(text = "Estimate")) %>%
-    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Estimate:</b> {point.y:.2f}") %>%
+    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Date:</b> {point.date}<br><b>Estimate:</b> {point.y:.2f}") %>%
     hc_exporting(enabled = TRUE) %>%
     hc_add_theme(hc_theme_smpl()) # hc_add_theme(hc_theme_custom)  # replace with custom theme use
 })
@@ -2571,7 +2584,7 @@ output$sm_ratio_plot <- renderHighchart({
     hc_title(text = "Ratio to Minimum Subgroup") %>%
     hc_xAxis(title = list(text = "")) %>%
     hc_yAxis(title = list(text = "Ratio")) %>%
-    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Ratio:</b> {point.y:.2f}") %>%
+    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Date:</b> {point.date}<br><b>Ratio:</b> {point.y:.2f}") %>%
     hc_exporting(enabled = TRUE) %>%
     hc_add_theme(hc_theme_smpl())
 })
@@ -2605,7 +2618,7 @@ output$sm_aci_plot <- renderHighchart({
         name = "Trend",
         color = "#FF0000"
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Estimate:</b> {point.y:.2f}") %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2644,7 +2657,7 @@ output$sm_rci_plot <- renderHighchart({
         name = "Trend",
         color = "#FF0000"
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2681,7 +2694,7 @@ output$sm_sii_plot <- renderHighchart({
         name = "SII Trend",
         color = "#FF0000"
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Estimate:</b> {point.y:.2f}") %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2720,7 +2733,7 @@ output$sm_rii_plot <- renderHighchart({
         name = "RII Trend",
         color = "#FF0000"
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 

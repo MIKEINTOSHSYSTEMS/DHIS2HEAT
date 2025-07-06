@@ -152,37 +152,47 @@ ui <- tagList(
         class = "home-tab",
         fluidPage(
           class = "start-page",
-          # tags$a(
-          tags$
-            img(src = "moh_logo_blue.svg", height = "100px"),
-          # href = "#",
-          # style = "color: #007BDDFF; font-weight: bold; font-size: 16px; padding: 15px;",
-          # " Ministry of Health - ETHIOPIA"
-          # ),
+
+          # Ministry Logo
+          tags$img(src = "moh_logo_blue.svg", height = "100px"),
           hr(),
           hr(),
+
+          # Welcome Title
           h1("Welcome To"),
-          tags$img(src = "dhis2-icon.svg", height = "50px"),
-          HTML("<span style='color: #009BDDFF; font-weight: bold;'>DHIS2 </span><span>Data Fetcher for </span><span style='color: #007dc9; font-weight: bold;'>HEAT </span><span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>"),
+
+          # Horizontal Title Layout
+          div(
+            style = "display: flex; align-items: center; gap: 10px; font-size: 24px;",
+            tags$img(src = "dhis2-icon.svg", height = "50px"),
+            HTML("
+              <span style='color: #009BDDFF; font-weight: bold;'>DHIS2</span>
+              <span style='margin: 0 5px;'>Data Fetcher for</span>
+              <span style='color: #007dc9; font-weight: bold;'>HEAT</span>
+              <span style='color: #b5e71c; font-weight: bold;'>Plus(+)</span>
+            ")
+          ),
           hr(),
+
+          # Description Paragraphs
           p("Comprehensive data management and Health Equity Assessment and Analysis platform"),
-          p("Use demo/demo for username and password to login and test the system"),
+          p(HTML("Use <b>demo/demo</b> for username and password to login and test the system")),
           p("You can also register and create your account to test the system"),
           hr(),
+
+          # Login/Register Buttons Side-by-Side
+          div(
+            style = "display: flex; gap: 10px;",
+            actionButton("login_btn", "Login", class = "btn-primary"),
+            actionButton("register_btn", "Register", class = "btn-success")
+          ),
           hr(),
-          actionButton("login_btn", "Login", class = "btn-primary"),
-          actionButton("register_btn", "Register", class = "btn-success"),
-          hr(),
-          hr(),
+
           # Content Slider
           div(
             class = "section animated fadeIn",
             hr(),
-            hr(),
-            # h2("Features"),
-            # slickROutput("content_slider", width = "100%")
             slickROutput("content_slider", width = "500px")
-            # slickROutput("content_slider", width = "100%")
           ),
 
           # Release Notes
@@ -201,17 +211,17 @@ ui <- tagList(
             p("Version 1.6.1 - Improved income group selection in spatial module and updated filtering logic."),
             p("Version 1.6.2 - Added spatial health indicators benchmarking tool with dynamic UI and map visualization."),
             p("Version 1.7.0 - Added benchmarking settings and enhanced spatial data management functionalities."),
-            p("Version 1.7.1 - Modern visualizations added with WHO Benchmarking Standards, advanced data management functionalities, and streamlined UI."),
+            p("Version 1.7.1 - Modern visualizations added with WHO Benchmarking Standards, advanced data management functionalities, and streamlined UI.")
           ),
 
-          # Additional Sections
+          # Footer / More Info
           div(
             class = "section animated fadeIn",
             hr(),
             h2("More Information"),
             p("For more information, visit our website or contact support."),
             hr(),
-            HTML("Version-1.7.1 | &copy; 2025 Designed & Developed by: <a href='https://merqconsultancy.org'><b>MERQ Consultancy</b>.</a>")
+            HTML("Version-1.7.1 | &copy; 2025 Designed & Developed by: <a href='https://merqconsultancy.org'><b>MERQ Consultancy</b></a>")
           )
         )
       )
@@ -976,11 +986,40 @@ ui <- tagList(
                   fluidRow(
                     column(4, selectInput("sm_indicator", "Select Indicator", choices = NULL)),
                     column(4, selectInput("sm_dimension", "Select Dimension", choices = NULL)),
-                    column(4, selectInput("sm_date", "Select Date", choices = NULL))
+                    column(
+                      4,
+                      selectizeInput(
+                        "sm_date",
+                        "Select Date",
+                        choices = character(0),
+                        selected = NULL,
+                        options = list(
+                          placeholder = "Please select a date",
+                          maxOptions = 1000
+                        )
+                      )
+                    )
                   ),
                   fluidRow(
-                    column(4, checkboxInput("sm_weighted", "Weighted Measures", value = TRUE)),
-                    column(4, selectInput("sm_reference", "Reference Subgroup", choices = NULL)),
+                    column(4, checkboxInput("sm_weighted", "Weighted Measures", value = FALSE)),
+
+                    # Conditional rendering: Only display Reference Subgroup when Weighted Measures is checked
+                    column(
+                      4,
+                      conditionalPanel(
+                        condition = "input.sm_weighted == true", # Only show if checkbox is selected
+                        selectizeInput(
+                          "sm_reference",
+                          "Reference Subgroup",
+                          choices = character(0),
+                          selected = NULL,
+                          options = list(
+                            placeholder = "Please select a reference subgroup",
+                            maxOptions = 1000
+                          )
+                        )
+                      )
+                    ),
                     column(4, actionButton("sm_calculate", "Calculate Measures", class = "btn-primary"))
                   )
                 ),
