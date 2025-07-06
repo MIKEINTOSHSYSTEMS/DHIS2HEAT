@@ -1000,7 +1000,7 @@ ui <- tagList(
                         choices = character(0),
                         selected = NULL,
                         options = list(
-                          placeholder = "Please select a date",
+                          placeholder = "Please select date(s)",
                           maxOptions = 1000
                         )
                       )
@@ -1008,7 +1008,9 @@ ui <- tagList(
                     column(4, checkboxInput("sm_weighted", "Use Weighted Measures", value = FALSE)),
                     column(4,
                       conditionalPanel(
-                        condition = "input.sm_weighted == true",
+                        #condition = "input.sm_weighted == true",
+                        #condition = "input.sm_view_by == 'Subgroup'",
+                        condition = "input.sm_weighted == true && input.sm_view_by == 'Subgroup'",
                         selectizeInput(
                           "sm_reference",
                           "Reference Subgroup",
