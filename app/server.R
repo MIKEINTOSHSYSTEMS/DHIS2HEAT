@@ -2411,7 +2411,8 @@ sm_data <- reactive({
     )
 
   # Add formatted date for display
-  filtered$date_formatted <- format(as.Date(filtered$date, origin = "1970-01-01"), "%Y")
+  #filtered$date_formatted <- format(as.Date(filtered$date, origin = "1970-01-01"), "%Y")
+    filtered$date_formatted <- as.character(filtered$date)
 
   # If ordered dimension, ensure ordering is correct
   if ("subgroup_order" %in% names(filtered) && all(!is.na(filtered$subgroup_order))) {
