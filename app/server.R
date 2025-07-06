@@ -2239,7 +2239,7 @@ observe({
   })
 
 # Summary Measures Calculations
-calculate_summary_measures <- function(data) {
+calculate_summary_measures <- function(data, weighted = FALSE) {
   req(data)
 
   # Ensure data has required columns
@@ -2248,8 +2248,12 @@ calculate_summary_measures <- function(data) {
     stop("Data missing required columns for summary measures calculation")
   }
 
-  # Calculate setting average (weighted by population)
-  setting_avg <- weighted.mean(data$estimate, data$population, na.rm = TRUE)
+  # Calculate setting average (weighted by population if requested)
+  if (weighted) {
+    setting_avg <- weighted.mean(data$estimate, data$population, na.rm = TRUE)
+  } else {
+    setting_avg <- mean(data$estimate, na.rm = TRUE)
+  }
 
   # Determine reference subgroup
   if (data$favourable_indicator[1] == 1) {
@@ -2279,13 +2283,21 @@ calculate_summary_measures <- function(data) {
   # Ordered disproportionality measures
   if ("relative_rank" %in% names(data)) {
     # Absolute Concentration Index (ACI)
-    results$aci <- sum(data$population * (2 * data$relative_rank - 1) * data$estimate) / sum(data$population)
+    if (weighted) {
+      results$aci <- sum(data$population * (2 * data$relative_rank - 1) * data$estimate) / sum(data$population)
+    } else {
+      results$aci <- mean((2 * data$relative_rank - 1) * data$estimate)
+    }
 
     # Relative Concentration Index (RCI)
     results$rci <- results$aci / setting_avg * 100
 
     # Slope Index of Inequality (SII) - simplified version
-    model <- lm(estimate ~ relative_rank, data = data, weights = population)
+    if (weighted) {
+      model <- lm(estimate ~ relative_rank, data = data, weights = population)
+    } else {
+      model <- lm(estimate ~ relative_rank, data = data)
+    }
     results$sii <- coef(model)[2]
 
     # Relative Index of Inequality (RII)
@@ -2294,22 +2306,38 @@ calculate_summary_measures <- function(data) {
   }
 
   # Variance measures
-  results$bgv <- sum(data$population * (data$estimate - setting_avg)^2) / sum(data$population)
+  if (weighted) {
+    results$bgv <- sum(data$population * (data$estimate - setting_avg)^2) / sum(data$population)
+  } else {
+    results$bgv <- mean((data$estimate - setting_avg)^2)
+  }
   results$bgsd <- sqrt(results$bgv)
   results$cov <- results$bgsd / setting_avg * 100
 
   # Mean difference measures
   results$mdmu <- mean(abs(data$estimate - setting_avg))
-  results$mdmw <- sum(data$population * abs(data$estimate - setting_avg)) / sum(data$population)
+  if (weighted) {
+    results$mdmw <- sum(data$population * abs(data$estimate - setting_avg)) / sum(data$population)
+  } else {
+    results$mdmw <- results$mdmu
+  }
 
   best_estimate <- if (data$favourable_indicator[1] == 1) max(data$estimate) else min(data$estimate)
   results$mdbu <- mean(abs(data$estimate - best_estimate))
-  results$mdbw <- sum(data$population * abs(data$estimate - best_estimate)) / sum(data$population)
+  if (weighted) {
+    results$mdbw <- sum(data$population * abs(data$estimate - best_estimate)) / sum(data$population)
+  } else {
+    results$mdbw <- results$mdbu
+  }
 
-  if ("reference_subgroup" %in% names(data) && any(data$reference_subgroup == 1)) {
-    ref_estimate <- data$estimate[data$reference_subgroup == 1][1]
+  if (!is.null(input$sm_reference) && input$sm_reference %in% data$subgroup) {
+    ref_estimate <- data$estimate[data$subgroup == input$sm_reference][1]
     results$mdru <- mean(abs(data$estimate - ref_estimate))
-    results$mdrw <- sum(data$population * abs(data$estimate - ref_estimate)) / sum(data$population)
+    if (weighted) {
+      results$mdrw <- sum(data$population * abs(data$estimate - ref_estimate)) / sum(data$population)
+    } else {
+      results$mdrw <- results$mdru
+    }
   }
 
   # Index of disparity
@@ -2318,8 +2346,13 @@ calculate_summary_measures <- function(data) {
 
   # Disproportionality measures
   shares <- data$estimate / setting_avg
-  results$ti <- sum(data$population * shares * log(shares)) / sum(data$population) * 1000
-  results$mld <- sum(data$population * (-log(shares))) / sum(data$population) * 1000
+  if (weighted) {
+    results$ti <- sum(data$population * shares * log(shares)) / sum(data$population) * 1000
+    results$mld <- sum(data$population * (-log(shares))) / sum(data$population) * 1000
+  } else {
+    results$ti <- mean(shares * log(shares)) * 1000
+    results$mld <- mean(-log(shares)) * 1000
+  }
 
   # Impact measures
   results$par <- best_estimate - setting_avg
@@ -2377,9 +2410,16 @@ sm_data <- reactive({
       date == input$sm_date
     )
 
+  # Add formatted date for display
+  filtered$date_formatted <- format(as.Date(filtered$date, origin = "1970-01-01"), "%Y")
+
   # If ordered dimension, ensure ordering is correct
   if ("subgroup_order" %in% names(filtered) && all(!is.na(filtered$subgroup_order))) {
     filtered <- filtered[order(filtered$subgroup_order), ]
+
+    # Calculate relative ranks for ordered measures
+    filtered$relative_rank <- cumsum(filtered$population / sum(filtered$population)) -
+      (filtered$population / sum(filtered$population)) / 2
   }
 
   return(filtered)
@@ -2388,7 +2428,7 @@ sm_data <- reactive({
 # Calculate summary measures when button is clicked
 sm_results <- eventReactive(input$sm_calculate, {
   req(sm_data())
-  calculate_summary_measures(sm_data())
+  calculate_summary_measures(sm_data(), weighted = input$sm_weighted)
 })
 
 # Render all the summary measures outputs
@@ -2592,16 +2632,13 @@ output$sm_ratio_plot <- renderHighchart({
 # Ordered Disproportionality Plots
 output$sm_aci_plot <- renderHighchart({
   req(sm_data(), sm_results())
-  if ("relative_rank" %in% names(sm_data())) {
-    model <- lm(estimate ~ relative_rank, weights = population, data = sm_data())
-    trend_data <- data.frame(
-      relative_rank = sm_data()$relative_rank,
-      trend = fitted(model)
-    )
+  if (!is.null(sm_results()$aci)) {
+    plot_date <- unique(sm_data()$date_formatted)
 
     hc <- highchart() %>%
       hc_chart(type = "scatter") %>%
-      hc_title(text = "Absolute Concentration") %>%
+      hc_title(text = paste("Absolute Concentration Index (", plot_date, ")", sep = "")) %>%
+      hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
       hc_xAxis(title = list(text = "Relative Rank")) %>%
       hc_yAxis(title = list(text = "Estimate")) %>%
       hc_add_series(
@@ -2609,16 +2646,29 @@ output$sm_aci_plot <- renderHighchart({
         type = "scatter",
         hcaes(x = relative_rank, y = estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 4)
+        marker = list(radius = 6, symbol = "circle")
       ) %>%
       hc_add_series(
-        data = trend_data,
+        data = list_parse(data.frame(
+          x = c(min(sm_data()$relative_rank), max(sm_data()$relative_rank)),
+          y = c(min(sm_data()$estimate), max(sm_data()$estimate))
+        )),
         type = "line",
-        hcaes(x = relative_rank, y = trend),
-        name = "Trend",
-        color = "#FF0000"
+        name = "Equality Line",
+        color = "#FF0000",
+        dashStyle = "Dash",
+        marker = list(enabled = FALSE),
+        enableMouseTracking = FALSE
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(
+        formatter = JS(paste0("function() {
+          return '<b>Subgroup:</b> ' + this.point.name +
+                 '<br><b>Date:</b> ", plot_date, "' +
+                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
+                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }"))
+      ) %>%
+      hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2628,36 +2678,44 @@ output$sm_aci_plot <- renderHighchart({
 
 output$sm_rci_plot <- renderHighchart({
   req(sm_data(), sm_results())
-  if ("relative_rank" %in% names(sm_data())) {
-    plot_data <- sm_data()
-    plot_data$relative_estimate <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
-
-    model <- lm(relative_estimate ~ relative_rank, weights = population, data = plot_data)
-    trend_data <- data.frame(
-      relative_rank = plot_data$relative_rank,
-      trend = fitted(model)
-    )
+  if (!is.null(sm_results()$rci)) {
+    plot_date <- unique(sm_data()$date_formatted)
+    setting_avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
 
     hc <- highchart() %>%
       hc_chart(type = "scatter") %>%
-      hc_title(text = "Relative Concentration") %>%
+      hc_title(text = paste("Relative Concentration Index (", plot_date, ")", sep = "")) %>%
+      hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
       hc_xAxis(title = list(text = "Relative Rank")) %>%
       hc_yAxis(title = list(text = "Relative Estimate")) %>%
       hc_add_series(
-        data = plot_data,
+        data = sm_data() %>% mutate(relative_estimate = estimate / setting_avg),
         type = "scatter",
         hcaes(x = relative_rank, y = relative_estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 4)
+        marker = list(radius = 6, symbol = "circle")
       ) %>%
       hc_add_series(
-        data = trend_data,
+        data = list_parse(data.frame(
+          x = c(min(sm_data()$relative_rank), max(sm_data()$relative_rank)),
+          y = c(1, 1)
+        )),
         type = "line",
-        hcaes(x = relative_rank, y = trend),
-        name = "Trend",
-        color = "#FF0000"
+        name = "Equality Line",
+        color = "#FF0000",
+        dashStyle = "Dash",
+        marker = list(enabled = FALSE),
+        enableMouseTracking = FALSE
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(
+        formatter = JS(paste0("function() {
+          return '<b>Subgroup:</b> ' + this.point.name +
+                 '<br><b>Date:</b> ", plot_date, "' +
+                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
+                 '<br><b>Relative Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }"))
+      ) %>%
+      hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2668,16 +2726,20 @@ output$sm_rci_plot <- renderHighchart({
 # Regression-Based Plots
 output$sm_sii_plot <- renderHighchart({
   req(sm_data(), sm_results())
-  if ("relative_rank" %in% names(sm_data())) {
-    model <- lm(estimate ~ relative_rank, weights = population, data = sm_data())
-    trend_data <- data.frame(
-      relative_rank = sm_data()$relative_rank,
-      trend = fitted(model)
+  if (!is.null(sm_results()$sii)) {
+    plot_date <- unique(sm_data()$date_formatted)
+
+    # Calculate regression line
+    model <- lm(estimate ~ relative_rank, data = sm_data(), weights = population)
+    pred_data <- data.frame(
+      relative_rank = seq(min(sm_data()$relative_rank), max(sm_data()$relative_rank), length.out = 20)
     )
+    pred_data$estimate <- predict(model, newdata = pred_data)
 
     hc <- highchart() %>%
       hc_chart(type = "scatter") %>%
-      hc_title(text = "Slope Index of Inequality") %>%
+      hc_title(text = paste("Slope Index of Inequality (", plot_date, ")", sep = "")) %>%
+      hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
       hc_xAxis(title = list(text = "Relative Rank")) %>%
       hc_yAxis(title = list(text = "Estimate")) %>%
       hc_add_series(
@@ -2685,16 +2747,25 @@ output$sm_sii_plot <- renderHighchart({
         type = "scatter",
         hcaes(x = relative_rank, y = estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 4)
+        marker = list(radius = 6, symbol = "circle")
       ) %>%
       hc_add_series(
-        data = trend_data,
+        data = list_parse(pred_data),
         type = "line",
-        hcaes(x = relative_rank, y = trend),
         name = "SII Trend",
-        color = "#FF0000"
+        color = "#FF0000",
+        lineWidth = 3,
+        marker = list(enabled = FALSE)
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(
+        formatter = JS(paste0("function() {
+          return '<b>Subgroup:</b> ' + this.point.name +
+                 '<br><b>Date:</b> ", plot_date, "' +
+                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
+                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }"))
+      ) %>%
+      hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2704,36 +2775,47 @@ output$sm_sii_plot <- renderHighchart({
 
 output$sm_rii_plot <- renderHighchart({
   req(sm_data(), sm_results())
-  if ("relative_rank" %in% names(sm_data())) {
-    plot_data <- sm_data()
-    plot_data$relative_estimate <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
+  if (!is.null(sm_results()$rii)) {
+    plot_date <- unique(sm_data()$date_formatted)
+    setting_avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
 
-    model <- lm(relative_estimate ~ relative_rank, weights = population, data = plot_data)
-    trend_data <- data.frame(
-      relative_rank = plot_data$relative_rank,
-      trend = fitted(model)
+    # Calculate regression line
+    model <- lm(estimate ~ relative_rank, data = sm_data(), weights = population)
+    pred_data <- data.frame(
+      relative_rank = seq(min(sm_data()$relative_rank), max(sm_data()$relative_rank), length.out = 20)
     )
+    pred_data$estimate <- predict(model, newdata = pred_data)
 
     hc <- highchart() %>%
       hc_chart(type = "scatter") %>%
-      hc_title(text = "Relative Index of Inequality") %>%
+      hc_title(text = paste("Relative Index of Inequality (", plot_date, ")", sep = "")) %>%
+      hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
       hc_xAxis(title = list(text = "Relative Rank")) %>%
-      hc_yAxis(title = list(text = "Relative Estimate")) %>%
+      hc_yAxis(title = list(text = "Estimate")) %>%
       hc_add_series(
-        data = plot_data,
+        data = sm_data(),
         type = "scatter",
-        hcaes(x = relative_rank, y = relative_estimate, name = subgroup),
+        hcaes(x = relative_rank, y = estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 4)
+        marker = list(radius = 6, symbol = "circle")
       ) %>%
       hc_add_series(
-        data = trend_data,
+        data = list_parse(pred_data),
         type = "line",
-        hcaes(x = relative_rank, y = trend),
         name = "RII Trend",
-        color = "#FF0000"
+        color = "#FF0000",
+        lineWidth = 3,
+        marker = list(enabled = FALSE)
       ) %>%
-      hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.name}<br><b>Date:</b> {point.date}<br><b>Relative Estimate:</b> {point.y:.2f}") %>%
+      hc_tooltip(
+        formatter = JS(paste0("function() {
+          return '<b>Subgroup:</b> ' + this.point.name +
+                 '<br><b>Date:</b> ", plot_date, "' +
+                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
+                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }"))
+      ) %>%
+      hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
       hc_add_theme(hc_theme_smpl())
 
@@ -2749,8 +2831,9 @@ output$sm_variance_plot <- renderHighchart({
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
-    hc_title(text = "Subgroup Estimates with Setting Average") %>%
-    hc_xAxis(categories = sm_data()$subgroup, title = list(text = "")) %>%
+    hc_title(text = paste("Subgroup Estimates with Setting Average (", sm_data()$date_formatted[1], ")", sep = "")) %>%
+    hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
+    hc_xAxis(categories = sm_data()$subgroup, title = list(text = "Subgroups")) %>%
     hc_yAxis(title = list(text = "Estimate")) %>%
     hc_add_series(
       data = sm_data()$estimate,
@@ -2766,13 +2849,20 @@ output$sm_variance_plot <- renderHighchart({
       marker = list(enabled = FALSE)
     ) %>%
     hc_tooltip(
-      formatter = JS("function() {
+      formatter = JS(paste0("function() {
         if (this.series.name === 'Estimate') {
-          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+          return '<b>Subgroup:</b> ' + this.point.category +
+                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
+                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
         } else {
           return '<b>Setting Average:</b> ' + Highcharts.numberFormat(this.y, 2);
         }
-      }")
+      }"))
+    ) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(enabled = TRUE, format = "{y:.1f}")
+      )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
     hc_add_theme(hc_theme_smpl())
@@ -2790,8 +2880,9 @@ output$sm_meandiff_plot <- renderHighchart({
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
-    hc_title(text = "Subgroup Estimates with Reference Lines") %>%
-    hc_xAxis(categories = sm_data()$subgroup, title = list(text = "")) %>%
+    hc_title(text = paste("Subgroup Estimates with Reference Lines (", sm_data()$date_formatted[1], ")", sep = "")) %>%
+    hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
+    hc_xAxis(categories = sm_data()$subgroup, title = list(text = "Subgroups")) %>%
     hc_yAxis(title = list(text = "Estimate")) %>%
     hc_add_series(
       data = sm_data()$estimate,
@@ -2815,13 +2906,20 @@ output$sm_meandiff_plot <- renderHighchart({
       marker = list(enabled = FALSE)
     ) %>%
     hc_tooltip(
-      formatter = JS("function() {
+      formatter = JS(paste0("function() {
         if (this.series.name === 'Estimate') {
-          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
+          return '<b>Subgroup:</b> ' + this.point.category +
+                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
+                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
         } else {
           return '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, 2);
         }
-      }")
+      }"))
+    ) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(enabled = TRUE, format = "{y:.1f}")
+      )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
     hc_add_theme(hc_theme_smpl())
@@ -2838,8 +2936,9 @@ output$sm_ti_plot <- renderHighchart({
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
-    hc_title(text = "Subgroup Shares Relative to Setting Average") %>%
-    hc_xAxis(categories = plot_data$subgroup, title = list(text = "")) %>%
+    hc_title(text = paste("Subgroup Shares Relative to Setting Average (", sm_data()$date_formatted[1], ")", sep = "")) %>%
+    hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
+    hc_xAxis(categories = plot_data$subgroup, title = list(text = "Subgroups")) %>%
     hc_yAxis(title = list(text = "Share")) %>%
     hc_add_series(
       data = plot_data$share,
@@ -2855,13 +2954,67 @@ output$sm_ti_plot <- renderHighchart({
       marker = list(enabled = FALSE)
     ) %>%
     hc_tooltip(
-      formatter = JS("function() {
+      formatter = JS(paste0("function() {
         if (this.series.name === 'Share') {
-          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+          return '<b>Subgroup:</b> ' + this.point.category +
+                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
+                 '<br><b>Share:</b> ' + Highcharts.numberFormat(this.y, 2);
         } else {
           return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
         }
-      }")
+      }"))
+    ) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(enabled = TRUE, format = "{y:.2f}")
+      )
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+
+  hc
+})
+
+output$sm_mld_plot <- renderHighchart({
+  req(sm_data())
+
+  plot_data <- sm_data()
+  plot_data$log_share <- log(plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population))
+
+  hc <- highchart() %>%
+    hc_chart(type = "column") %>%
+    hc_title(text = paste("Logarithm of Subgroup Shares (", sm_data()$date_formatted[1], ")", sep = "")) %>%
+    hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
+    hc_xAxis(categories = plot_data$subgroup, title = list(text = "Subgroups")) %>%
+    hc_yAxis(title = list(text = "Log Share")) %>%
+    hc_add_series(
+      data = plot_data$log_share,
+      name = "Log Share",
+      showInLegend = FALSE
+    ) %>%
+    hc_add_series(
+      data = rep(0, length(plot_data$subgroup)),
+      type = "line",
+      name = "Equal Share",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      formatter = JS(paste0("function() {
+        if (this.series.name === 'Log Share') {
+          return '<b>Subgroup:</b> ' + this.point.category +
+                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
+                 '<br><b>Log Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+        } else {
+          return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
+        }
+      }"))
+    ) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(enabled = TRUE, format = "{y:.2f}")
+      )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
     hc_add_theme(hc_theme_smpl())

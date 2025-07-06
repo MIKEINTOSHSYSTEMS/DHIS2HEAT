@@ -1001,7 +1001,8 @@ ui <- tagList(
                     )
                   ),
                   fluidRow(
-                    column(4, checkboxInput("sm_weighted", "Weighted Measures", value = FALSE)),
+                    column(4, checkboxInput("sm_weighted", "Use Weighted Measures", value = FALSE)),
+                    column(4, uiOutput("reference_subgroup_ui")),
 
                     # Conditional rendering: Only display Reference Subgroup when Weighted Measures is checked
                     column(
