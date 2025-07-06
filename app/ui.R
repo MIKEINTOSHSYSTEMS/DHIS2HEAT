@@ -974,7 +974,7 @@ ui <- tagList(
                   )
                 )
               )
-            ),
+            ),# Start of summary measures tab ui section
             tabItem(
               tabName = "summary_measures",
               fluidRow(
@@ -986,8 +986,14 @@ ui <- tagList(
                   fluidRow(
                     column(4, selectInput("sm_indicator", "Select Indicator", choices = NULL)),
                     column(4, selectInput("sm_dimension", "Select Dimension", choices = NULL)),
-                    column(
-                      4,
+                    column(4, 
+                      radioButtons("sm_view_by", "Display By:",
+                                  choices = c("Subgroup", "Date"),
+                                  selected = "Subgroup", inline = TRUE)
+                    )
+                  ),
+                  fluidRow(
+                    column(4, 
                       selectizeInput(
                         "sm_date",
                         "Select Date",
@@ -998,17 +1004,11 @@ ui <- tagList(
                           maxOptions = 1000
                         )
                       )
-                    )
-                  ),
-                  fluidRow(
+                    ),
                     column(4, checkboxInput("sm_weighted", "Use Weighted Measures", value = FALSE)),
-                    column(4, uiOutput("reference_subgroup_ui")),
-
-                    # Conditional rendering: Only display Reference Subgroup when Weighted Measures is checked
-                    column(
-                      4,
+                    column(4,
                       conditionalPanel(
-                        condition = "input.sm_weighted == true", # Only show if checkbox is selected
+                        condition = "input.sm_weighted == true",
                         selectizeInput(
                           "sm_reference",
                           "Reference Subgroup",
@@ -1020,7 +1020,12 @@ ui <- tagList(
                           )
                         )
                       )
-                    ),
+                    )
+                  ),
+                  fluidRow(
+                    column(4, colourInput("sm_chart_color", "Chart Color", value = "#1f77b4")),
+                    column(4, numericInput("sm_decimal_places", "Decimal Places", 
+                                          value = 3, min = 0, max = 6, step = 1)),
                     column(4, actionButton("sm_calculate", "Calculate Measures", class = "btn-primary"))
                   )
                 ),
@@ -1182,7 +1187,7 @@ ui <- tagList(
                   )
                 )
               )
-            ),
+            ), # End of summary measures tab ui section
             tabItem(
               tabName = "geographical",
               spatialUI("spatial_module")

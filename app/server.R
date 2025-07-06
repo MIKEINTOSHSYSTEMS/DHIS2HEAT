@@ -2238,19 +2238,52 @@ observe({
     datatable(data$combined, options = list(scrollX = TRUE))
   })
 
+### Start of Summary Measures Section ###
+
+# sm_settings reactiveValues to store settings
+sm_settings <- reactiveValues(
+  sm_chart_color = "#00CAD7",
+  sm_decimal_places = 3
+)
+
+# Update them when inputs change
+observeEvent(input$sm_chart_color, {
+  sm_settings$sm_chart_color <- input$sm_chart_color
+})
+
+observeEvent(input$sm_decimal_places, {
+  sm_settings$sm_decimal_places <- input$sm_decimal_places
+})
+
+# Helper function to format numbers with configured decimal places
+format_sm_number <- function(x) {
+  req(input$sm_decimal_places)
+  format(round(x, input$sm_decimal_places), nsmall = input$sm_decimal_places)
+}
+
 # Summary Measures Calculations
 calculate_summary_measures <- function(data, weighted = FALSE) {
   req(data)
 
-  # Ensure data has required columns
+  # Ensure data has required columns with proper error handling
   required_cols <- c("estimate", "population", "dimension", "subgroup", "favourable_indicator")
   if (!all(required_cols %in% names(data))) {
     stop("Data missing required columns for summary measures calculation")
   }
 
+  # Remove any NA estimates
+  data <- data[!is.na(data$estimate), ]
+  if (nrow(data) == 0) {
+    stop("No valid data with non-NA estimates")
+  }
+
   # Calculate setting average (weighted by population if requested)
   if (weighted) {
-    setting_avg <- weighted.mean(data$estimate, data$population, na.rm = TRUE)
+    if (all(is.na(data$population))) {
+      setting_avg <- mean(data$estimate, na.rm = TRUE)
+    } else {
+      setting_avg <- weighted.mean(data$estimate, data$population, na.rm = TRUE)
+    }
   } else {
     setting_avg <- mean(data$estimate, na.rm = TRUE)
   }
@@ -2265,98 +2298,223 @@ calculate_summary_measures <- function(data, weighted = FALSE) {
   # Number of subgroups
   n_subgroups <- length(unique(data$subgroup))
 
-  # Calculate relative ranks for ordered measures
-  if ("subgroup_order" %in% names(data) && all(!is.na(data$subgroup_order))) {
-    # For ordered dimensions
-    data <- data[order(data$subgroup_order), ]
-    data$relative_rank <- cumsum(data$population / sum(data$population)) -
-      (data$population / sum(data$population)) / 2
-  }
-
   # Initialize results list
   results <- list()
 
-  # Simple measures
-  results$difference <- max(data$estimate) - min(data$estimate)
-  results$ratio <- max(data$estimate) / min(data$estimate)
+  # Simple measures - with error handling
+  results$difference <- tryCatch(
+    max(data$estimate, na.rm = TRUE) - min(data$estimate, na.rm = TRUE),
+    error = function(e) NA
+  )
 
-  # Ordered disproportionality measures
-  if ("relative_rank" %in% names(data)) {
-    # Absolute Concentration Index (ACI)
-    if (weighted) {
-      results$aci <- sum(data$population * (2 * data$relative_rank - 1) * data$estimate) / sum(data$population)
+  min_est <- tryCatch(min(data$estimate, na.rm = TRUE), error = function(e) NA)
+  results$ratio <- tryCatch(
+    ifelse(!is.na(min_est) && min_est != 0,
+      max(data$estimate, na.rm = TRUE) / min_est,
+      NA
+    ),
+    error = function(e) NA
+  )
+
+  # Calculate relative ranks for ordered measures if subgroup_order exists
+  if ("subgroup_order" %in% names(data) && all(!is.na(data$subgroup_order))) {
+    data <- data[order(data$subgroup_order), ]
+    if (weighted && !all(is.na(data$population))) {
+      data$relative_rank <- cumsum(data$population / sum(data$population, na.rm = TRUE)) -
+        (data$population / sum(data$population, na.rm = TRUE)) / 2
     } else {
-      results$aci <- mean((2 * data$relative_rank - 1) * data$estimate)
+      data$relative_rank <- (seq_len(nrow(data)) / nrow(data) - (1 / nrow(data)) / 2
+      )
     }
 
-    # Relative Concentration Index (RCI)
-    results$rci <- results$aci / setting_avg * 100
-
-    # Slope Index of Inequality (SII) - simplified version
-    if (weighted) {
-      model <- lm(estimate ~ relative_rank, data = data, weights = population)
+    # Ordered disproportionality measures
+    if (weighted && !all(is.na(data$population))) {
+      results$aci <- tryCatch(
+        sum(data$population * (2 * data$relative_rank - 1) * data$estimate, na.rm = TRUE) /
+          sum(data$population, na.rm = TRUE),
+        error = function(e) NA
+      )
     } else {
-      model <- lm(estimate ~ relative_rank, data = data)
+      results$aci <- tryCatch(
+        mean((2 * data$relative_rank - 1) * data$estimate, na.rm = TRUE),
+        error = function(e) NA
+      )
     }
-    results$sii <- coef(model)[2]
 
-    # Relative Index of Inequality (RII)
-    pred_values <- predict(model, newdata = data.frame(relative_rank = c(0, 1)))
-    results$rii <- pred_values[2] / pred_values[1]
+    results$rci <- tryCatch(
+      results$aci / setting_avg * 100,
+      error = function(e) NA
+    )
+
+    # Slope Index of Inequality (SII)
+    if (weighted && !all(is.na(data$population))) {
+      model <- tryCatch(
+        lm(estimate ~ relative_rank, data = data, weights = population),
+        error = function(e) NULL
+      )
+    } else {
+      model <- tryCatch(
+        lm(estimate ~ relative_rank, data = data),
+        error = function(e) NULL
+      )
+    }
+
+    if (!is.null(model)) {
+      results$sii <- tryCatch(coef(model)[2], error = function(e) NA)
+      pred_values <- tryCatch(
+        predict(model, newdata = data.frame(relative_rank = c(0, 1))),
+        error = function(e) c(NA, NA)
+      )
+      results$rii <- tryCatch(
+        ifelse(!is.na(pred_values[1]) && pred_values[1] != 0,
+          pred_values[2] / pred_values[1],
+          NA
+        ),
+        error = function(e) NA
+      )
+    } else {
+      results$sii <- NA
+      results$rii <- NA
+    }
   }
 
-  # Variance measures
-  if (weighted) {
-    results$bgv <- sum(data$population * (data$estimate - setting_avg)^2) / sum(data$population)
+  # Variance measures with error handling
+  if (weighted && !all(is.na(data$population))) {
+    results$bgv <- tryCatch(
+      sum(data$population * (data$estimate - setting_avg)^2, na.rm = TRUE) /
+        sum(data$population, na.rm = TRUE),
+      error = function(e) NA
+    )
   } else {
-    results$bgv <- mean((data$estimate - setting_avg)^2)
+    results$bgv <- tryCatch(
+      mean((data$estimate - setting_avg)^2, na.rm = TRUE),
+      error = function(e) NA
+    )
   }
-  results$bgsd <- sqrt(results$bgv)
-  results$cov <- results$bgsd / setting_avg * 100
 
-  # Mean difference measures
-  results$mdmu <- mean(abs(data$estimate - setting_avg))
-  if (weighted) {
-    results$mdmw <- sum(data$population * abs(data$estimate - setting_avg)) / sum(data$population)
+  results$bgsd <- tryCatch(sqrt(results$bgv), error = function(e) NA)
+  results$cov <- tryCatch(
+    ifelse(!is.na(setting_avg) && setting_avg != 0,
+      results$bgsd / setting_avg * 100,
+      NA
+    ),
+    error = function(e) NA
+  )
+
+  # Mean difference measures with error handling
+  results$mdmu <- tryCatch(
+    mean(abs(data$estimate - setting_avg), na.rm = TRUE),
+    error = function(e) NA
+  )
+
+  if (weighted && !all(is.na(data$population))) {
+    results$mdmw <- tryCatch(
+      sum(data$population * abs(data$estimate - setting_avg), na.rm = TRUE) /
+        sum(data$population, na.rm = TRUE),
+      error = function(e) NA
+    )
   } else {
     results$mdmw <- results$mdmu
   }
 
-  best_estimate <- if (data$favourable_indicator[1] == 1) max(data$estimate) else min(data$estimate)
-  results$mdbu <- mean(abs(data$estimate - best_estimate))
-  if (weighted) {
-    results$mdbw <- sum(data$population * abs(data$estimate - best_estimate)) / sum(data$population)
+  best_estimate <- if (data$favourable_indicator[1] == 1) {
+    tryCatch(max(data$estimate, na.rm = TRUE), error = function(e) NA)
+  } else {
+    tryCatch(min(data$estimate, na.rm = TRUE), error = function(e) NA)
+  }
+
+  results$mdbu <- tryCatch(
+    mean(abs(data$estimate - best_estimate), na.rm = TRUE),
+    error = function(e) NA
+  )
+
+  if (weighted && !all(is.na(data$population))) {
+    results$mdbw <- tryCatch(
+      sum(data$population * abs(data$estimate - best_estimate), na.rm = TRUE) /
+        sum(data$population, na.rm = TRUE),
+      error = function(e) NA
+    )
   } else {
     results$mdbw <- results$mdbu
   }
 
+  # Reference subgroup differences if specified
   if (!is.null(input$sm_reference) && input$sm_reference %in% data$subgroup) {
-    ref_estimate <- data$estimate[data$subgroup == input$sm_reference][1]
-    results$mdru <- mean(abs(data$estimate - ref_estimate))
-    if (weighted) {
-      results$mdrw <- sum(data$population * abs(data$estimate - ref_estimate)) / sum(data$population)
+    ref_estimate <- tryCatch(
+      mean(data$estimate[data$subgroup == input$sm_reference], na.rm = TRUE),
+      error = function(e) NA
+    )
+
+    results$mdru <- tryCatch(
+      mean(abs(data$estimate - ref_estimate), na.rm = TRUE),
+      error = function(e) NA
+    )
+
+    if (weighted && !all(is.na(data$population))) {
+      results$mdrw <- tryCatch(
+        sum(data$population * abs(data$estimate - ref_estimate), na.rm = TRUE) /
+          sum(data$population, na.rm = TRUE),
+        error = function(e) NA
+      )
     } else {
       results$mdrw <- results$mdru
     }
   }
 
   # Index of disparity
-  results$idisu <- results$mdmu / setting_avg * 100
-  results$idisw <- results$mdmw / setting_avg * 100
+  results$idisu <- tryCatch(
+    ifelse(!is.na(setting_avg) && setting_avg != 0,
+      results$mdmu / setting_avg * 100,
+      NA
+    ),
+    error = function(e) NA
+  )
+
+  results$idisw <- tryCatch(
+    ifelse(!is.na(setting_avg) && setting_avg != 0,
+      results$mdmw / setting_avg * 100,
+      NA
+    ),
+    error = function(e) NA
+  )
 
   # Disproportionality measures
-  shares <- data$estimate / setting_avg
-  if (weighted) {
-    results$ti <- sum(data$population * shares * log(shares)) / sum(data$population) * 1000
-    results$mld <- sum(data$population * (-log(shares))) / sum(data$population) * 1000
+  shares <- tryCatch(
+    data$estimate / setting_avg,
+    error = function(e) rep(NA, length(data$estimate))
+  )
+
+  if (weighted && !all(is.na(data$population))) {
+    results$ti <- tryCatch(
+      sum(data$population * shares * log(ifelse(shares <= 0, NA, shares)), na.rm = TRUE) /
+        sum(data$population, na.rm = TRUE) * 1000,
+      error = function(e) NA
+    )
+    results$mld <- tryCatch(
+      sum(data$population * (-log(ifelse(shares <= 0, NA, shares))), na.rm = TRUE) /
+        sum(data$population, na.rm = TRUE) * 1000,
+      error = function(e) NA
+    )
   } else {
-    results$ti <- mean(shares * log(shares)) * 1000
-    results$mld <- mean(-log(shares)) * 1000
+    results$ti <- tryCatch(
+      mean(shares * log(ifelse(shares <= 0, NA, shares)), na.rm = TRUE) * 1000,
+      error = function(e) NA
+    )
+    results$mld <- tryCatch(
+      mean(-log(ifelse(shares <= 0, NA, shares)), na.rm = TRUE) * 1000,
+      error = function(e) NA
+    )
   }
 
   # Impact measures
-  results$par <- best_estimate - setting_avg
-  results$paf <- results$par / setting_avg * 100
+  results$par <- tryCatch(best_estimate - setting_avg, error = function(e) NA)
+  results$paf <- tryCatch(
+    ifelse(!is.na(setting_avg) && setting_avg != 0,
+      results$par / setting_avg * 100,
+      NA
+    ),
+    error = function(e) NA
+  )
 
   return(results)
 }
@@ -2372,12 +2530,11 @@ observe({
   updateSelectInput(session, "sm_dimension",
     choices = unique(data$combined$dimension)
   )
-  })
+})
 
-  # Initially set sm_date and sm_reference to NULL
-  updateSelectInput(session, "sm_date", choices = character(0), selected = NULL)
-  updateSelectInput(session, "sm_reference", choices = character(0), selected = NULL)
-
+# Initially set sm_date and sm_reference to NULL
+updateSelectInput(session, "sm_date", choices = character(0), selected = NULL)
+updateSelectInput(session, "sm_reference", choices = character(0), selected = NULL)
 
 # Update sm_date choices based on selected sm_indicator (with descending order)
 observeEvent(input$sm_indicator, {
@@ -2385,8 +2542,8 @@ observeEvent(input$sm_indicator, {
 
   # Update the date choices when an indicator is selected, in descending order
   indicator_dates <- unique(data$combined$date[data$combined$indicator_name == input$sm_indicator])
-  sorted_dates <- sort(indicator_dates, decreasing = TRUE)  # Sorting in descending order
-  
+  sorted_dates <- sort(indicator_dates, decreasing = TRUE) # Sorting in descending order
+
   updateSelectInput(session, "sm_date", choices = sorted_dates)
 })
 
@@ -2399,28 +2556,68 @@ observeEvent(input$sm_dimension, {
   updateSelectInput(session, "sm_reference", choices = subgroups)
 })
 
+# update view_by toggle based on selected indicator and dimension
+observeEvent(input$sm_view_by, {
+  req(data$combined, input$sm_indicator, input$sm_dimension)
+
+  if (input$sm_view_by == "Date") {
+    # Update date choices with all available dates for the selected indicator/dimension
+    dates <- unique(data$combined$date[
+      data$combined$indicator_name == input$sm_indicator &
+        data$combined$dimension == input$sm_dimension
+    ])
+    updateSelectizeInput(session, "sm_date",
+      choices = sort(dates, decreasing = TRUE),
+      options = list(placeholder = "Select one or more dates")
+    )
+  } else {
+    # Update with single date selection
+    dates <- unique(data$combined$date[
+      data$combined$indicator_name == input$sm_indicator &
+        data$combined$dimension == input$sm_dimension
+    ])
+    updateSelectizeInput(session, "sm_date",
+      choices = sort(dates, decreasing = TRUE),
+      options = list(
+        placeholder = "Select a date",
+        maxItems = 1
+      )
+    )
+  }
+})
+
 # Reactive for filtered data based on summary measures selections
 sm_data <- reactive({
   req(data$combined, input$sm_indicator, input$sm_dimension, input$sm_date)
 
-  filtered <- data$combined %>%
-    filter(
-      indicator_name == input$sm_indicator,
-      dimension == input$sm_dimension,
-      date == input$sm_date
-    )
+  if (input$sm_view_by == "Date") {
+    # For date view, filter by all selected dates
+    filtered <- data$combined %>%
+      filter(
+        indicator_name == input$sm_indicator,
+        dimension == input$sm_dimension,
+        date %in% input$sm_date
+      )
+  } else {
+    # For subgroup view, filter by single date
+    filtered <- data$combined %>%
+      filter(
+        indicator_name == input$sm_indicator,
+        dimension == input$sm_dimension,
+        date == input$sm_date
+      )
+  }
 
   # Add formatted date for display
-  #filtered$date_formatted <- format(as.Date(filtered$date, origin = "1970-01-01"), "%Y")
-    filtered$date_formatted <- as.character(filtered$date)
+  filtered$date_formatted <- as.character(filtered$date)
 
   # If ordered dimension, ensure ordering is correct
   if ("subgroup_order" %in% names(filtered) && all(!is.na(filtered$subgroup_order))) {
     filtered <- filtered[order(filtered$subgroup_order), ]
 
     # Calculate relative ranks for ordered measures
-    filtered$relative_rank <- cumsum(filtered$population / sum(filtered$population)) -
-      (filtered$population / sum(filtered$population)) / 2
+    filtered$relative_rank <- cumsum(filtered$population / sum(filtered$population, na.rm = TRUE)) -
+      (filtered$population / sum(filtered$population, na.rm = TRUE)) / 2
   }
 
   return(filtered)
@@ -2435,32 +2632,31 @@ sm_results <- eventReactive(input$sm_calculate, {
 # Render all the summary measures outputs
 output$sm_difference <- renderPrint({
   req(sm_results())
-  cat("Difference (D):", round(sm_results()$difference, 4), "\n")
+  cat("Difference (D):", round(sm_results()$difference, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Absolute difference between highest and lowest subgroups.")
 })
 
 output$sm_ratio <- renderPrint({
   req(sm_results())
-  cat("Ratio (R):", round(sm_results()$ratio, 4), "\n")
+  cat("Ratio (R):", round(sm_results()$ratio, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Relative ratio between highest and lowest subgroups.")
 })
 
 output$sm_aci <- renderPrint({
   req(sm_results())
   if (!is.null(sm_results()$aci)) {
-    cat("Absolute Concentration Index (ACI):", round(sm_results()$aci, 4), "\n")
+    cat("Absolute Concentration Index (ACI):", round(sm_results()$aci, sm_settings$sm_decimal_places), "\n")
     cat("Interpretation: Measures absolute inequality across ordered subgroups.")
   } else {
     cat("ACI requires ordered dimension with subgroup ordering.")
   }
 })
 
-
 # Ordered Disproportionality Measures
 output$sm_rci <- renderPrint({
   req(sm_results())
   if (!is.null(sm_results()$rci)) {
-    cat("Relative Concentration Index (RCI):", round(sm_results()$rci, 4), "\n")
+    cat("Relative Concentration Index (RCI):", round(sm_results()$rci, sm_settings$sm_decimal_places), "\n")
     cat("Interpretation: Measures relative inequality across ordered subgroups.")
   } else {
     cat("RCI requires ordered dimension with subgroup ordering.")
@@ -2471,7 +2667,7 @@ output$sm_rci <- renderPrint({
 output$sm_sii <- renderPrint({
   req(sm_results())
   if (!is.null(sm_results()$sii)) {
-    cat("Slope Index of Inequality (SII):", round(sm_results()$sii, 4), "\n")
+    cat("Slope Index of Inequality (SII):", round(sm_results()$sii, sm_settings$sm_decimal_places), "\n")
     cat("Interpretation: Absolute difference between most and least advantaged, considering all subgroups.")
   } else {
     cat("SII requires ordered dimension with subgroup ordering.")
@@ -2481,7 +2677,7 @@ output$sm_sii <- renderPrint({
 output$sm_rii <- renderPrint({
   req(sm_results())
   if (!is.null(sm_results()$rii)) {
-    cat("Relative Index of Inequality (RII):", round(sm_results()$rii, 4), "\n")
+    cat("Relative Index of Inequality (RII):", round(sm_results()$rii, sm_settings$sm_decimal_places), "\n")
     cat("Interpretation: Relative ratio between most and least advantaged, considering all subgroups.")
   } else {
     cat("RII requires ordered dimension with subgroup ordering.")
@@ -2491,51 +2687,51 @@ output$sm_rii <- renderPrint({
 # Variance Measures
 output$sm_bgv <- renderPrint({
   req(sm_results())
-  cat("Between-Group Variance (BGV):", round(sm_results()$bgv, 4), "\n")
+  cat("Between-Group Variance (BGV):", round(sm_results()$bgv, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Weighted average of squared differences from setting average.")
 })
 
 output$sm_bgsd <- renderPrint({
   req(sm_results())
-  cat("Between-Group Standard Deviation (BGSD):", round(sm_results()$bgsd, 4), "\n")
+  cat("Between-Group Standard Deviation (BGSD):", round(sm_results()$bgsd, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Square root of BGV - in same units as indicator.")
 })
 
 output$sm_cov <- renderPrint({
   req(sm_results())
-  cat("Coefficient of Variation (COV):", round(sm_results()$cov, 4), "\n")
+  cat("Coefficient of Variation (COV):", round(sm_results()$cov, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: BGSD as percentage of setting average.")
 })
 
 # Mean Difference Measures
 output$sm_mdmu <- renderPrint({
   req(sm_results())
-  cat("Mean Difference from Mean (Unweighted):", round(sm_results()$mdmu, 4), "\n")
+  cat("Mean Difference from Mean (Unweighted):", round(sm_results()$mdmu, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Average absolute difference from setting average.")
 })
 
 output$sm_mdmw <- renderPrint({
   req(sm_results())
-  cat("Mean Difference from Mean (Weighted):", round(sm_results()$mdmw, 4), "\n")
+  cat("Mean Difference from Mean (Weighted):", round(sm_results()$mdmw, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Population-weighted average absolute difference from setting average.")
 })
 
 output$sm_mdbu <- renderPrint({
   req(sm_results())
-  cat("Mean Difference from Best (Unweighted):", round(sm_results()$mdbu, 4), "\n")
+  cat("Mean Difference from Best (Unweighted):", round(sm_results()$mdbu, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Average absolute difference from best performing subgroup.")
 })
 
 output$sm_mdbw <- renderPrint({
   req(sm_results())
-  cat("Mean Difference from Best (Weighted):", round(sm_results()$mdbw, 4), "\n")
+  cat("Mean Difference from Best (Weighted):", round(sm_results()$mdbw, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Population-weighted average absolute difference from best performing subgroup.")
 })
 
 output$sm_mdru <- renderPrint({
   req(sm_results())
   if (!is.null(sm_results()$mdru)) {
-    cat("Mean Difference from Reference (Unweighted):", round(sm_results()$mdru, 4), "\n")
+    cat("Mean Difference from Reference (Unweighted):", round(sm_results()$mdru, sm_settings$sm_decimal_places), "\n")
     cat("Interpretation: Average absolute difference from reference subgroup.")
   } else {
     cat("No reference subgroup specified.")
@@ -2545,7 +2741,7 @@ output$sm_mdru <- renderPrint({
 output$sm_mdrw <- renderPrint({
   req(sm_results())
   if (!is.null(sm_results()$mdrw)) {
-    cat("Mean Difference from Reference (Weighted):", round(sm_results()$mdrw, 4), "\n")
+    cat("Mean Difference from Reference (Weighted):", round(sm_results()$mdrw, sm_settings$sm_decimal_places), "\n")
     cat("Interpretation: Population-weighted average absolute difference from reference subgroup.")
   } else {
     cat("No reference subgroup specified.")
@@ -2555,34 +2751,30 @@ output$sm_mdrw <- renderPrint({
 # Disproportionality Measures
 output$sm_ti <- renderPrint({
   req(sm_results())
-  cat("Theil Index (TI):", round(sm_results()$ti, 4), "\n")
+  cat("Theil Index (TI):", round(sm_results()$ti, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Measures inequality using logarithms of shares (sensitive to top differences).")
 })
 
 output$sm_mld <- renderPrint({
   req(sm_results())
-  cat("Mean Log Deviation (MLD):", round(sm_results()$mld, 4), "\n")
+  cat("Mean Log Deviation (MLD):", round(sm_results()$mld, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Measures inequality using logarithms of shares (sensitive to bottom differences).")
 })
 
 # Impact Measures
 output$sm_paf <- renderPrint({
   req(sm_results())
-  cat("Population Attributable Fraction (PAF):", round(sm_results()$paf, 4), "%\n")
+  cat("Population Attributable Fraction (PAF):", round(sm_results()$paf, sm_settings$sm_decimal_places), "%\n")
   cat("Interpretation: Potential relative improvement if all subgroups reached reference level.")
 })
 
 output$sm_par <- renderPrint({
   req(sm_results())
-  cat("Population Attributable Risk (PAR):", round(sm_results()$par, 4), "\n")
+  cat("Population Attributable Risk (PAR):", round(sm_results()$par, sm_settings$sm_decimal_places), "\n")
   cat("Interpretation: Potential absolute improvement if all subgroups reached reference level.")
 })
 
-
-# Continue with similar render functions for all other measures...
-# (I've shown a few examples, you'll need to implement all of them similarly)
 # Highcharter plots for summary measures
-# Add this to your server.R
 hc_theme_custom <- hc_theme_merge(
   hc_theme_smpl(),
   hc_theme(
@@ -2602,39 +2794,100 @@ hc_theme_custom <- hc_theme_merge(
   )
 )
 
+# Helper function for consistent formatting
+format_sm_number <- function(x) {
+  req(input$sm_decimal_places)
+  format(round(x, input$sm_decimal_places), nsmall = input$sm_decimal_places)
+}
+
 # Plots for visualization - Highcharter version
 output$sm_difference_plot <- renderHighchart({
   req(sm_data())
 
+  decimals <- sm_settings$sm_decimal_places
+  tooltip_formatter <- JS(sprintf(
+    "function() {
+      return '<b>Subgroup:</b> ' + this.point.subgroup + '<br>' +
+             '<b>Date:</b> ' + this.point.date + '<br>' +
+             '<b>Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+    }",
+    decimals
+  ))
+
   hchart(sm_data(), "column", hcaes(x = subgroup, y = estimate)) %>%
+    hc_colors(sm_settings$sm_chart_color) %>%
     hc_title(text = "Subgroup Estimates") %>%
     hc_xAxis(title = list(text = "")) %>%
     hc_yAxis(title = list(text = "Estimate")) %>%
-    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Date:</b> {point.date}<br><b>Estimate:</b> {point.y:.2f}") %>%
+    hc_tooltip(formatter = tooltip_formatter) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
+      )
+    ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl()) # hc_add_theme(hc_theme_custom)  # replace with custom theme use
+    hc_add_theme(hc_theme_custom)
 })
 
 output$sm_ratio_plot <- renderHighchart({
   req(sm_data())
 
+  decimals <- sm_settings$sm_decimal_places
   plot_data <- sm_data()
   plot_data$ratio_to_min <- plot_data$estimate / min(plot_data$estimate)
 
+  tooltip_formatter <- JS(sprintf(
+    "function() {
+      return '<b>Subgroup:</b> ' + this.point.subgroup + '<br>' +
+             '<b>Date:</b> ' + this.point.date + '<br>' +
+             '<b>Ratio:</b> ' + Highcharts.numberFormat(this.y, %d);
+    }",
+    decimals
+  ))
+
   hchart(plot_data, "column", hcaes(x = subgroup, y = ratio_to_min)) %>%
+    hc_colors(sm_settings$sm_chart_color) %>%
     hc_title(text = "Ratio to Minimum Subgroup") %>%
     hc_xAxis(title = list(text = "")) %>%
     hc_yAxis(title = list(text = "Ratio")) %>%
-    hc_tooltip(pointFormat = "<b>Subgroup:</b> {point.subgroup}<br><b>Date:</b> {point.date}<br><b>Ratio:</b> {point.y:.2f}") %>%
+    hc_tooltip(formatter = tooltip_formatter) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
+      )
+    ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 })
 
 # Ordered Disproportionality Plots
 output$sm_aci_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if (!is.null(sm_results()$aci)) {
+    decimals <- sm_settings$sm_decimal_places
     plot_date <- unique(sm_data()$date_formatted)
+
+    tooltip_formatter <- JS(sprintf(
+      "function() {
+        return '<b>Subgroup:</b> ' + this.point.name +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, %d) +
+               '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }",
+      plot_date, decimals, decimals
+    ))
 
     hc <- highchart() %>%
       hc_chart(type = "scatter") %>%
@@ -2647,7 +2900,8 @@ output$sm_aci_plot <- renderHighchart({
         type = "scatter",
         hcaes(x = relative_rank, y = estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 6, symbol = "circle")
+        marker = list(radius = 6, symbol = "circle"),
+        color = sm_settings$sm_chart_color
       ) %>%
       hc_add_series(
         data = list_parse(data.frame(
@@ -2661,17 +2915,10 @@ output$sm_aci_plot <- renderHighchart({
         marker = list(enabled = FALSE),
         enableMouseTracking = FALSE
       ) %>%
-      hc_tooltip(
-        formatter = JS(paste0("function() {
-          return '<b>Subgroup:</b> ' + this.point.name +
-                 '<br><b>Date:</b> ", plot_date, "' +
-                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
-                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }"))
-      ) %>%
+      hc_tooltip(formatter = tooltip_formatter) %>%
       hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
-      hc_add_theme(hc_theme_smpl())
+      hc_add_theme(hc_theme_custom)
 
     hc
   }
@@ -2680,8 +2927,19 @@ output$sm_aci_plot <- renderHighchart({
 output$sm_rci_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if (!is.null(sm_results()$rci)) {
+    decimals <- sm_settings$sm_decimal_places
     plot_date <- unique(sm_data()$date_formatted)
     setting_avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
+
+    tooltip_formatter <- JS(sprintf(
+      "function() {
+        return '<b>Subgroup:</b> ' + this.point.name +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, %d) +
+               '<br><b>Relative Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }",
+      plot_date, decimals, decimals
+    ))
 
     hc <- highchart() %>%
       hc_chart(type = "scatter") %>%
@@ -2694,7 +2952,8 @@ output$sm_rci_plot <- renderHighchart({
         type = "scatter",
         hcaes(x = relative_rank, y = relative_estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 6, symbol = "circle")
+        marker = list(radius = 6, symbol = "circle"),
+        color = sm_settings$sm_chart_color
       ) %>%
       hc_add_series(
         data = list_parse(data.frame(
@@ -2708,17 +2967,10 @@ output$sm_rci_plot <- renderHighchart({
         marker = list(enabled = FALSE),
         enableMouseTracking = FALSE
       ) %>%
-      hc_tooltip(
-        formatter = JS(paste0("function() {
-          return '<b>Subgroup:</b> ' + this.point.name +
-                 '<br><b>Date:</b> ", plot_date, "' +
-                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
-                 '<br><b>Relative Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }"))
-      ) %>%
+      hc_tooltip(formatter = tooltip_formatter) %>%
       hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
-      hc_add_theme(hc_theme_smpl())
+      hc_add_theme(hc_theme_custom)
 
     hc
   }
@@ -2728,7 +2980,18 @@ output$sm_rci_plot <- renderHighchart({
 output$sm_sii_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if (!is.null(sm_results()$sii)) {
+    decimals <- sm_settings$sm_decimal_places
     plot_date <- unique(sm_data()$date_formatted)
+
+    tooltip_formatter <- JS(sprintf(
+      "function() {
+        return '<b>Subgroup:</b> ' + this.point.name +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, %d) +
+               '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }",
+      plot_date, decimals, decimals
+    ))
 
     # Calculate regression line
     model <- lm(estimate ~ relative_rank, data = sm_data(), weights = population)
@@ -2748,7 +3011,8 @@ output$sm_sii_plot <- renderHighchart({
         type = "scatter",
         hcaes(x = relative_rank, y = estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 6, symbol = "circle")
+        marker = list(radius = 6, symbol = "circle"),
+        color = sm_settings$sm_chart_color
       ) %>%
       hc_add_series(
         data = list_parse(pred_data),
@@ -2758,17 +3022,10 @@ output$sm_sii_plot <- renderHighchart({
         lineWidth = 3,
         marker = list(enabled = FALSE)
       ) %>%
-      hc_tooltip(
-        formatter = JS(paste0("function() {
-          return '<b>Subgroup:</b> ' + this.point.name +
-                 '<br><b>Date:</b> ", plot_date, "' +
-                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
-                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }"))
-      ) %>%
+      hc_tooltip(formatter = tooltip_formatter) %>%
       hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
-      hc_add_theme(hc_theme_smpl())
+      hc_add_theme(hc_theme_custom)
 
     hc
   }
@@ -2777,8 +3034,19 @@ output$sm_sii_plot <- renderHighchart({
 output$sm_rii_plot <- renderHighchart({
   req(sm_data(), sm_results())
   if (!is.null(sm_results()$rii)) {
+    decimals <- sm_settings$sm_decimal_places
     plot_date <- unique(sm_data()$date_formatted)
     setting_avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
+
+    tooltip_formatter <- JS(sprintf(
+      "function() {
+        return '<b>Subgroup:</b> ' + this.point.name +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, %d) +
+               '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }",
+      plot_date, decimals, decimals
+    ))
 
     # Calculate regression line
     model <- lm(estimate ~ relative_rank, data = sm_data(), weights = population)
@@ -2798,7 +3066,8 @@ output$sm_rii_plot <- renderHighchart({
         type = "scatter",
         hcaes(x = relative_rank, y = estimate, name = subgroup),
         name = "Data",
-        marker = list(radius = 6, symbol = "circle")
+        marker = list(radius = 6, symbol = "circle"),
+        color = sm_settings$sm_chart_color
       ) %>%
       hc_add_series(
         data = list_parse(pred_data),
@@ -2808,17 +3077,10 @@ output$sm_rii_plot <- renderHighchart({
         lineWidth = 3,
         marker = list(enabled = FALSE)
       ) %>%
-      hc_tooltip(
-        formatter = JS(paste0("function() {
-          return '<b>Subgroup:</b> ' + this.point.name +
-                 '<br><b>Date:</b> ", plot_date, "' +
-                 '<br><b>Relative Rank:</b> ' + Highcharts.numberFormat(this.x, 2) +
-                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }"))
-      ) %>%
+      hc_tooltip(formatter = tooltip_formatter) %>%
       hc_legend(enabled = TRUE) %>%
       hc_exporting(enabled = TRUE) %>%
-      hc_add_theme(hc_theme_smpl())
+      hc_add_theme(hc_theme_custom)
 
     hc
   }
@@ -2828,7 +3090,21 @@ output$sm_rii_plot <- renderHighchart({
 output$sm_variance_plot <- renderHighchart({
   req(sm_data())
 
+  decimals <- sm_settings$sm_decimal_places
   avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
+
+  tooltip_formatter <- JS(sprintf(
+    "function() {
+      if (this.series.name === 'Estimate') {
+        return '<b>Subgroup:</b> ' + this.point.category +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+      } else {
+        return '<b>Setting Average:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }
+    }",
+    sm_data()$date_formatted[1], decimals, decimals
+  ))
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
@@ -2839,7 +3115,8 @@ output$sm_variance_plot <- renderHighchart({
     hc_add_series(
       data = sm_data()$estimate,
       name = "Estimate",
-      showInLegend = FALSE
+      showInLegend = FALSE,
+      color = sm_settings$sm_chart_color
     ) %>%
     hc_add_series(
       data = rep(avg, length(sm_data()$subgroup)),
@@ -2849,24 +3126,20 @@ output$sm_variance_plot <- renderHighchart({
       dashStyle = "Dash",
       marker = list(enabled = FALSE)
     ) %>%
-    hc_tooltip(
-      formatter = JS(paste0("function() {
-        if (this.series.name === 'Estimate') {
-          return '<b>Subgroup:</b> ' + this.point.category +
-                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
-                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
-        } else {
-          return '<b>Setting Average:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }
-      }"))
-    ) %>%
+    hc_tooltip(formatter = tooltip_formatter) %>%
     hc_plotOptions(
       column = list(
-        dataLabels = list(enabled = TRUE, format = "{y:.1f}")
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
       )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 
   hc
 })
@@ -2875,9 +3148,23 @@ output$sm_variance_plot <- renderHighchart({
 output$sm_meandiff_plot <- renderHighchart({
   req(sm_data())
 
+  decimals <- sm_settings$sm_decimal_places
   fav <- sm_data()$favourable_indicator[1] == 1
   ref_value <- if (fav) max(sm_data()$estimate) else min(sm_data()$estimate)
   avg <- weighted.mean(sm_data()$estimate, sm_data()$population)
+
+  tooltip_formatter <- JS(sprintf(
+    "function() {
+      if (this.series.name === 'Estimate') {
+        return '<b>Subgroup:</b> ' + this.point.category +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, %d);
+      } else {
+        return '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, %d);
+      }
+    }",
+    sm_data()$date_formatted[1], decimals, decimals
+  ))
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
@@ -2888,7 +3175,8 @@ output$sm_meandiff_plot <- renderHighchart({
     hc_add_series(
       data = sm_data()$estimate,
       name = "Estimate",
-      showInLegend = FALSE
+      showInLegend = FALSE,
+      color = sm_settings$sm_chart_color
     ) %>%
     hc_add_series(
       data = rep(ref_value, length(sm_data()$subgroup)),
@@ -2906,24 +3194,20 @@ output$sm_meandiff_plot <- renderHighchart({
       dashStyle = "Dash",
       marker = list(enabled = FALSE)
     ) %>%
-    hc_tooltip(
-      formatter = JS(paste0("function() {
-        if (this.series.name === 'Estimate') {
-          return '<b>Subgroup:</b> ' + this.point.category +
-                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
-                 '<br><b>Estimate:</b> ' + Highcharts.numberFormat(this.y, 2);
-        } else {
-          return '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, 2);
-        }
-      }"))
-    ) %>%
+    hc_tooltip(formatter = tooltip_formatter) %>%
     hc_plotOptions(
       column = list(
-        dataLabels = list(enabled = TRUE, format = "{y:.1f}")
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
       )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 
   hc
 })
@@ -2932,8 +3216,22 @@ output$sm_meandiff_plot <- renderHighchart({
 output$sm_ti_plot <- renderHighchart({
   req(sm_data())
 
+  decimals <- sm_settings$sm_decimal_places
   plot_data <- sm_data()
   plot_data$share <- plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population)
+
+  tooltip_formatter <- JS(sprintf(
+    "function() {
+      if (this.series.name === 'Share') {
+        return '<b>Subgroup:</b> ' + this.point.category +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Share:</b> ' + Highcharts.numberFormat(this.y, %d);
+      } else {
+        return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }
+    }",
+    sm_data()$date_formatted[1], decimals, decimals
+  ))
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
@@ -2944,7 +3242,8 @@ output$sm_ti_plot <- renderHighchart({
     hc_add_series(
       data = plot_data$share,
       name = "Share",
-      showInLegend = FALSE
+      showInLegend = FALSE,
+      color = sm_settings$sm_chart_color
     ) %>%
     hc_add_series(
       data = rep(1, length(plot_data$subgroup)),
@@ -2954,24 +3253,20 @@ output$sm_ti_plot <- renderHighchart({
       dashStyle = "Dash",
       marker = list(enabled = FALSE)
     ) %>%
-    hc_tooltip(
-      formatter = JS(paste0("function() {
-        if (this.series.name === 'Share') {
-          return '<b>Subgroup:</b> ' + this.point.category +
-                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
-                 '<br><b>Share:</b> ' + Highcharts.numberFormat(this.y, 2);
-        } else {
-          return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }
-      }"))
-    ) %>%
+    hc_tooltip(formatter = tooltip_formatter) %>%
     hc_plotOptions(
       column = list(
-        dataLabels = list(enabled = TRUE, format = "{y:.2f}")
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
       )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 
   hc
 })
@@ -2979,55 +3274,22 @@ output$sm_ti_plot <- renderHighchart({
 output$sm_mld_plot <- renderHighchart({
   req(sm_data())
 
+  decimals <- sm_settings$sm_decimal_places
   plot_data <- sm_data()
   plot_data$log_share <- log(plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population))
 
-  hc <- highchart() %>%
-    hc_chart(type = "column") %>%
-    hc_title(text = paste("Logarithm of Subgroup Shares (", sm_data()$date_formatted[1], ")", sep = "")) %>%
-    hc_subtitle(text = paste("Dimension:", input$sm_dimension)) %>%
-    hc_xAxis(categories = plot_data$subgroup, title = list(text = "Subgroups")) %>%
-    hc_yAxis(title = list(text = "Log Share")) %>%
-    hc_add_series(
-      data = plot_data$log_share,
-      name = "Log Share",
-      showInLegend = FALSE
-    ) %>%
-    hc_add_series(
-      data = rep(0, length(plot_data$subgroup)),
-      type = "line",
-      name = "Equal Share",
-      color = "#FF0000",
-      dashStyle = "Dash",
-      marker = list(enabled = FALSE)
-    ) %>%
-    hc_tooltip(
-      formatter = JS(paste0("function() {
-        if (this.series.name === 'Log Share') {
-          return '<b>Subgroup:</b> ' + this.point.category +
-                 '<br><b>Date:</b> ", sm_data()$date_formatted[1], "' +
-                 '<br><b>Log Share:</b> ' + Highcharts.numberFormat(this.y, 2);
-        } else {
-          return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }
-      }"))
-    ) %>%
-    hc_plotOptions(
-      column = list(
-        dataLabels = list(enabled = TRUE, format = "{y:.2f}")
-      )
-    ) %>%
-    hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
-
-  hc
-})
-
-output$sm_mld_plot <- renderHighchart({
-  req(sm_data())
-
-  plot_data <- sm_data()
-  plot_data$log_share <- log(plot_data$estimate / weighted.mean(plot_data$estimate, plot_data$population))
+  tooltip_formatter <- JS(sprintf(
+    "function() {
+      if (this.series.name === 'Log Share') {
+        return '<b>Subgroup:</b> ' + this.point.category +
+               '<br><b>Date:</b> %s' +
+               '<br><b>Log Share:</b> ' + Highcharts.numberFormat(this.y, %d);
+      } else {
+        return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, %d);
+      }
+    }",
+    sm_data()$date_formatted[1], decimals, decimals
+  ))
 
   hc <- highchart() %>%
     hc_chart(type = "column") %>%
@@ -3037,7 +3299,8 @@ output$sm_mld_plot <- renderHighchart({
     hc_add_series(
       data = plot_data$log_share,
       name = "Log Share",
-      showInLegend = FALSE
+      showInLegend = FALSE,
+      color = sm_settings$sm_chart_color
     ) %>%
     hc_add_series(
       data = rep(0, length(plot_data$subgroup)),
@@ -3047,17 +3310,20 @@ output$sm_mld_plot <- renderHighchart({
       dashStyle = "Dash",
       marker = list(enabled = FALSE)
     ) %>%
-    hc_tooltip(
-      formatter = JS("function() {
-        if (this.series.name === 'Log Share') {
-          return '<b>Subgroup:</b> ' + this.point.category + '<br><b>Log Share:</b> ' + Highcharts.numberFormat(this.y, 2);
-        } else {
-          return '<b>Equal Share:</b> ' + Highcharts.numberFormat(this.y, 2);
-        }
-      }")
+    hc_tooltip(formatter = tooltip_formatter) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
+      )
     ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 
   hc
 })
@@ -3066,6 +3332,7 @@ output$sm_mld_plot <- renderHighchart({
 output$sm_paf_plot <- renderHighchart({
   req(sm_data(), sm_results())
 
+  decimals <- sm_settings$sm_decimal_places
   plot_data <- data.frame(
     Metric = c("Current Average", "Potential Average"),
     Value = c(
@@ -3075,17 +3342,30 @@ output$sm_paf_plot <- renderHighchart({
   )
 
   hchart(plot_data, "column", hcaes(x = Metric, y = Value)) %>%
+    hc_colors(sm_settings$sm_chart_color) %>%
     hc_title(text = "Potential Improvement from Eliminating Inequality") %>%
     hc_xAxis(title = list(text = "")) %>%
     hc_yAxis(title = list(text = "Estimate")) %>%
-    hc_tooltip(pointFormat = "<b>{point.Metric}</b><br><b>Value:</b> {point.y:.2f}") %>%
+    hc_tooltip(pointFormat = sprintf("<b>{point.Metric}</b><br><b>Value:</b> {point.y:.%df}", decimals)) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
+      )
+    ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 })
 
 output$sm_par_plot <- renderHighchart({
   req(sm_data(), sm_results())
 
+  decimals <- sm_settings$sm_decimal_places
   plot_data <- data.frame(
     Metric = c("Current Average", "Potential Average"),
     Value = c(
@@ -3095,22 +3375,33 @@ output$sm_par_plot <- renderHighchart({
   )
 
   hchart(plot_data, "column", hcaes(x = Metric, y = Value)) %>%
+    hc_colors(sm_settings$sm_chart_color) %>%
     hc_title(text = "Potential Improvement from Eliminating Inequality") %>%
     hc_xAxis(title = list(text = "")) %>%
     hc_yAxis(title = list(text = "Estimate")) %>%
-    hc_tooltip(pointFormat = "<b>{point.Metric}</b><br><b>Value:</b> {point.y:.2f}") %>%
+    hc_tooltip(pointFormat = sprintf("<b>{point.Metric}</b><br><b>Value:</b> {point.y:.%df}", decimals)) %>%
+    hc_plotOptions(
+      column = list(
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf(
+            "function() { return Highcharts.numberFormat(this.y, %d); }",
+            decimals
+          ))
+        )
+      )
+    ) %>%
     hc_exporting(enabled = TRUE) %>%
-    hc_add_theme(hc_theme_smpl())
+    hc_add_theme(hc_theme_custom)
 })
-
-
-
 
 # Data table output
 output$sm_data_table <- renderDT({
   req(sm_data())
   datatable(sm_data(), options = list(scrollX = TRUE))
 })
+
+### End of Summary Measures Section ###
 
 # Ordered dimensions UI
 output$ordered_dimensions_ui <- renderUI({
