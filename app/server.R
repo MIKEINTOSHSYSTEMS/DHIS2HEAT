@@ -3529,6 +3529,547 @@ output$sm_data_table <- renderDT({
   datatable(sm_data(), options = list(scrollX = TRUE))
 })
 
+
+### Preview Measures Section ###
+
+# Helper function to get preview data with all necessary calculations
+get_preview_data <- function() {
+  req(data$filtered)
+  
+  # Get current selections or defaults
+  current_indicator <- if (!is.null(input$filter_indicators) && length(input$filter_indicators) > 0) {
+    input$filter_indicators[1]
+  } else {
+    unique(data$filtered$indicator_name)[1]
+  }
+  
+  current_dimension <- if (!is.null(input$filter_dimensions) && length(input$filter_dimensions) > 0) {
+    input$filter_dimensions[1]
+  } else {
+    unique(data$filtered$dimension)[1]
+  }
+  
+  # Filter data for preview
+  preview_data <- data$filtered %>%
+    filter(indicator_name == current_indicator,
+           dimension == current_dimension)
+  
+  if (nrow(preview_data) == 0) return(NULL)
+  
+  # Calculate all summary measures for preview
+  if ("subgroup_order" %in% names(preview_data) && all(!is.na(preview_data$subgroup_order))) {
+    preview_data <- preview_data[order(preview_data$subgroup_order), ]
+    
+    if (!all(is.na(preview_data$population))) {
+      preview_data$relative_rank <- cumsum(preview_data$population / sum(preview_data$population, na.rm = TRUE)) - 
+        (preview_data$population / sum(preview_data$population, na.rm = TRUE)) / 2
+    } else {
+      preview_data$relative_rank <- (seq_len(nrow(preview_data)) / nrow(preview_data) - (1 / nrow(preview_data)) / 2)
+    }
+  }
+  
+  # Calculate setting average
+  if (!all(is.na(preview_data$population))) {
+    setting_avg <- weighted.mean(preview_data$estimate, preview_data$population, na.rm = TRUE)
+  } else {
+    setting_avg <- mean(preview_data$estimate, na.rm = TRUE)
+  }
+  
+  # Determine best subgroup based on favorable indicator
+  fav <- first(preview_data$favourable_indicator) == 1
+  best_estimate <- if(fav) max(preview_data$estimate, na.rm = TRUE) else min(preview_data$estimate, na.rm = TRUE)
+  best_subgroup <- if(fav) {
+    preview_data$subgroup[which.max(preview_data$estimate)]
+  } else {
+    preview_data$subgroup[which.min(preview_data$estimate)]
+  }
+  
+  # Calculate all measures
+  preview_data <- preview_data %>%
+    mutate(
+      difference = max(estimate, na.rm = TRUE) - min(estimate, na.rm = TRUE),
+      ratio = ifelse(min(estimate, na.rm = TRUE) != 0, 
+                    max(estimate, na.rm = TRUE) / min(estimate, na.rm = TRUE), 
+                    NA),
+      setting_avg = setting_avg,
+      best_estimate = best_estimate,
+      is_best_subgroup = subgroup == best_subgroup,
+      difference_from_avg = estimate - setting_avg,
+      pct_difference_from_avg = ifelse(setting_avg != 0, (estimate - setting_avg)/setting_avg * 100, NA),
+      difference_from_best = estimate - best_estimate,
+      pct_difference_from_best = ifelse(best_estimate != 0, (estimate - best_estimate)/best_estimate * 100, NA)
+    )
+  
+  # Calculate ordered measures if available
+  if ("relative_rank" %in% names(preview_data)) {
+    if (!all(is.na(preview_data$population))) {
+      model <- try(lm(estimate ~ relative_rank, data = preview_data, weights = population), silent = TRUE)
+    } else {
+      model <- try(lm(estimate ~ relative_rank, data = preview_data), silent = TRUE)
+    }
+    
+    if (!inherits(model, "try-error")) {
+      pred_values <- predict(model, newdata = data.frame(relative_rank = c(0, 1)))
+      preview_data$sii <- coef(model)[2]
+      preview_data$rii <- ifelse(pred_values[1] != 0, pred_values[2]/pred_values[1], NA)
+    }
+  }
+  
+  return(preview_data)
+}
+
+# Create dynamic highcharts plot for preview measures
+create_preview_plot <- function(data, y_var, title, y_title, type = NULL) {
+  req(data)
+  if (is.null(data)) return(NULL)
+  
+  # Determine plot type based on view_by selection
+  plot_type <- if (!is.null(type)) type else tolower(input$preview_chart_type)
+  
+  # Format numbers based on indicator scale
+  decimals <- if ("indicator_scale" %in% names(data)) {
+    max(0, 3 - floor(log10(data$indicator_scale[1])))
+  } else {
+    2
+  }
+  
+  # Create base chart
+  hc <- highchart() %>%
+    hc_chart(type = plot_type) %>%
+    hc_title(text = title) %>%
+    hc_subtitle(text = paste(data$indicator_name[1], "by", data$dimension[1])) %>%
+    hc_xAxis(
+      title = list(text = ifelse(input$preview_view_by == "Date", "Date", input$preview_view_by)),
+      type = "category"  # This ensures values are treated as categories, not numbers
+    ) %>%
+    hc_yAxis(title = list(text = y_title)) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl()) %>%
+    hc_plotOptions(
+      series = list(
+        dataLabels = list(
+          enabled = TRUE,
+          formatter = JS(sprintf("function() { return Highcharts.numberFormat(this.y, %d); }", decimals))
+        )
+      )
+    )
+  
+  # Add data based on view_by selection
+  if (input$preview_view_by == "Subgroup") {
+    hc <- hc %>%
+      hc_add_series(
+        data = data,
+        type = plot_type,
+        hcaes(x = subgroup, y = !!sym(y_var)),
+        name = title,
+        colorByPoint = plot_type %in% c("pie", "column", "bar"),
+        showInLegend = plot_type %in% c("pie")
+      ) %>%
+      hc_xAxis(categories = data$subgroup) %>%  # Explicitly set categories
+      hc_tooltip(
+        pointFormat = sprintf(
+          "<b>Subgroup:</b> {point.subgroup}<br><b>%s:</b> {point.y:.%df}<br><b>Population:</b> {point.population:,.0f}",
+          y_title, decimals
+        )
+      )
+    
+    # Add reference lines for certain measures
+    if (y_var %in% c("estimate", "difference_from_avg")) {
+      hc <- hc %>%
+        hc_add_series(
+          data = list_parse(data.frame(x = data$subgroup, y = data$setting_avg)),
+          type = "line",
+          name = "Setting Average",
+          color = "#FF0000",
+          dashStyle = "Dash",
+          marker = list(enabled = FALSE),
+          linkedTo = ":previous"
+        )
+    }
+    
+    if (y_var %in% c("estimate", "difference_from_best")) {
+      hc <- hc %>%
+        hc_add_series(
+          data = list_parse(data.frame(x = data$subgroup, y = data$best_estimate)),
+          type = "line",
+          name = ifelse(first(data$favourable_indicator) == 1, "Best Subgroup", "Worst Subgroup"),
+          color = "#00FF00",
+          dashStyle = "Dash",
+          marker = list(enabled = FALSE),
+          linkedTo = ":previous"
+        )
+    }
+    
+  } else if (input$preview_view_by == "Dimension") {
+    hc <- hc %>%
+      hc_add_series(
+        data = data,
+        type = plot_type,
+        hcaes(x = dimension, y = !!sym(y_var), group = dimension),
+        name = title,
+        colorByPoint = plot_type %in% c("pie", "column", "bar")
+      ) %>%
+      hc_xAxis(categories = data$dimension) %>%  # Explicitly set categories
+      hc_tooltip(
+        pointFormat = sprintf(
+          "<b>Dimension:</b> {point.dimension}<br><b>%s:</b> {point.y:.%df}",
+          y_title, decimals
+        )
+      )
+  } else { # Date view
+    hc <- hc %>%
+      hc_add_series(
+        data = data,
+        type = plot_type,
+        hcaes(x = as.character(date), y = !!sym(y_var)),
+        name = title
+      ) %>%
+      hc_xAxis(categories = as.character(data$date)) %>%  # Explicitly set categories
+      hc_tooltip(
+        pointFormat = sprintf(
+          "<b>Date:</b> {point.date}<br><b>%s:</b> {point.y:.%df}",
+          y_title, decimals
+        )
+      )
+  }
+  
+  # Special handling for pie charts
+  if (plot_type == "pie") {
+    hc <- hc %>%
+      hc_plotOptions(
+        pie = list(
+          allowPointSelect = TRUE,
+          cursor = "pointer",
+          dataLabels = list(
+            enabled = TRUE,
+            format = "<b>{point.name}</b>: {point.y:.1f}",
+            distance = -30
+          ),
+          showInLegend = TRUE
+        )
+      )
+  }
+  
+  return(hc)
+}
+
+# Simple Measures Plots
+output$preview_difference_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  create_preview_plot(preview_data, "estimate", "Subgroup Estimates", "Estimate") %>%
+    hc_title(text = "Subgroup Estimates") %>%
+    hc_subtitle(text = paste(
+      "Absolute Difference:", round(first(preview_data$difference), 2),
+      "| Ratio:", round(first(preview_data$ratio), 2)
+    ))
+})
+
+output$preview_ratio_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  min_est <- min(preview_data$estimate, na.rm = TRUE)
+  ratio_data <- preview_data %>%
+    mutate(ratio_to_min = ifelse(min_est != 0, estimate/min_est, NA))
+  
+  create_preview_plot(ratio_data, "ratio_to_min", "Ratio to Minimum", "Ratio") %>%
+    hc_title(text = "Ratio to Minimum Subgroup") %>%
+    hc_subtitle(text = paste(
+      "Maximum Ratio:", round(max(ratio_data$ratio_to_min, na.rm = TRUE), 2)
+    ))
+})
+
+# Ordered Disproportionality Plots
+output$preview_sii_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data) || !"relative_rank" %in% names(preview_data)) return(NULL)
+  
+  # Calculate regression line
+  if (!all(is.na(preview_data$population))) {
+    model <- try(lm(estimate ~ relative_rank, data = preview_data, weights = population), silent = TRUE)
+  } else {
+    model <- try(lm(estimate ~ relative_rank, data = preview_data), silent = TRUE)
+  }
+  
+  if (inherits(model, "try-error")) return(NULL)
+  
+  pred_data <- data.frame(relative_rank = seq(0, 1, length.out = 20))
+  pred_data$estimate <- predict(model, newdata = pred_data)
+  
+  hc <- highchart() %>%
+    hc_chart(type = "scatter") %>%
+    hc_title(text = "Slope Index of Inequality (SII)") %>%
+    hc_subtitle(text = paste(
+      "SII:", round(coef(model)[2], 3),
+      "| Interpretation:", ifelse(coef(model)[2] > 0, 
+                                 "Higher values in more advantaged subgroups",
+                                 "Higher values in less advantaged subgroups")
+    )) %>%
+    hc_xAxis(title = list(text = "Relative Rank")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_add_series(
+      data = preview_data,
+      type = "scatter",
+      hcaes(x = relative_rank, y = estimate, name = subgroup),
+      name = "Data",
+      marker = list(radius = 6, symbol = "circle"),
+      color = "#2ca02c"
+    ) %>%
+    hc_add_series(
+      data = list_parse(pred_data),
+      type = "line",
+      name = "SII Trend",
+      color = "#d62728",
+      lineWidth = 3,
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      pointFormat = "<b>{point.name}</b><br>Rank: {point.x:.2f}<br>Estimate: {point.y:.3f}<br>Population: {point.population:,.0f}"
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+  
+  hc
+})
+
+output$preview_rii_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data) || !"relative_rank" %in% names(preview_data)) return(NULL)
+  
+  # Calculate regression line
+  if (!all(is.na(preview_data$population))) {
+    model <- try(lm(estimate ~ relative_rank, data = preview_data, weights = population), silent = TRUE)
+  } else {
+    model <- try(lm(estimate ~ relative_rank, data = preview_data), silent = TRUE)
+  }
+  
+  if (inherits(model, "try-error")) return(NULL)
+  
+  pred_values <- predict(model, newdata = data.frame(relative_rank = c(0, 1)))
+  rii_value <- ifelse(pred_values[1] != 0, pred_values[2]/pred_values[1], NA)
+  
+  hc <- highchart() %>%
+    hc_chart(type = "scatter") %>%
+    hc_title(text = "Relative Index of Inequality (RII)") %>%
+    hc_subtitle(text = paste(
+      "RII:", round(rii_value, 3),
+      "| Interpretation:", ifelse(rii_value > 1,
+                                 "More advantaged subgroups have higher values",
+                                 "Less advantaged subgroups have higher values")
+    )) %>%
+    hc_xAxis(title = list(text = "Relative Rank")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_add_series(
+      data = preview_data,
+      type = "scatter",
+      hcaes(x = relative_rank, y = estimate, name = subgroup),
+      name = "Data",
+      marker = list(radius = 6, symbol = "circle"),
+      color = "#9467bd"
+    ) %>%
+    hc_add_series(
+      data = list_parse(data.frame(
+        x = c(0, 1),
+        y = pred_values
+      )),
+      type = "line",
+      name = "RII Trend",
+      color = "#8c564b",
+      lineWidth = 3,
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_tooltip(
+      pointFormat = "<b>{point.name}</b><br>Rank: {point.x:.2f}<br>Estimate: {point.y:.3f}<br>Population: {point.population:,.0f}"
+    ) %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+  
+  hc
+})
+
+# Variance Measures Plots
+output$preview_variance_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  # Calculate variance measures
+  if (!all(is.na(preview_data$population))) {
+    bgv <- sum(preview_data$population * (preview_data$estimate - preview_data$setting_avg)^2, na.rm = TRUE) / 
+      sum(preview_data$population, na.rm = TRUE)
+  } else {
+    bgv <- mean((preview_data$estimate - preview_data$setting_avg)^2, na.rm = TRUE)
+  }
+  
+  bgsd <- sqrt(bgv)
+  cov <- ifelse(preview_data$setting_avg[1] != 0, bgsd / preview_data$setting_avg[1] * 100, NA)
+  
+  create_preview_plot(preview_data, "estimate", "Variance Measures", "Estimate") %>%
+    hc_title(text = "Between-Group Variance") %>%
+    hc_subtitle(text = paste(
+      "BGV:", round(bgv, 3),
+      "| BGSD:", round(bgsd, 3),
+      "| COV:", round(cov, 1), "%"
+    )) %>%
+    hc_add_series(
+      data = data.frame(x = preview_data[[ifelse(input$preview_view_by == "Date", "date", tolower(input$preview_view_by))]], 
+                       y = preview_data$setting_avg),
+      type = "line",
+      name = "Setting Average",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    )
+})
+
+# Mean Difference Plots
+output$preview_meandiff_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  # Calculate mean differences
+  if (!all(is.na(preview_data$population))) {
+    mdmu <- sum(preview_data$population * abs(preview_data$estimate - preview_data$setting_avg), na.rm = TRUE) / 
+      sum(preview_data$population, na.rm = TRUE)
+    mdbu <- sum(preview_data$population * abs(preview_data$estimate - preview_data$best_estimate), na.rm = TRUE) / 
+      sum(preview_data$population, na.rm = TRUE)
+  } else {
+    mdmu <- mean(abs(preview_data$estimate - preview_data$setting_avg), na.rm = TRUE)
+    mdbu <- mean(abs(preview_data$estimate - preview_data$best_estimate), na.rm = TRUE)
+  }
+  
+  create_preview_plot(preview_data, "estimate", "Mean Differences", "Estimate") %>%
+    hc_title(text = "Mean Differences from Reference") %>%
+    hc_subtitle(text = paste(
+      "From Mean:", round(mdmu, 3),
+      "| From Best:", round(mdbu, 3)
+    )) %>%
+    hc_add_series(
+      data = data.frame(x = preview_data[[ifelse(input$preview_view_by == "Date", "date", tolower(input$preview_view_by))]], 
+                     y = preview_data$setting_avg),
+      type = "line",
+      name = "Setting Average",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    ) %>%
+    hc_add_series(
+      data = data.frame(x = preview_data[[ifelse(input$preview_view_by == "Date", "date", tolower(input$preview_view_by))]], 
+                     y = preview_data$best_estimate),
+      type = "line",
+      name = ifelse(first(preview_data$favourable_indicator) == 1, "Best Subgroup", "Worst Subgroup"),
+      color = "#00FF00",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    )
+})
+
+# Disproportionality Plots
+output$preview_disprop_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  # Calculate disproportionality measures
+  shares <- preview_data$estimate / preview_data$setting_avg
+  
+  if (!all(is.na(preview_data$population))) {
+    ti <- sum(preview_data$population * shares * log(ifelse(shares <= 0, NA, shares)), na.rm = TRUE) / 
+      sum(preview_data$population, na.rm = TRUE) * 1000
+    mld <- sum(preview_data$population * (-log(ifelse(shares <= 0, NA, shares))), na.rm = TRUE) / 
+      sum(preview_data$population, na.rm = TRUE) * 1000
+  } else {
+    ti <- mean(shares * log(ifelse(shares <= 0, NA, shares)), na.rm = TRUE) * 1000
+    mld <- mean(-log(ifelse(shares <= 0, NA, shares)), na.rm = TRUE) * 1000
+  }
+  
+  create_preview_plot(preview_data, "estimate", "Disproportionality Measures", "Estimate") %>%
+    hc_title(text = "Disproportionality in Estimates") %>%
+    hc_subtitle(text = paste(
+      "Theil Index:", round(ti, 3),
+      "| Mean Log Deviation:", round(mld, 3)
+    )) %>%
+    hc_add_series(
+      data = data.frame(x = preview_data[[ifelse(input$preview_view_by == "Date", "date", tolower(input$preview_view_by))]], 
+                       y = preview_data$setting_avg),
+      type = "line",
+      name = "Setting Average",
+      color = "#FF0000",
+      dashStyle = "Dash",
+      marker = list(enabled = FALSE)
+    )
+})
+
+# Impact Measures Plots
+output$preview_paf_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  # Calculate PAF and PAR
+  fav <- first(preview_data$favourable_indicator) == 1
+  best_estimate <- if(fav) max(preview_data$estimate, na.rm = TRUE) else min(preview_data$estimate, na.rm = TRUE)
+  setting_avg <- if(!all(is.na(preview_data$population))) {
+    weighted.mean(preview_data$estimate, preview_data$population, na.rm = TRUE)
+  } else {
+    mean(preview_data$estimate, na.rm = TRUE)
+  }
+  
+  par <- best_estimate - setting_avg
+  paf <- ifelse(setting_avg != 0, par / setting_avg * 100, NA)
+  
+  impact_data <- data.frame(
+    Metric = c("Current", "Potential"),
+    Value = c(setting_avg, setting_avg + par)
+  )
+  
+  hchart(impact_data, "column", hcaes(x = Metric, y = Value)) %>%
+    hc_title(text = "Population Attributable Fraction (PAF)") %>%
+    hc_subtitle(text = paste(
+      "PAF:", round(paf, 1), "%",
+      "| PAR:", round(par, 3),
+      "| Interpretation: Potential", ifelse(fav, "improvement", "reduction"), "if all subgroups reached reference level"
+    )) %>%
+    hc_xAxis(title = list(text = "")) %>%
+    hc_yAxis(title = list(text = "Estimate")) %>%
+    hc_colors(c("#1f77b4", "#ff7f0e")) %>%
+    hc_tooltip(pointFormat = "<b>{point.Metric}</b><br>Estimate: {point.y:.3f}") %>%
+    hc_exporting(enabled = TRUE) %>%
+    hc_add_theme(hc_theme_smpl())
+})
+
+output$preview_par_plot <- renderHighchart({
+  preview_data <- get_preview_data()
+  if (is.null(preview_data)) return(NULL)
+  
+  # Calculate PAR components
+  fav <- first(preview_data$favourable_indicator) == 1
+  best_estimate <- if(fav) max(preview_data$estimate, na.rm = TRUE) else min(preview_data$estimate, na.rm = TRUE)
+  setting_avg <- if(!all(is.na(preview_data$population))) {
+    weighted.mean(preview_data$estimate, preview_data$population, na.rm = TRUE)
+  } else {
+    mean(preview_data$estimate, na.rm = TRUE)
+  }
+  
+  par_data <- preview_data %>%
+    mutate(
+      potential_gain = if(fav) best_estimate - estimate else estimate - best_estimate,
+      pop_share = population / sum(population, na.rm = TRUE)
+    )
+  
+  create_preview_plot(par_data, "potential_gain", "Potential Gains by Subgroup", "Potential Gain") %>%
+    hc_title(text = "Population Attributable Risk (PAR) Components") %>%
+    hc_subtitle(text = paste(
+      "Total PAR:", round(best_estimate - setting_avg, 3),
+      "| Interpretation: Absolute", ifelse(fav, "improvement", "reduction"), "possible"
+    )) %>%
+    hc_tooltip(
+      pointFormat = "<b>{point.subgroup}</b><br>Potential Gain: {point.y:.3f}<br>Population Share: {point.pop_share:.1%}"
+    )
+})
+
+### End of Preview Measures Section ###
+
+
 ### End of Summary Measures Section ###
 
 # Ordered dimensions UI

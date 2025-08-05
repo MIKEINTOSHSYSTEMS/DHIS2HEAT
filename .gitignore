@@ -78,7 +78,7 @@ app/dhis2_data.R
 
 #Removed test jsons
 app/json
-
+/app/notes/
 app/notes.txt
 
 TinyTeX/

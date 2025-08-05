@@ -632,18 +632,22 @@ ui <- tagList(
                   title = tagList(
                     "Filters",
                     p("To get started, select indicators and dimensions, then apply filters",
-                      style = "font-size: 14px; color: #b7b7b7;"
+                      style = "font-size: 14px; color: #474747;"
                     )
                   ),
                   status = "primary",
                   solidHeader = TRUE,
                   width = 12,
+                  collapsible = TRUE,
+                  collapsed = FALSE,
                   fluidRow(
                     column(3, selectizeInput("filter_indicators", "Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
                     column(3, selectizeInput("filter_dimensions", "Dimensions",
                       choices = c("Region", "Zone", "Woreda", "Facility Type", "Settlement"),
+                      #selected = "Region",
                       multiple = TRUE, options = list(maxOptions = 1000)
                     )),
+                    column(3, selectizeInput("filter_dates", "Dates(🇪🇹)", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
                     column(
                       3,
                       conditionalPanel(
@@ -656,12 +660,167 @@ ui <- tagList(
                       )
                     ),
                     column(3, selectizeInput("filter_subgroups", "Subgroups", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
-                    column(3, selectizeInput("filter_dates", "Dates", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
+                    #column(3, selectizeInput("filter_dates", "Dates (EthCal)", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
 
                     #    column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;")),
                     column(12, actionButton("apply_filters", "Apply Filters", class = "btn-primary", style = "float: right;"))
                   )
                 ),
+                # summary measures charts for preview
+              fluidRow(
+                box(
+                  title = "Inequality Summary Measures Explorer",
+                  status = "info",
+                  solidHeader = TRUE,
+                  width = 12,
+                  collapsible = TRUE,
+                  collapsed = FALSE,
+                  fluidRow(
+                    column(
+                      3,
+                      selectInput(
+                        "preview_view_by",
+                        "View By:",
+                        choices = c("Subgroup", "Dimension", "Date"),
+                        selected = "Subgroup"
+                      )
+                    ),
+                    column(
+                      3,
+                      selectInput(
+                        "preview_chart_type",
+                        "Chart Type:",
+                        choices = c("Column", "Bar", "Line", "Scatter", "Pie"),
+                        selected = "Column"
+                      )
+                    ),
+                    column(
+                      3,
+                      colourInput(
+                        "preview_chart_color",
+                        "Chart Color:",
+                        value = "#1f77b4"
+                      )
+                    ),
+                    column(
+                      3,
+                      numericInput(
+                        "preview_decimal_places",
+                        "Decimal Places:",
+                        value = 2,
+                        min = 0,
+                        max = 5,
+                        step = 1
+                      )
+                    )
+                  ),
+                  tabsetPanel(
+                    id = "preview_measures_tabs",
+                    tabPanel(
+                      "Simple Measures",
+                      fluidRow(
+                        column(
+                          6,
+                          highchartOutput("preview_difference_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Absolute Difference", style = "text-align: center;"),
+                          p("The absolute difference between the highest and lowest subgroup values.", 
+                            style = "text-align: center; font-size: 12px;")
+                        ),
+                        column(
+                          6,
+                          highchartOutput("preview_ratio_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Ratio", style = "text-align: center;"),
+                          p("The ratio between the highest and lowest subgroup values.", 
+                            style = "text-align: center; font-size: 12px;")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Ordered Disproportionality",
+                      fluidRow(
+                        column(
+                          6,
+                          highchartOutput("preview_sii_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Slope Index of Inequality (SII)", style = "text-align: center;"),
+                          p("Measures absolute inequality across ordered subgroups.", 
+                            style = "text-align: center; font-size: 12px;")
+                        ),
+                        column(
+                          6,
+                          highchartOutput("preview_rii_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Relative Index of Inequality (RII)", style = "text-align: center;"),
+                          p("Measures relative inequality across ordered subgroups.", 
+                            style = "text-align: center; font-size: 12px;")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Variance Measures",
+                      fluidRow(
+                        column(
+                          12,
+                          highchartOutput("preview_variance_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Between-Group Variance", style = "text-align: center;"),
+                          p("Measures how much the subgroup estimates vary from the setting average.", 
+                            style = "text-align: center; font-size: 12px;")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Mean Difference",
+                      fluidRow(
+                        column(
+                          12,
+                          highchartOutput("preview_meandiff_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Mean Differences from Reference", style = "text-align: center;"),
+                          p("Average absolute differences from the setting average or best performing subgroup.", 
+                            style = "text-align: center; font-size: 12px;")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Disproportionality",
+                      fluidRow(
+                        column(
+                          12,
+                          highchartOutput("preview_disprop_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Disproportionality Measures", style = "text-align: center;"),
+                          p("Measures that account for both the magnitude and distribution of inequality.", 
+                            style = "text-align: center; font-size: 12px;")
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Impact Measures",
+                      fluidRow(
+                        column(
+                          6,
+                          highchartOutput("preview_paf_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Population Attributable Fraction (PAF)", style = "text-align: center;"),
+                          p("Potential relative improvement if all subgroups reached reference level.", 
+                            style = "text-align: center; font-size: 12px;")
+                        ),
+                        column(
+                          6,
+                          highchartOutput("preview_par_plot", height = "400px") %>%
+                            withSpinner(type = 6, color = "#3c8dbc"),
+                          h5("Population Attributable Risk (PAR)", style = "text-align: center;"),
+                          p("Potential absolute improvement if all subgroups reached reference level.", 
+                            style = "text-align: center; font-size: 12px;")
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
                 column(
                   width = 6,
                   box(
@@ -669,6 +828,8 @@ ui <- tagList(
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
+                    collapsible = TRUE,
+                    collapsed = TRUE,
                     plotlyOutput("distPlot", width = "100%", height = "380px")
                   ),
                   box(
@@ -676,7 +837,9 @@ ui <- tagList(
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
-                    height = 900,
+                    collapsible = TRUE,
+                    collapsed = FALSE,
+                    #height = 900,
                     p("Regional map visualization based on current filters",
                       style = "font-size: 12px; color: #666; margin-bottom: 10px;"
                     ),
@@ -691,6 +854,8 @@ ui <- tagList(
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
+                    collapsible = TRUE,
+                    collapsed = TRUE,
                     fluidRow(
                       column(4, colourInput("plot_color", "Marker Color", value = "#75FF09")),
                       column(4, numericInput("marker_size", "Marker Size", value = 7, min = 1, max = 10)),
@@ -700,7 +865,6 @@ ui <- tagList(
                           choices = c(
                             "Markers" = "markers",
                             "Lines+Markers" = "lines+markers"
-                            #"Lines" = "lines"
                           )
                         ),
                         colourInput("line_color", "Line Color", value = "#075E57")
@@ -712,25 +876,27 @@ ui <- tagList(
                     status = "primary",
                     solidHeader = TRUE,
                     width = 12,
-                    height = "984px",
+                    collapsible = TRUE,
+                    collapsed = FALSE,
+                    height = "100%", #984px
                     selectInput("view_by", "Dynamic Plot:", choices = c("Subgroup", "Dimension", "Date")),
-                    # selectInput("view_by", "Dynamic Plot:", choices = c("Subgroup", "Dimension")),
                     selectInput("chart_type", "Chart Type:",
-                      # choices = c("Scatter", "Bar", "Geo Heatmap", "Pie", "Heatmap"), selected = "Scatter"),
-                      # choices = c("Scatter", "Bar"), selected = "Scatter"),
                       choices = c("Scatter", "Bar", "Geo Heatmap", "Heatmap", "Pie"), selected = "Scatter"
                     ),
-                    uiOutput("dynamicPlotUI"), # Dynamic UI for plots
+                    uiOutput("dynamicPlotUI"),
                     plotlyOutput("dynamicPlotOutput", width = "100%", height = "700px")
                   )
                 ),
+                
 
-                # Move Data Preview to the bottom with full width
+                # Keep the Data Preview box at the bottom
                 box(
                   title = "Data Preview",
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 12, # Full width
+                  width = 12,
+                  collapsible = TRUE,
+                  collapsed = FALSE,
                   withSpinner(DTOutput("data_preview"))
                 )
               )
