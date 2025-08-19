@@ -221,6 +221,11 @@ format_analytics_data <- function(analytics_data, indicators, org_units, populat
     rows$subgroup <- sex_type_map[rows$YpzOu5sT9rf]
     rows$dimension <- "Sex"
     rows$YpzOu5sT9rf <- NULL
+
+  # For Sex data, we want to aggregate across regions later
+  # So we keep region information but will aggregate in server.R
+#    rows$region_id <- rows$ou # Store region ID for aggregation it is adding more complexity
+
   } else {
     rows$dimension <- dimension
     

@@ -1122,7 +1122,7 @@ observeEvent(input$create_user, {
 
         analytics_data_sex <- fetch_indicator_data(
           input$indicators,
-          input$org_units, # Parent org units for sex types
+          input$org_units,
           strsplit(input$periods, ",")[[1]],
           sex_type_ids = input$sex_types
         )
@@ -1131,10 +1131,41 @@ observeEvent(input$create_user, {
           analytics_data_sex,
           indicators_metadata,
           org_units_metadata,
-          population_data_region, # Or appropriate population data
+          population_data_region,
           indicator_map,
           dimension = "Sex"
         )
+
+        # Aggregate Sex data to eliminate regional duplicates
+        if (!is.null(formatted_data_sex) && nrow(formatted_data_sex) > 0) {
+          # Debug: Check what we're working with
+          cat("Sex data before aggregation - rows:", nrow(formatted_data_sex), "\n")
+
+          # Simple aggregation to avoid weighted.mean issues
+          formatted_data_sex <- formatted_data_sex %>%
+            group_by(date, indicator_name, dimension, subgroup) %>%
+            summarise(
+              estimate = mean(estimate, na.rm = TRUE),
+              population = sum(population, na.rm = TRUE),
+              se = mean(se, na.rm = TRUE),
+              ci_lb = mean(ci_lb, na.rm = TRUE),
+              ci_ub = mean(ci_ub, na.rm = TRUE),
+              source = first(source),
+              indicator_abbr = first(indicator_abbr),
+              setting = first(setting),
+              iso3 = first(iso3),
+              note = first(note),
+              setting_average = first(setting_average),
+              favourable_indicator = first(favourable_indicator),
+              indicator_scale = first(indicator_scale),
+              ordered_dimension = first(ordered_dimension),
+              subgroup_order = first(subgroup_order),
+              reference_subgroup = first(reference_subgroup),
+              .groups = "drop"
+            )
+
+          cat("Sex data aggregated successfully. Now has", nrow(formatted_data_sex), "rows\n")
+        }
       } else {
         formatted_data_sex <- data.frame()
       }
