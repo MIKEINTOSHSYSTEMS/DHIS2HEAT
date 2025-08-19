@@ -39,7 +39,7 @@ get_dhis2_data <- function(endpoint) {
 }
 
 # Function to fetch analytics data for specific indicators, organisation units, and periods
-fetch_indicator_data <- function(indicator_ids, org_unit_ids, periods, facility_type_ids = NULL, settlement_type_ids = NULL) {
+fetch_indicator_data <- function(indicator_ids, org_unit_ids, periods, facility_type_ids = NULL, settlement_type_ids = NULL, sex_type_ids = NULL) {
     cat("Fetching analytics data...\n")
 
     dhis2_base_url <- Sys.getenv("DHIS2_BASE_URL")
@@ -70,6 +70,12 @@ fetch_indicator_data <- function(indicator_ids, org_unit_ids, periods, facility_
         endpoint <- paste0(endpoint, "&dimension=hxLghWPCAXE:", settlement_type_str)
     }
 
+    # Add Sex type dimension if provided
+    if (!is.null(sex_type_ids)) {
+        sex_type_str <- paste(sex_type_ids, collapse = ";")
+        endpoint <- paste0(endpoint, "&dimension=YpzOu5sT9rf:", sex_type_str)
+    }
+
     url <- paste0(dhis2_base_url, endpoint)
     cat("Constructed URL for Analytics Data Request:", url, "\n")
 
@@ -81,7 +87,6 @@ fetch_indicator_data <- function(indicator_ids, org_unit_ids, periods, facility_
 
     cat("Response received. Status:", http_status(response)$category, "\n")
 
-    # data <- fromJSON(content(response, as = "text"), flatten = TRUE) # OLDER VERSION OF JSONlite
     data <- fromJSON(content(response, as = "text"), simplifyDataFrame = TRUE)
     cat("Successfully fetched data for indicators:", paste(indicator_ids, collapse = ", "), "\n")
 
@@ -208,6 +213,14 @@ format_analytics_data <- function(analytics_data, indicators, org_units, populat
     rows$subgroup <- settlement_type_map[rows$hxLghWPCAXE]
     rows$dimension <- "Settlement"
     rows$hxLghWPCAXE <- NULL
+  } else if ("YpzOu5sT9rf" %in% colnames(rows)) {
+    sex_type_map <- c(
+      "OpiLaLxfW0W" = "Female",
+      "OEXTENiJSYC" = "Male"
+    )
+    rows$subgroup <- sex_type_map[rows$YpzOu5sT9rf]
+    rows$dimension <- "Sex"
+    rows$YpzOu5sT9rf <- NULL
   } else {
     rows$dimension <- dimension
     
@@ -402,21 +415,21 @@ indicator_map <- list(
   "YPfTaU4EtKm" = list("name" = "Pentavalent 3rd Dose Coverage (< 1 year)", "abbr" = "3Pv3"),
 
  # Categorized By SEX 
-  # "Fb2ajzvMxH4" = list("name" = "HHs enrolled in CBHI (Woreda)", "abbr" = "PCBHI_member_enr_1"),
-  # "M5KYiOXZkr7" = list("name" = "Functional General Hospital to Population Ratio", "abbr" = "RHPP_1"),
-  # "AYQLnL5gKNe" = list("name" = "Functional Primary Hospital to Population Ratio", "abbr" = "RHPP_2"),
-  # "tFX3fkTo0tW" = list("name" = "Functional Referral Hospital to Population Ratio", "abbr" = "RHPP_3"),
-  # "Fpxqdh9XxGd" = list("name" = "Adults on ART aged 15-19 by regimen", "abbr" = "CART_1"),
-  # "TYYcdumng5v" = list("name" = "Adults on ART aged 15-19 by Sex", "abbr" = "CART_2"),
-  # "zBtEVn0BWes" = list("name" = "Adults on ART aged 15-19 by Sex", "abbr" = "CART_3"),
-  # "qiO8zxIsdVf" = list("name" = "Adults on ART aged 20-24 by Sex", "abbr" = "CART_4"),
-  # "NMzj2KrZNpD" = list("name" = "Adults on ART aged 25-29 by Sex", "abbr" = "CART_5"),
-  # "FDbjgpb71v6" = list("name" = "Adults on ART aged 25-49 by Sex", "abbr" = "CART_6"),
-  # "gecQJ4OuMkd" = list("name" = "Adults on ART aged 30-34 by Sex", "abbr" = "CART_7"),
-  # "FhvlCdtUnrR" = list("name" = "Adults on ART aged 35-39 by Sex", "abbr" = "CART_8"),
-  # "lp1lqrdAlBh" = list("name" = "Adults on ART aged 40-44 by Sex", "abbr" = "CART_9"),
-  # "niTCBDGkWru" = list("name" = "Adults on ART aged 45-49 by Sex", "abbr" = "CART_10"),
-  # "H010uaIIg62" = list("name" = "Adults on ART aged 50+ by Sex", "abbr" = "CART_11"),
+#   "Fb2ajzvMxH4" = list("name" = "HHs enrolled in CBHI (Woreda)", "abbr" = "PCBHI_member_enr_1"),
+#   "M5KYiOXZkr7" = list("name" = "Functional General Hospital to Population Ratio", "abbr" = "RHPP_1"),
+#   "AYQLnL5gKNe" = list("name" = "Functional Primary Hospital to Population Ratio", "abbr" = "RHPP_2"),
+#   "tFX3fkTo0tW" = list("name" = "Functional Referral Hospital to Population Ratio", "abbr" = "RHPP_3"),
+#   "Fpxqdh9XxGd" = list("name" = "Adults on ART aged 15-19 by regimen", "abbr" = "CART_1"),
+#   "TYYcdumng5v" = list("name" = "Adults on ART aged 15-19 by Sex", "abbr" = "CART_2"),
+#   "zBtEVn0BWes" = list("name" = "Adults on ART aged 15-19 by Sex", "abbr" = "CART_3"),
+#   "qiO8zxIsdVf" = list("name" = "Adults on ART aged 20-24 by Sex", "abbr" = "CART_4"),
+#   "NMzj2KrZNpD" = list("name" = "Adults on ART aged 25-29 by Sex", "abbr" = "CART_5"),
+#   "FDbjgpb71v6" = list("name" = "Adults on ART aged 25-49 by Sex", "abbr" = "CART_6"),
+#   "gecQJ4OuMkd" = list("name" = "Adults on ART aged 30-34 by Sex", "abbr" = "CART_7"),
+#   "FhvlCdtUnrR" = list("name" = "Adults on ART aged 35-39 by Sex", "abbr" = "CART_8"),
+#   "lp1lqrdAlBh" = list("name" = "Adults on ART aged 40-44 by Sex", "abbr" = "CART_9"),
+#   "niTCBDGkWru" = list("name" = "Adults on ART aged 45-49 by Sex", "abbr" = "CART_10"),
+#   "H010uaIIg62" = list("name" = "Adults on ART aged 50+ by Sex", "abbr" = "CART_11"),
 
   "K4xjRgFlHVA" = list("name" = "Children on ART aged 10-14 by Sex", "abbr" = "CART_16"),
   "STKCPnfJE0J" = list("name" = "Children on ART aged 1-4 by Sex", "abbr" = "CART_18"),
@@ -481,10 +494,10 @@ cat("Zones:", length(zones_metadata), "Woredas:", length(woredas_metadata), "\n"
 specific_indicators <- c(
     "wiCvecPtl0T", "BsB9R6pi0uf", "SUYR67uPFMk", "DJiHqs9eJoN", "yu81UlnsaiH",
     "r2eJDQLBSY0", "YPfTaU4EtKm",
-    #  "Fb2ajzvMxH4", "M5KYiOXZkr7", "AYQLnL5gKNe","tFX3fkTo0tW",
-    #    "Fpxqdh9XxGd", "TYYcdumng5v", "zBtEVn0BWes", "qiO8zxIsdVf",
-    #    "NMzj2KrZNpD", "FDbjgpb71v6", "gecQJ4OuMkd", "FhvlCdtUnrR", "lp1lqrdAlBh",
-    #    "niTCBDGkWru", "H010uaIIg62",
+#        "Fb2ajzvMxH4", "M5KYiOXZkr7", "AYQLnL5gKNe","tFX3fkTo0tW",
+#        "Fpxqdh9XxGd", "TYYcdumng5v", "zBtEVn0BWes", "qiO8zxIsdVf",
+#        "NMzj2KrZNpD", "FDbjgpb71v6", "gecQJ4OuMkd", "FhvlCdtUnrR", "lp1lqrdAlBh",
+#        "niTCBDGkWru", "H010uaIIg62",
     "DOjmzNXoBUS", "QPnMWX0VHL5", "cpVK4vg0qP9",
     "erfov4UPPwm", "K4xjRgFlHVA", "T2aCB3BdjFo", "STKCPnfJE0J", "moCGWgByYvu",
     "DN4DxOG0KcJ", "lyvLEgMy53I", "YyB2gQ7FNkU", "ndqrcnzGcUU", "cMvVX98HjUA",
@@ -570,6 +583,25 @@ analytics_data_settlement <- fetch_indicator_data(
     periods,
     settlement_type_ids = settlement_type_ids
 )
+
+# Process data for Sex Type
+sex_type_ids <- c("OpiLaLxfW0W", "OEXTENiJSYC") # Female, Male
+analytics_data_sex <- fetch_indicator_data(
+  specific_indicators,
+  specific_org_units, # Use appropriate org units
+  periods,
+  sex_type_ids = sex_type_ids
+)
+population_data_sex <- fetch_population_data(specific_org_units, periods)
+formatted_data_sex <- format_analytics_data(
+  analytics_data_sex,
+  indicators_metadata,
+  org_units_metadata,
+  population_data_sex,
+  indicator_map,
+  dimension = "Sex"
+)
+
 population_data_settlement <- fetch_population_data(specific_org_units, periods)
 # population_data_settlement <- fetch_population_data(specific_zones, periods)  # Null Values for pop
 # population_data_settlement <- fetch_population_data(specific_woredas, periods) # Null Values for pop
@@ -583,7 +615,12 @@ formatted_data_settlement <- format_analytics_data(
 )
 
 # Combine all data
-combined_data <- rbind(formatted_data_region, formatted_data_zone, formatted_data_woreda, formatted_data_facility, formatted_data_settlement)
+#combined_data <- rbind(formatted_data_region, formatted_data_zone, formatted_data_woreda, formatted_data_facility, formatted_data_settlement)
+
+combined_data <- rbind(
+  formatted_data_region, formatted_data_zone, formatted_data_woreda,
+  formatted_data_facility, formatted_data_settlement, formatted_data_sex
+)
 
 # Combine and write to Excel
 # combined_data <- rbind(formatted_data_region, formatted_data_zone, formatted_data_woreda)

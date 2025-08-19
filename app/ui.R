@@ -613,6 +613,15 @@ ui <- tagList(
                     options = list(maxOptions = 1000)
                   ),
                   hr(),
+                  checkboxGroupInput("sex_types", "Sex Types",
+                    choices = c(
+                      "Female" = "OpiLaLxfW0W",
+                      "Male" = "OEXTENiJSYC"
+                    )
+                  ),
+                  # Add select all checkbox
+                  checkboxInput("select_all_sex", "Select All Sex Types", value = FALSE),
+                  hr(),
                   textInput("periods", "Periods (comma-separated)", value = ""),
                   hr(),
                   hr()
@@ -643,7 +652,7 @@ ui <- tagList(
                   fluidRow(
                     column(3, selectizeInput("filter_indicators", "Indicators", choices = NULL, multiple = TRUE, options = list(maxOptions = 1000))),
                     column(3, selectizeInput("filter_dimensions", "Dimensions",
-                      choices = c("Region", "Zone", "Woreda", "Facility Type", "Settlement"),
+                      choices = c("Region", "Zone", "Woreda", "Facility Type", "Settlement", "Sex"),
                       #selected = "Region",
                       multiple = TRUE, options = list(maxOptions = 1000)
                     )),

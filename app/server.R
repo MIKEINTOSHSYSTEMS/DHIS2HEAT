@@ -1116,11 +1116,34 @@ observeEvent(input$create_user, {
         formatted_data_settlement <- data.frame()
       }
 
+      # Added Sex Type processing
+      if (length(input$sex_types) > 0) {
+        incProgress(0.85, detail = "Fetching Sex Type data...")
+
+        analytics_data_sex <- fetch_indicator_data(
+          input$indicators,
+          input$org_units, # Parent org units for sex types
+          strsplit(input$periods, ",")[[1]],
+          sex_type_ids = input$sex_types
+        )
+
+        formatted_data_sex <- format_analytics_data(
+          analytics_data_sex,
+          indicators_metadata,
+          org_units_metadata,
+          population_data_region, # Or appropriate population data
+          indicator_map,
+          dimension = "Sex"
+        )
+      } else {
+        formatted_data_sex <- data.frame()
+      }
+
       # Combine all data
       data$combined <- rbind(
         formatted_data_region, formatted_data_zone,
         formatted_data_woreda, formatted_data_facility,
-        formatted_data_settlement
+        formatted_data_settlement, formatted_data_sex
       )
 
       # Convert columns to correct types
@@ -2024,6 +2047,16 @@ observe({
     }
   })
 
+  observeEvent(input$select_all_sex, {
+    if (input$select_all_sex) {
+      updateCheckboxGroupInput(session, "sex_types",
+        selected = c("OpiLaLxfW0W", "OEXTENiJSYC")
+      )
+    } else {
+      updateCheckboxGroupInput(session, "sex_types", selected = NULL)
+    }
+  })
+
   # Save settings
   observeEvent(input$save_settings, {
     if (length(input$indicators) != length(strsplit(input$indicator_abbr, ",")[[1]])) {
@@ -2055,6 +2088,7 @@ observe({
       woredas = input$woredas,
       facility_types = input$facility_types,
       settlement_types = input$settlement_types, # Add settlement types
+      sex_types = input$sex_types,
       periods = strsplit(input$periods, ",")[[1]],
       custom_scales = custom_scales # Save custom scales
     )
@@ -2082,6 +2116,7 @@ observe({
       updateSelectizeInput(session, "woredas", selected = settings_list$woredas)
       updateSelectizeInput(session, "facility_types", selected = settings_list$facility_types)
       updateSelectizeInput(session, "settlement_types", selected = settings_list$settlement_types) # Load settlement types
+      updateCheckboxGroupInput(session, "sex_types", selected = settings_list$sex_types)
       updateTextInput(session, "periods", value = paste(settings_list$periods, collapse = ","))
 
       # Load custom scales
