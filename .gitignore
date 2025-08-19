@@ -66,7 +66,7 @@ BACK_install.R
 bak_server.R
 
 # DHIS2 data fetcher main script
-app/dhis2_data.R
+#app/dhis2_data.R
 
 # Certificate Files
 *.pem
@@ -80,6 +80,7 @@ app/dhis2_data.R
 app/json
 /app/notes/
 app/notes.txt
+app/*.txt
 
 TinyTeX/
 
